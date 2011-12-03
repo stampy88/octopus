@@ -1,11 +1,13 @@
-package org.matrixlab.octopus.core;
+package org.matrixlab.octopus.core.external;
 
+import org.matrixlab.octopus.core.Source;
 import org.matrixlab.octopus.core.event.Event;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public interface ExternalEventSource extends EventSource {
+public interface ExternalSource extends Source {
 
     Event readEvent();
 }
+

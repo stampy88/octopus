@@ -1,62 +1,81 @@
 package org.matrixlab.octopus.core.event;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class EventType {
 
-    private final String name;
-    private final Map<String, AttributeDefinition> attributeDefinitions = Maps.newHashMap();
+    private final UUID id;
+    private final List<Attribute> attributes = Lists.newLinkedList();
 
-    public EventType(String name) {
-        this.name = name;
+    public EventType(UUID id) {
+        this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public UUID getId() {
+        return id;
     }
 
-    public EventType createNewEventTypeWithAdditionalAttribute(String name, AttributeDefinition attributeDefinition) {
-        EventType newEventType = new EventType(name);
-        newEventType.attributeDefinitions.putAll(this.attributeDefinitions);
-        newEventType.attributeDefinitions.put(attributeDefinition.getName(), attributeDefinition);
+    public EventType unionWith(EventType eventType) {
+        EventType newEventType = new EventType(this.id);
+        newEventType.attributes.addAll(this.attributes);
+        newEventType.attributes.addAll(eventType.attributes);
 
         return newEventType;
     }
 
-    public AttributeDefinition addAttributeDefinition(AttributeDefinition attributeDefinition) {
-        return attributeDefinitions.put(attributeDefinition.getName(), attributeDefinition);
+    public void addAttribute(Attribute attribute) {
+        attributes.add(attribute);
     }
 
-    public AttributeDefinition getAttributeDefinition(String attributeName) {
-        return attributeDefinitions.get(attributeName);
+    public Attribute getAttributeByName(String name) {
+        Attribute attr = null;
+
+        for (Attribute candidateAttr : attributes) {
+            if (name.equals(candidateAttr.getName())) {
+                attr = candidateAttr;
+                break;
+            }
+        }
+
+        return attr;
+    }
+
+    public boolean containsAttribute(Attribute attribute) {
+        return attributes.contains(attribute);
     }
 
     public Map<String, Object> getEventDefinition() {
         Map<String, Object> definition = Maps.newHashMap();
 
-        for (AttributeDefinition attributeDefinition : attributeDefinitions.values()) {
-            definition.put(attributeDefinition.getName(), attributeDefinition.getType());
+        for (Attribute attribute : attributes) {
+            definition.put(attribute.getName(), attribute.getType());
         }
 
         return definition;
     }
 
     public Collection<String> getAttributeNames() {
-        return Collections.unmodifiableCollection(attributeDefinitions.keySet());
+        Collection<String> attributeNames = Lists.newLinkedList();
+        for (Attribute attribute : attributes) {
+            attributeNames.add(attribute.getName());
+        }
+        return attributeNames;
     }
 
     @Override
     public String toString() {
         return "EventType{" +
-                "name='" + name + '\'' +
-                ", attributeDefinitions=" + attributeDefinitions +
+                "id='" + id + '\'' +
+                ", attributes=" + attributes +
                 '}';
     }
 }

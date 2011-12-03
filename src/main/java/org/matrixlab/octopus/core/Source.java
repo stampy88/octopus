@@ -2,16 +2,19 @@ package org.matrixlab.octopus.core;
 
 import org.matrixlab.octopus.core.event.EventType;
 
+import java.util.UUID;
+
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public interface EventSource {
+public interface Source {
+
+    UUID getId();
 
     /**
      * Implementers need to return the type of event this source is creating
+     *
      * @return event type from this source
      */
-    EventType getEventType();
-
-    void addEventSink(EventSink sink);
+    EventType getOutputEventType();
 }

@@ -1,25 +1,22 @@
-package org.matrixlab.octopus.core.source;
+package org.matrixlab.octopus.core.external.source;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.matrixlab.octopus.core.EventSink;
-import org.matrixlab.octopus.core.ExternalEventSource;
 import org.matrixlab.octopus.core.event.Event;
 import org.matrixlab.octopus.core.event.EventType;
+import org.matrixlab.octopus.core.external.ExternalSource;
 
 import java.util.LinkedList;
-import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class TestEventSource implements ExternalEventSource {
+public class TestSource implements ExternalSource {
 
     private final LinkedList<Event> events = Lists.newLinkedList();
-    private final Set<EventSink> sinks = Sets.newHashSet();
     private final EventType eventType;
 
-    public TestEventSource(EventType eventType) {
+    public TestSource(EventType eventType) {
         this.eventType = eventType;
     }
 
@@ -28,13 +25,13 @@ public class TestEventSource implements ExternalEventSource {
     }
 
     @Override
-    public EventType getEventType() {
-        return eventType;
+    public UUID getId() {
+        return eventType.getId();
     }
 
     @Override
-    public void addEventSink(EventSink sink) {
-        sinks.add(sink);
+    public EventType getOutputEventType() {
+        return eventType;
     }
 
     public Event readEvent() {
