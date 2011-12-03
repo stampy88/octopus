@@ -40,7 +40,9 @@ public class Main {
         Sma sma = Sma.newTemplate();
         sma.setWindowLength(5);
         sma.setOutputAttributeName("averageAge");
-        sma.connectInputToSourceAttribute(sma.getInput(), testSource, eventType.getAttributeByName("age"));
+
+        // connect the sma input to the test source's age attribute
+        sma.getInput().connectSource(testSource).setSourceAttribute(eventType.getAttributeByName("age"));
 
         model.addProcessor(sma);
 

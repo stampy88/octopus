@@ -1,9 +1,11 @@
 package org.matrixlab.octopus.core.processor;
 
+import org.matrixlab.octopus.core.Source;
 import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.Attribute;
+import org.matrixlab.octopus.core.event.EventType;
 
-import java.util.UUID;
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -14,9 +16,8 @@ public class Input<T> {
     private String displayName;
     private String description;
 
+    private Source source;
     private Attribute sourceAttribute;
-
-    private UUID sourceId;
 
     protected Input(Builder<T> builder) {
         this.displayName = builder.displayName;
@@ -54,18 +55,43 @@ public class Input<T> {
         return sourceAttribute;
     }
 
-    public UUID getSourceId() {
-        return sourceId;
+    public String getSourceAttributeName() {
+        String name = null;
+
+        if (sourceAttribute != null) {
+            name = sourceAttribute.getName();
+        }
+
+        return name;
     }
 
-    public void setSourceAndAttribute(UUID sourceId, Attribute sourceAttribute) throws ValidationException {
+    public Source getSource() {
+        return source;
+    }
+
+    public Input<T> connectSource(Source source) {
+        checkArgument(source != null, "source cannot be null");
+        this.source = source;
+
+        return this;
+    }
+
+    public void setSourceAttribute(Attribute sourceAttribute) throws ValidationException {
+        if (this.source == null) {
+            throw new ValidationException(String.format("Cannot set the source attribute before setting the source"));
+        }
+        EventType sourceType = source.getOutputEventType();
+
+        if (!sourceType.containsAttribute(sourceAttribute)) {
+            throw new ValidationException(String.format("Source does not contain an attribute named '%s'", sourceAttribute));
+        }
+
         if (!sourceAttribute.isCompatibleWith(getType())) {
             throw new ValidationException(
                     String.format("The attribute '%s' is not compatible with the input '%s'", sourceAttribute,
                             getDisplayName())
             );
         }
-        this.sourceId = sourceId;
         this.sourceAttribute = sourceAttribute;
     }
 

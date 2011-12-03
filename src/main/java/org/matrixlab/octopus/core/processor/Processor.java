@@ -5,17 +5,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.matrixlab.octopus.core.Sink;
 import org.matrixlab.octopus.core.Source;
-import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.compiler.CompilerContext;
-import org.matrixlab.octopus.core.event.Attribute;
 import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.processor.parameter.Parameter;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -90,26 +86,6 @@ public abstract class Processor implements Source, Sink {
 
     public String getOutputAttributeName() {
         return output.getAttributeName();
-    }
-
-    @Override
-    public void connectInputToSourceAttribute(Input input, Source source, Attribute sourceAttribute)
-            throws ValidationException {
-        checkArgument(source != null, "source cannot be null");
-        checkArgument(sourceAttribute != null, "sourceAttributeName cannot be null");
-        checkArgument(input != null, "input cannot be null");
-
-        if (!inputs.contains(input)) {
-            throw new IllegalArgumentException(String.format("%s is not an input of this processor", input));
-        }
-
-        EventType sourceType = source.getOutputEventType();
-
-        if (!sourceType.containsAttribute(sourceAttribute)) {
-            throw new ValidationException(String.format("Source does not contain an attribute named '%s'", sourceAttribute));
-        }
-
-        input.setSourceAndAttribute(source.getId(), sourceAttribute);
     }
 
     public boolean generatesOutput() {

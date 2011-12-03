@@ -3,6 +3,7 @@ package org.matrixlab.octopus.core.compiler;
 import com.espertech.esper.client.*;
 import org.matrixlab.octopus.core.ProcessingModel;
 import org.matrixlab.octopus.core.ProcessingRuntime;
+import org.matrixlab.octopus.core.Source;
 import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.external.ExternalSource;
 import org.matrixlab.octopus.core.processor.*;
@@ -97,8 +98,9 @@ public class EsperCompiler implements Compiler<String, EsperCompiler.EsperContex
     public String compile(EsperContext context, Sma sma) {
         // todo validate the SMA
         Input smaInput = sma.getInput();
-        String inputEventName = getEventNameForUUID(smaInput.getSourceId());
-        String inputAttributeName = smaInput.getSourceAttribute().getName();
+        Source smaSource = smaInput.getSource();
+        String inputEventName = getEventNameForUUID(smaSource.getId());
+        String inputAttributeName = smaInput.getSourceAttributeName();
 
         EventType outputEventType = sma.getOutputEventType();
         String outputEventName = getEventNameForUUID(outputEventType.getId());
