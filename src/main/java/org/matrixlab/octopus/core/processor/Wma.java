@@ -1,6 +1,7 @@
 package org.matrixlab.octopus.core.processor;
 
 import org.matrixlab.octopus.core.compiler.Compiler;
+import org.matrixlab.octopus.core.compiler.CompilerContext;
 import org.matrixlab.octopus.core.processor.parameter.Parameter;
 
 import java.util.UUID;
@@ -33,7 +34,7 @@ public class Wma extends Processor {
     }
 
     @Override
-    public <T, CONTEXT extends org.matrixlab.octopus.core.compiler.Compiler.Context> T compile(Compiler<T, CONTEXT> compiler, CONTEXT context) {
+    public <T, CONTEXT extends CompilerContext> T compile(Compiler<T, CONTEXT> compiler, CONTEXT context) {
         return compiler.compile(context, this);
     }
 

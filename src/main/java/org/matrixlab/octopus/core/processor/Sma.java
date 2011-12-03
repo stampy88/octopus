@@ -1,6 +1,6 @@
 package org.matrixlab.octopus.core.processor;
 
-import org.matrixlab.octopus.core.compiler.Compiler;
+import org.matrixlab.octopus.core.compiler.CompilerContext;
 import org.matrixlab.octopus.core.processor.parameter.Parameter;
 
 import java.util.UUID;
@@ -32,7 +32,7 @@ public class Sma extends Processor {
         return getInputs().get(0);
     }
 
-    public <T, CONTEXT extends Compiler.Context> T compile(org.matrixlab.octopus.core.compiler.Compiler<T, CONTEXT> compiler, CONTEXT context) {
+    public <T, CONTEXT extends CompilerContext> T compile(org.matrixlab.octopus.core.compiler.Compiler<T, CONTEXT> compiler, CONTEXT context) {
         return compiler.compile(context, this);
     }
 

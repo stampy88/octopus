@@ -1,6 +1,6 @@
 package org.matrixlab.octopus.core.processor;
 
-import org.matrixlab.octopus.core.compiler.Compiler;
+import org.matrixlab.octopus.core.compiler.CompilerContext;
 
 import java.util.UUID;
 
@@ -15,7 +15,7 @@ public class Addition extends Processor {
         super(id, name, description);
     }
 
-    public <T, CONTEXT extends Compiler.Context> T compile(org.matrixlab.octopus.core.compiler.Compiler<T, CONTEXT> compiler, CONTEXT context) {
+    public <T, CONTEXT extends CompilerContext> T compile(org.matrixlab.octopus.core.compiler.Compiler<T, CONTEXT> compiler, CONTEXT context) {
         return compiler.compile(context, this);
     }
 

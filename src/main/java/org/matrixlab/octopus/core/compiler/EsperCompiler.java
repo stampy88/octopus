@@ -116,7 +116,7 @@ public class EsperCompiler implements Compiler<String, EsperCompiler.EsperContex
         return stmt;
     }
 
-    public static class EsperContext implements Context {
+    public static class EsperContext implements CompilerContext {
         private final EPServiceProvider epService;
 
         private EsperContext(EPServiceProvider epService) {

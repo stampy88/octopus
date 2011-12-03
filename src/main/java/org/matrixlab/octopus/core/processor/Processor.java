@@ -6,7 +6,7 @@ import com.google.common.collect.Maps;
 import org.matrixlab.octopus.core.Sink;
 import org.matrixlab.octopus.core.Source;
 import org.matrixlab.octopus.core.ValidationException;
-import org.matrixlab.octopus.core.compiler.Compiler;
+import org.matrixlab.octopus.core.compiler.CompilerContext;
 import org.matrixlab.octopus.core.event.Attribute;
 import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.processor.parameter.Parameter;
@@ -129,5 +129,5 @@ public abstract class Processor implements Source, Sink {
         return ImmutableList.copyOf(inputs);
     }
 
-    public abstract <T, CONTEXT extends Compiler.Context> T compile(org.matrixlab.octopus.core.compiler.Compiler<T, CONTEXT> compiler, CONTEXT context);
+    public abstract <T, CONTEXT extends CompilerContext> T compile(org.matrixlab.octopus.core.compiler.Compiler<T, CONTEXT> compiler, CONTEXT context);
 }
