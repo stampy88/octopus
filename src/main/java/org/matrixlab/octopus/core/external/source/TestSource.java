@@ -1,6 +1,7 @@
 package org.matrixlab.octopus.core.external.source;
 
 import com.google.common.collect.Lists;
+import org.matrixlab.octopus.core.AbstractNode;
 import org.matrixlab.octopus.core.event.Event;
 import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.external.ExternalSource;
@@ -11,12 +12,13 @@ import java.util.UUID;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class TestSource implements ExternalSource {
+public class TestSource extends AbstractNode implements ExternalSource {
 
     private final LinkedList<Event> events = Lists.newLinkedList();
     private final EventType eventType;
 
-    public TestSource(EventType eventType) {
+    public TestSource(String name, String description, EventType eventType) {
+        super(name, description);
         this.eventType = eventType;
     }
 
