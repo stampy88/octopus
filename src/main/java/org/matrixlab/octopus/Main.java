@@ -26,7 +26,7 @@ public class Main {
 
         ProcessingModel model = new ProcessingModel("test");
 
-        TestSource testSource = new TestSource(eventType);
+        TestSource testSource = new TestSource("Test Source", "This source produces preconfigured events", eventType);
         testSource.addEvent(personWithFirstNameLastNameAndAge("John", "Smith", 5));
         testSource.addEvent(personWithFirstNameLastNameAndAge("Dave", "Sinclair", 10));
         testSource.addEvent(personWithFirstNameLastNameAndAge("Yuliya", "Zhurba", 33));
