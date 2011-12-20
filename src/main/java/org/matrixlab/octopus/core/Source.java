@@ -2,14 +2,10 @@ package org.matrixlab.octopus.core;
 
 import org.matrixlab.octopus.core.event.EventType;
 
-import java.util.UUID;
-
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public interface Source {
-
-    UUID getId();
+public interface Source extends Node {
 
     /**
      * Implementers need to return the type of event this source is creating
