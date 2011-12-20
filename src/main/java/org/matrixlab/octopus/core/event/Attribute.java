@@ -1,5 +1,6 @@
 package org.matrixlab.octopus.core.event;
 
+import org.matrixlab.octopus.core.Reproducible;
 import org.matrixlab.octopus.core.ValidationException;
 
 import static org.matrixlab.octopus.util.Naming.checkValidity;
@@ -7,7 +8,7 @@ import static org.matrixlab.octopus.util.Naming.checkValidity;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class Attribute<T> {
+public class Attribute<T> implements Reproducible {
 
     private String name;
     private final Class<T> type;
@@ -15,6 +16,11 @@ public class Attribute<T> {
     private Attribute(String name, Class<T> type) {
         this.name = name;
         this.type = type;
+    }
+
+    private Attribute(Attribute<T> attribute) {
+        this.name = attribute.name;
+        this.type = attribute.type;
     }
 
     public String getName() {
@@ -42,6 +48,11 @@ public class Attribute<T> {
 
     private boolean isNumeric(Class<?> type) {
         return Number.class.isAssignableFrom(type);
+    }
+
+    @Override
+    public Attribute<T> newInstance() {
+        return new Attribute<T>(this);
     }
 
     @Override

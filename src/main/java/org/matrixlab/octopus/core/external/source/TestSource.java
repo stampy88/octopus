@@ -22,6 +22,13 @@ public class TestSource extends AbstractNode implements ExternalSource {
         this.eventType = eventType;
     }
 
+    private TestSource(TestSource copyFromSource) {
+        super(copyFromSource.getName(), copyFromSource.getDescription());
+        // todo do we need to reproduce this?
+        this.eventType = copyFromSource.eventType;
+        this.events.addAll(copyFromSource.events);
+    }
+
     public void addEvent(Event event) {
         this.events.add(event);
     }
@@ -41,5 +48,10 @@ public class TestSource extends AbstractNode implements ExternalSource {
             return events.pop();
         }
         return null;
+    }
+
+    @Override
+    public TestSource newInstance() {
+        return new TestSource(this);
     }
 }

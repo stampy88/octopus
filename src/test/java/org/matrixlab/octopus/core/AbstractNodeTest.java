@@ -79,5 +79,10 @@ public class AbstractNodeTest {
         public UUID getId() {
             return null;
         }
+
+        @Override
+        public Reproducible newInstance() {
+            return new AbstractNodeImpl(this.getName(), this.getDescription());
+        }
     }
 }

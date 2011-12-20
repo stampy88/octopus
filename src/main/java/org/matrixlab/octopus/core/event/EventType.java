@@ -20,11 +20,17 @@ public class EventType {
         this.id = id;
     }
 
+    private EventType(UUID id, EventType copyFromEventType) {
+        this.id = id;
+        this.attributes.addAll(copyFromEventType.attributes);
+    }
+
     public UUID getId() {
         return id;
     }
 
     public EventType unionWith(EventType eventType) {
+        // todo do we create a new id?
         EventType newEventType = new EventType(this.id);
         newEventType.attributes.addAll(this.attributes);
         newEventType.attributes.addAll(eventType.attributes);
@@ -77,5 +83,11 @@ public class EventType {
                 "id='" + id + '\'' +
                 ", attributes=" + attributes +
                 '}';
+    }
+
+    // TODO is event type reproducible?
+
+    public EventType newInstance() {
+        return new EventType(UUID.randomUUID(), this);
     }
 }

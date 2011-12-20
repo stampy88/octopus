@@ -7,6 +7,8 @@ import org.matrixlab.octopus.core.event.EventType;
  */
 public interface Source extends Node {
 
+    // todo is EventType reproducible?
+
     /**
      * Implementers need to return the type of event this source is creating
      *

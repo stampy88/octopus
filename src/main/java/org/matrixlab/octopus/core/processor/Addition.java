@@ -15,22 +15,17 @@ public class Addition extends Processor {
         super(id, name, description);
     }
 
+    protected Addition(UUID id, Addition additionToCopy) {
+        super(id, additionToCopy);
+    }
+
     public <T, CONTEXT extends CompilerContext> T compile(org.matrixlab.octopus.core.compiler.Compiler<T, CONTEXT> compiler, CONTEXT context) {
         return compiler.compile(context, this);
     }
 
     @Override
-    public Processor newInstance() {
-        UUID processorId = UUID.randomUUID();
-        Addition addition = new Addition(processorId, this.getName(), this.getDescription());
-
-        for (Input input : this.getInputs()) {
-            addition.addInput(input.newInstance());
-        }
-
-        addition.setOutput(this.getOutput().newInstance());
-
-        return addition;
+    public Addition newInstance() {
+        return new Addition(UUID.randomUUID(), this);
     }
 
     /**

@@ -1,26 +1,27 @@
 package org.matrixlab.octopus.core.processor;
 
+import org.matrixlab.octopus.core.Reproducible;
 import org.matrixlab.octopus.core.event.Attribute;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class Output<T> {
+public class Output<T> implements Reproducible {
 
     private final Attribute<T> attribute;
     private String displayName;
     private String description;
 
-    protected Output(Builder<T> builder) {
+    private Output(Builder<T> builder) {
         this.displayName = builder.displayName;
         this.description = builder.description;
         this.attribute = builder.attribute;
     }
 
-    protected Output(Output<T> existingOutput) {
+    private Output(Output<T> existingOutput) {
         this.displayName = existingOutput.displayName;
         this.description = existingOutput.description;
-        this.attribute = existingOutput.attribute;
+        this.attribute = existingOutput.attribute.newInstance();
     }
 
     public String getDisplayName() {
@@ -51,7 +52,7 @@ public class Output<T> {
         this.description = description;
     }
 
-    public Output newInstance() {
+    public Output<T> newInstance() {
         return new Output<T>(this);
     }
 

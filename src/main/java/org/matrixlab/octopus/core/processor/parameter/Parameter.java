@@ -1,5 +1,6 @@
 package org.matrixlab.octopus.core.processor.parameter;
 
+import org.matrixlab.octopus.core.Reproducible;
 import org.matrixlab.octopus.core.ValidationException;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -19,7 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public abstract class Parameter<T> {
+public abstract class Parameter<T> implements Reproducible {
 
     /**
      * The name of the parameter - can be overridden by the user.
@@ -60,12 +61,23 @@ public abstract class Parameter<T> {
         this.constraint = builder.constraint;
     }
 
-    protected Parameter(Parameter<T> existingParameter) {
-        this.name = existingParameter.name;
-        this.description = existingParameter.description;
-        this.value = existingParameter.value;
-        this.required = existingParameter.required;
-        this.constraint = existingParameter.constraint;
+    /**
+     * Copy constructor for creating a new {@link Parameter} based off the copyFromParameter. Note that we use the
+     * {@link org.matrixlab.octopus.core.Reproducible#newInstance()} for the {@link #constraint}
+     *
+     * @param copyFromParameter to get values
+     */
+    protected Parameter(Parameter<T> copyFromParameter) {
+        this.name = copyFromParameter.name;
+        this.description = copyFromParameter.description;
+        this.value = copyFromParameter.value;
+        this.required = copyFromParameter.required;
+
+        if (copyFromParameter.constraint != null) {
+            this.constraint = (Constraint<T>) copyFromParameter.constraint.newInstance();
+        } else {
+            this.constraint = null;
+        }
     }
 
     public boolean isRequired() {

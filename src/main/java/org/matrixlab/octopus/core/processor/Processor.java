@@ -41,9 +41,39 @@ public abstract class Processor extends AbstractNode implements Source, Sink {
     private Output output;
     private EventType outputEventType;
 
+    /**
+     * Constructor that takes id of processor, name and description.
+     *
+     * @param id          of processor
+     * @param name        of processor
+     * @param description of processor
+     */
     protected Processor(UUID id, String name, String description) {
         super(name, description);
         this.id = id;
+    }
+
+    /**
+     * Copy constructor for creating a new processor based off of the copyFromProcessor. Note that we are using the
+     * {@link org.matrixlab.octopus.core.Reproducible} interface on {@link Input}s, {@link Parameter}s and
+     * {@link Output} if there is one.
+     *
+     * @param id                of new processor
+     * @param copyFromProcessor that we are getting copies from
+     */
+    protected Processor(UUID id, Processor copyFromProcessor) {
+        super(copyFromProcessor.getName(), copyFromProcessor.getDescription());
+        this.id = id;
+
+        for (Map.Entry<Integer, Parameter> idToParameter : copyFromProcessor.getParameters().entrySet()) {
+            this.addParameter(idToParameter.getKey(), idToParameter.getValue().newInstance());
+        }
+
+        for (Input input : copyFromProcessor.getInputs()) {
+            this.addInput(input.newInstance());
+        }
+
+        this.setOutput(copyFromProcessor.getOutput().newInstance());
     }
 
     protected void addParameter(Integer parameterId, Parameter parameter) {
@@ -109,8 +139,6 @@ public abstract class Processor extends AbstractNode implements Source, Sink {
     public List<Input> getInputs() {
         return ImmutableList.copyOf(inputs);
     }
-
-    public abstract Processor newInstance();
 
     public abstract <T, CONTEXT extends CompilerContext> T compile(org.matrixlab.octopus.core.compiler.Compiler<T, CONTEXT> compiler, CONTEXT context);
 }

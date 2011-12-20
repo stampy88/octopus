@@ -6,7 +6,7 @@ import java.util.UUID;
 /**
  * @author dave sinclair(dsinclair@chariotsolutions.com)
  */
-public interface Node {
+public interface Node extends Reproducible {
 
     UUID getId();
 

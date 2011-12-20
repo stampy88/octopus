@@ -1,5 +1,6 @@
 package org.matrixlab.octopus.core.processor;
 
+import org.matrixlab.octopus.core.Reproducible;
 import org.matrixlab.octopus.core.Source;
 import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.Attribute;
@@ -10,7 +11,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class Input<T> {
+public class Input<T> implements Reproducible {
 
     private final Class<T> type;
     private String displayName;
@@ -19,16 +20,24 @@ public class Input<T> {
     private Source source;
     private Attribute sourceAttribute;
 
-    protected Input(Builder<T> builder) {
+    private Input(Builder<T> builder) {
         this.displayName = builder.displayName;
         this.description = builder.description;
         this.type = builder.type;
     }
 
-    protected Input(Input<T> existingInput) {
-        this.displayName = existingInput.displayName;
-        this.description = existingInput.description;
-        this.type = existingInput.type;
+    private Input(Input<T> copyFromInput) {
+        this.displayName = copyFromInput.displayName;
+        this.description = copyFromInput.description;
+        this.type = copyFromInput.type;
+
+        if (copyFromInput.source != null) {
+            Source newSource = (Source) copyFromInput.source.newInstance();
+            Attribute newSourceAttribute = (copyFromInput.sourceAttribute == null) ? null : copyFromInput.sourceAttribute.newInstance();
+
+            this.source = newSource;
+            this.sourceAttribute = newSourceAttribute;
+        }
     }
 
     public String getDisplayName() {
@@ -102,7 +111,7 @@ public class Input<T> {
         this.sourceAttribute = sourceAttribute;
     }
 
-    public Input newInstance() {
+    public Input<T> newInstance() {
         return new Input<T>(this);
     }
 

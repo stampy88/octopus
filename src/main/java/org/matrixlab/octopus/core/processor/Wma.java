@@ -4,7 +4,6 @@ import org.matrixlab.octopus.core.compiler.Compiler;
 import org.matrixlab.octopus.core.compiler.CompilerContext;
 import org.matrixlab.octopus.core.processor.parameter.Parameter;
 
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -18,6 +17,10 @@ public class Wma extends Processor {
 
     protected Wma(UUID id, String name, String description) {
         super(id, name, description);
+    }
+
+    protected Wma(UUID id, Wma copyFromWma) {
+        super(id, copyFromWma);
     }
 
     public int getWindowLength() {
@@ -40,21 +43,8 @@ public class Wma extends Processor {
     }
 
     @Override
-    public Processor newInstance() {
-        UUID processorId = UUID.randomUUID();
-        Wma wma = new Wma(processorId, this.getName(), this.getDescription());
-
-        for (Map.Entry<Integer, Parameter> idToParameter : this.getParameters().entrySet()) {
-            wma.addParameter(idToParameter.getKey(), idToParameter.getValue().newInstance());
-        }
-
-        for (Input input : this.getInputs()) {
-            wma.addInput(input.newInstance());
-        }
-
-        wma.setOutput(this.getOutput().newInstance());
-
-        return wma;
+    public Wma newInstance() {
+        return new Wma(UUID.randomUUID(), this);
     }
 
     /**
