@@ -69,6 +69,13 @@ public class Input<T> {
         return source;
     }
 
+    public Input<T> clearSource() {
+        this.source = null;
+        this.sourceAttribute = null;
+
+        return this;
+    }
+
     public Input<T> connectSource(Source source) {
         checkArgument(source != null, "source cannot be null");
         this.source = source;
