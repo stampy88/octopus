@@ -3,6 +3,7 @@ package org.matrixlab.octopus.core.processor;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.matrixlab.octopus.core.AbstractNode;
 import org.matrixlab.octopus.core.Sink;
 import org.matrixlab.octopus.core.Source;
 import org.matrixlab.octopus.core.compiler.CompilerContext;
@@ -14,13 +15,18 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
+ * A {@link Processor} is a program unit that has one or more {@link Input}s and potentially produces an {@link Output}.
+ * In addition to {@link Input}s and an {@link Output}, a processor can be configured with additional {@link Parameter}s
+ * that affect the behavior of the processor.
+ *
  * @author dave sinclair(david.sinclair@lisa-park.com)
+ * @see org.matrixlab.octopus.core.processor.Input
+ * @see org.matrixlab.octopus.core.processor.Output
+ * @see org.matrixlab.octopus.core.processor.parameter.Parameter
  */
-public abstract class Processor implements Source, Sink {
+public abstract class Processor extends AbstractNode implements Source, Sink {
 
     private final UUID id;
-    private String name;
-    private String description;
     private Map<Integer, Parameter> parametersById = Maps.newHashMap();
 
     /**
@@ -36,9 +42,8 @@ public abstract class Processor implements Source, Sink {
     private EventType outputEventType;
 
     protected Processor(UUID id, String name, String description) {
+        super(name, description);
         this.id = id;
-        this.name = name;
-        this.description = description;
     }
 
     protected void addParameter(Integer parameterId, Parameter parameter) {
@@ -47,6 +52,10 @@ public abstract class Processor implements Source, Sink {
 
     protected Parameter getParameter(Integer parameterId) {
         return parametersById.get(parameterId);
+    }
+
+    protected Map<Integer, Parameter> getParameters() {
+        return Maps.newHashMap(this.parametersById);
     }
 
     protected void addInput(Input.Builder input) {
@@ -68,16 +77,12 @@ public abstract class Processor implements Source, Sink {
         this.outputEventType.addAttribute(output.getAttribute());
     }
 
+    public Output getOutput() {
+        return output;
+    }
+
     public UUID getId() {
         return id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public void setOutputAttributeName(String name) {
@@ -104,6 +109,8 @@ public abstract class Processor implements Source, Sink {
     public List<Input> getInputs() {
         return ImmutableList.copyOf(inputs);
     }
+
+    public abstract Processor newInstance();
 
     public abstract <T, CONTEXT extends CompilerContext> T compile(org.matrixlab.octopus.core.compiler.Compiler<T, CONTEXT> compiler, CONTEXT context);
 }

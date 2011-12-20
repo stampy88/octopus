@@ -19,6 +19,20 @@ public class Addition extends Processor {
         return compiler.compile(context, this);
     }
 
+    @Override
+    public Processor newInstance() {
+        UUID processorId = UUID.randomUUID();
+        Addition addition = new Addition(processorId, this.getName(), this.getDescription());
+
+        for (Input input : this.getInputs()) {
+            addition.addInput(input.newInstance());
+        }
+
+        addition.setOutput(this.getOutput().newInstance());
+
+        return addition;
+    }
+
     /**
      * Returns a new {@link Addition} processor configured with all the appropriate
      * {@link org.matrixlab.octopus.core.processor.parameter.Parameter}s, {@link Input}s and {@link Output}.
