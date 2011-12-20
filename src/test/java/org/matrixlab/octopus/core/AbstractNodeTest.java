@@ -9,7 +9,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 /**
- * @author dave sinclair(dsinclair@chariotsolutions.com)
+ * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class AbstractNodeTest {
 

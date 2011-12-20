@@ -8,7 +8,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Abstract Base class implementation of the {@link Node} interface that contains a {@link #name}, {@link #description}
  * and {@link #location} along with the corresponding setter/getter implementations from the {@link Node} interface.
  *
- * @author dave sinclair(dsinclair@chariotsolutions.com)
+ * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public abstract class AbstractNode implements Node {
 

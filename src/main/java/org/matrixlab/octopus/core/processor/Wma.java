@@ -7,7 +7,7 @@ import org.matrixlab.octopus.core.processor.parameter.Parameter;
 import java.util.UUID;
 
 /**
- * @author dave sinclair(dsinclair@chariotsolutions.com)
+ * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class Wma extends Processor {
     private static final String DEFAULT_NAME = "WMA";

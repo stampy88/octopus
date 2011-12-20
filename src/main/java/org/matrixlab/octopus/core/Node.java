@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.UUID;
 
 /**
- * @author dave sinclair(dsinclair@chariotsolutions.com)
+ * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public interface Node extends Reproducible {
 
