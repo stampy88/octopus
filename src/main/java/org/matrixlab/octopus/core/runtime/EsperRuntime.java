@@ -27,6 +27,8 @@ public class EsperRuntime implements ProcessingRuntime {
 
         EPRuntime runtime = epService.getEPRuntime();
 
+        // todo external source runners
+
         for (ExternalSource source : externalSources) {
             Event event = source.readEvent();
             while (event != null) {
