@@ -10,7 +10,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * which is a mutable name for this component that is meant for a GUI, along with a mutable {@link #description} of
  * this component which is also meant for display purposes.
  *
- * @author dave sinclair(dsinclair@chariotsolutions.com)
+ * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public abstract class ProcessorComponent {
     /**

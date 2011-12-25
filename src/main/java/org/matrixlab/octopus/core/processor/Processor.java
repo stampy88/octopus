@@ -2,16 +2,17 @@ package org.matrixlab.octopus.core.processor;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.matrixlab.octopus.core.AbstractNode;
 import org.matrixlab.octopus.core.Sink;
 import org.matrixlab.octopus.core.Source;
-import org.matrixlab.octopus.core.compiler.CompilerContext;
 import org.matrixlab.octopus.core.event.EventType;
+import org.matrixlab.octopus.core.memory.Memory;
+import org.matrixlab.octopus.core.memory.MemoryProvider;
 import org.matrixlab.octopus.core.processor.parameter.Parameter;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -24,10 +25,10 @@ import java.util.UUID;
  * @see org.matrixlab.octopus.core.processor.Output
  * @see org.matrixlab.octopus.core.processor.parameter.Parameter
  */
-public abstract class Processor extends AbstractNode implements Source, Sink {
+public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Source, Sink {
 
     private final UUID id;
-    private Map<Integer, Parameter> parametersById = Maps.newHashMap();
+    private Set<Parameter> parameters = Sets.newHashSet();
 
     /**
      * A processor will be given zero or more inputs in order to perform its processing; this will be the
@@ -35,6 +36,7 @@ public abstract class Processor extends AbstractNode implements Source, Sink {
      */
     private List<Input> inputs = Lists.newLinkedList();
 
+    // todo event type inside output??
     /**
      * A processor may produce an output after its processing.
      */
@@ -61,12 +63,12 @@ public abstract class Processor extends AbstractNode implements Source, Sink {
      * @param id                of new processor
      * @param copyFromProcessor that we are getting copies from
      */
-    protected Processor(UUID id, Processor copyFromProcessor) {
+    protected Processor(UUID id, Processor<MEMORY_TYPE> copyFromProcessor) {
         super(copyFromProcessor.getName(), copyFromProcessor.getDescription());
         this.id = id;
 
-        for (Map.Entry<Integer, Parameter> idToParameter : copyFromProcessor.getParameters().entrySet()) {
-            this.addParameter(idToParameter.getKey(), idToParameter.getValue().newInstance());
+        for (Parameter parameter : copyFromProcessor.getParameters()) {
+            this.addParameter(parameter.newInstance());
         }
 
         for (Input input : copyFromProcessor.getInputs()) {
@@ -76,16 +78,20 @@ public abstract class Processor extends AbstractNode implements Source, Sink {
         this.setOutput(copyFromProcessor.getOutput().newInstance());
     }
 
-    protected void addParameter(Integer parameterId, Parameter parameter) {
-        this.parametersById.put(parameterId, parameter);
+    protected void addParameter(Parameter parameter) {
+        this.parameters.add(parameter);
     }
 
-    protected Parameter getParameter(Integer parameterId) {
-        return parametersById.get(parameterId);
+    protected void addParameter(Parameter.Builder parameter) {
+        this.parameters.add(parameter.build());
     }
 
-    protected Map<Integer, Parameter> getParameters() {
-        return Maps.newHashMap(this.parametersById);
+    protected Parameter getParameter(int parameterId) {
+        return ProcessorComponent.getComponentById(parameters, parameterId);
+    }
+
+    protected Set<Parameter> getParameters() {
+        return Sets.newHashSet(this.parameters);
     }
 
     protected void addInput(Input.Builder input) {
@@ -140,5 +146,16 @@ public abstract class Processor extends AbstractNode implements Source, Sink {
         return ImmutableList.copyOf(inputs);
     }
 
-    public abstract <T, CONTEXT extends CompilerContext> T compile(org.matrixlab.octopus.core.compiler.Compiler<T, CONTEXT> compiler, CONTEXT context);
+    /**
+     * Subclasses need to implement this method to return a <b>new</b> {@link Processor} based on this one.
+     *
+     * @return new processor
+     */
+    public abstract Processor<MEMORY_TYPE> newInstance();
+
+    public abstract CompiledProcessor<MEMORY_TYPE> compile();
+
+    public Memory<MEMORY_TYPE> createMemoryForProcessor(MemoryProvider memoryProvider) {
+        return null;
+    }
 }

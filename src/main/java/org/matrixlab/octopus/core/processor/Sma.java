@@ -1,18 +1,42 @@
 package org.matrixlab.octopus.core.processor;
 
-import org.matrixlab.octopus.core.compiler.CompilerContext;
+import com.google.common.collect.Lists;
+import org.matrixlab.octopus.core.event.Event;
+import org.matrixlab.octopus.core.memory.Memory;
+import org.matrixlab.octopus.core.memory.MemoryProvider;
 import org.matrixlab.octopus.core.processor.parameter.Parameter;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
+ * This {@link Processor} is used for computing a Simple Moving Average on a single input and producing an average
+ * as the output. A simple moving average is formed by computing the average price of a number over a specific
+ * number of periods.
+ * <p/>
+ * For example, most moving averages are based on closing prices. A 5-day simple moving average is the five
+ * day sum of closing prices divided by five. As its name implies, a moving average is an average that moves.
+ * Old data is dropped as new data comes available. This causes the average to move along the time scale.
+ *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class Sma extends Processor {
+public class Sma extends Processor<Double> {
     private static final String DEFAULT_NAME = "SMA";
     private static final String DEFAULT_DESCRIPTION = "Simple Moving Average";
 
+    /**
+     * Sma takes only a single parameter, namely how long the time scale or window is. This is the identifier of the
+     * parameter.
+     */
     private static final int WINDOW_LENGTH_PARAMETER_ID = 1;
+
+    /**
+     * Sma takes a single input
+     */
+    private static final int INPUT_ID = 1;
+    private static final int OUTPUT_ID = 1;
 
     protected Sma(UUID id, String name, String description) {
         super(id, name, description);
@@ -36,13 +60,40 @@ public class Sma extends Processor {
         return getInputs().get(0);
     }
 
-    public <T, CONTEXT extends CompilerContext> T compile(org.matrixlab.octopus.core.compiler.Compiler<T, CONTEXT> compiler, CONTEXT context) {
-        return compiler.compile(context, this);
-    }
-
     @Override
     public Sma newInstance() {
         return new Sma(UUID.randomUUID(), this);
+    }
+
+    /**
+     * {@link Sma}s need memory to store the prior events that will be used to calculate the average based on. We
+     * used a {@link MemoryProvider#createCircularBuffer(int)} to store this data.
+     *
+     * @param memoryProvider used to create sma's memory
+     * @return circular buffer
+     */
+    @Override
+    public Memory<Double> createMemoryForProcessor(MemoryProvider memoryProvider) {
+        return memoryProvider.createCircularBuffer(getWindowLength());
+    }
+
+    /**
+     * Validates and compile this Sma. Doing so takes a "snapshot" of the {@link #inputs} and {@link #output}
+     * and returns a {@link CompiledProcessor}.
+     *
+     * @return CompiledProcessor
+     */
+    public CompiledProcessor<Double> compile() {
+        // todo validate cross input/output/parameters here??
+
+        // we copy all the inputs and output taking a "snapshot" of this processor so we are isolated of changes
+        Input inputCopy = getInput().newInstance();
+
+        List<Input> inputs = Lists.newArrayList(inputCopy);
+        Output outputCopy = getOutput().newInstance();
+
+        // todo do we hide the source attribute name as input??
+        return new CompiledSma(inputs, outputCopy, getId(), inputCopy.getSourceAttributeName());
     }
 
     /**
@@ -56,15 +107,52 @@ public class Sma extends Processor {
         Sma sma = new Sma(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         // sma only has window length paramater
-        sma.addParameter(WINDOW_LENGTH_PARAMETER_ID,
-                Parameter.integerParameter("Window Length").defaultValue(10).required(true).build()
+        sma.addParameter(
+                Parameter.integerParameterWithIdAndName(WINDOW_LENGTH_PARAMETER_ID, "Window Length").defaultValue(10).required(true)
         );
 
         // only a single double input
-        sma.addInput(Input.doubleInput().displayName("Input").description("Input for SMA"));
+        sma.addInput(
+                Input.doubleInputWithId(INPUT_ID).name("Input").description("Input for SMA")
+        );
         // double output
-        sma.setOutput(Output.doubleOutput().displayNameAndDescription("Moving Average").attributeName("average"));
+        sma.setOutput(
+                Output.doubleOutputWithId(OUTPUT_ID).nameAndDescription("Moving Average").attributeName("average")
+        );
 
         return sma;
+    }
+
+    /**
+     * This {@link CompiledProcessor} is the actual logic that implements the Simple Moving Average.
+     */
+    static class CompiledSma extends CompiledProcessor<Double> {
+        private final String inputAttributeName;
+
+        protected CompiledSma(List<Input> inputs, Output output, UUID smaId, String inputAttributeName) {
+            super(inputs, output, smaId);
+            this.inputAttributeName = inputAttributeName;
+        }
+
+        @Override
+        public Object processEvent(Memory<Double> memory, Map<Integer, Event> eventsByInputId) {
+            // sma only has a single event
+            Event event = eventsByInputId.get(INPUT_ID);
+
+            double newItem = event.getAttributeAsDouble(inputAttributeName);
+
+            memory.add(newItem);
+
+            double total = 0;
+            long numberItems = 0;
+            final Collection<Double> memoryItems = memory.values();
+
+            for (Double memoryItem : memoryItems) {
+                total += memoryItem;
+                numberItems++;
+            }
+
+            return total / numberItems;
+        }
     }
 }

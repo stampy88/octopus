@@ -2,15 +2,15 @@ package org.matrixlab.octopus.core.processor.parameter;
 
 import org.matrixlab.octopus.core.Reproducible;
 import org.matrixlab.octopus.core.ValidationException;
-
-import static com.google.common.base.Preconditions.checkArgument;
+import org.matrixlab.octopus.core.processor.ProcessorComponent;
 
 /**
- * A {@link Parameter} is an instance of a configurable parameter of a {@link org.matrixlab.octopus.core.processor.Processor}. They have a {@link #name} that
- * can be displayed in a user interface along with the {@link #description}. These can be tailored specifically
- * to the user's likes. They can also be configured as a {@link #required} parameter in which case said parameter
- * is not valid unless the user enters a value. Lastly, the parameter can be configured with a {@link #constraint} in
- * order to restrict allowed values for this parameter.
+ * A {@link Parameter} is an instance of a configurable parameter of a
+ * {@link org.matrixlab.octopus.core.processor.Processor}. They have a {@link #name} that can be displayed in a
+ * user interface along with the {@link #description}. These can be tailored specifically to the user's likes.
+ * They can also be configured as a {@link #required} parameter in which case said parameter is not valid unless
+ * the user enters a value. Lastly, the parameter can be configured with a {@link #constraint} in order to restrict
+ * allowed values for this parameter.
  * <p/>
  * They are generally created via the a static builder method or the {@link #newInstance()} in which case they based
  * on an existing {@link Parameter}.
@@ -20,17 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public abstract class Parameter<T> implements Reproducible {
-
-    /**
-     * The name of the parameter - can be overridden by the user.
-     */
-    private String name;
-
-    /**
-     * More human friendly description of the name
-     */
-    private String description;
+public abstract class Parameter<T> extends ProcessorComponent implements Reproducible {
 
     /**
      * The actual value of the parameter
@@ -53,9 +43,7 @@ public abstract class Parameter<T> implements Reproducible {
      * @param builder to create parameter based off of
      */
     protected Parameter(Builder<T> builder) {
-        checkArgument(builder != null, "builder cannot be null");
-        this.name = builder.name;
-        this.description = builder.description;
+        super(builder.id, builder.name, builder.description);
         this.required = builder.required;
         this.value = builder.defaultValue;
         this.constraint = builder.constraint;
@@ -67,9 +55,9 @@ public abstract class Parameter<T> implements Reproducible {
      *
      * @param copyFromParameter to get values
      */
+    @SuppressWarnings("unchecked")
     protected Parameter(Parameter<T> copyFromParameter) {
-        this.name = copyFromParameter.name;
-        this.description = copyFromParameter.description;
+        super(copyFromParameter);
         this.value = copyFromParameter.value;
         this.required = copyFromParameter.required;
 
@@ -86,10 +74,6 @@ public abstract class Parameter<T> implements Reproducible {
 
     public boolean isConstrained() {
         return constraint != null;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public Integer getValueAsInteger() {
@@ -134,7 +118,7 @@ public abstract class Parameter<T> implements Reproducible {
      */
     public final void setValue(T value) throws ValidationException {
         // ensure it is a valid according to the spec
-        validate(name, value);
+        validate(getName(), value);
 
         this.value = value;
     }
@@ -181,47 +165,32 @@ public abstract class Parameter<T> implements Reproducible {
     public abstract Parameter<T> newInstance();
 
     @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (other == null || getClass() != other.getClass()) return false;
-
-        Parameter that = (Parameter) other;
-
-        return name.equals(that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return name.hashCode();
-    }
-
-    @Override
     public String toString() {
-        return name + " = " + getValue();
+        return getName() + " = " + getValue();
     }
 
-    public static Builder<String> stringParameter(String name) {
-        return new Builder<String>(name, String.class);
+    public static Builder<String> stringParameterWithIdAndName(int id, String name) {
+        return new Builder<String>(id, name, String.class);
     }
 
-    public static Builder<Boolean> booleanParameter(String name) {
-        return new Builder<Boolean>(name, Boolean.class);
+    public static Builder<Boolean> booleanParameterWithIdAndName(int id, String name) {
+        return new Builder<Boolean>(id, name, Boolean.class);
     }
 
-    public static Builder<Long> longParameter(String name) {
-        return new Builder<Long>(name, Long.class);
+    public static Builder<Long> longParameterWithIdAndName(int id, String name) {
+        return new Builder<Long>(id, name, Long.class);
     }
 
-    public static Builder<Integer> integerParameter(String name) {
-        return new Builder<Integer>(name, Integer.class);
+    public static Builder<Integer> integerParameterWithIdAndName(int id, String name) {
+        return new Builder<Integer>(id, name, Integer.class);
     }
 
-    public static Builder<Float> floatParameter(String name) {
-        return new Builder<Float>(name, Float.class);
+    public static Builder<Float> floatParameterWithIdAndName(int id, String name) {
+        return new Builder<Float>(id, name, Float.class);
     }
 
-    public static Builder<Double> doubleParameter(String name) {
-        return new Builder<Double>(name, Double.class);
+    public static Builder<Double> doubleParameterWithIdAndName(int id, String name) {
+        return new Builder<Double>(id, name, Double.class);
     }
 
     /**
@@ -230,6 +199,7 @@ public abstract class Parameter<T> implements Reproducible {
      * @param <T> type of parameter
      */
     public static class Builder<T> {
+        private final int id;
         private String name;
         private String description;
         private final Class<T> type;
@@ -237,7 +207,8 @@ public abstract class Parameter<T> implements Reproducible {
         private boolean required;
         private Constraint<T> constraint;
 
-        private Builder(String name, Class<T> type) {
+        private Builder(int id, String name, Class<T> type) {
+            this.id = id;
             this.name = name;
             this.type = type;
         }

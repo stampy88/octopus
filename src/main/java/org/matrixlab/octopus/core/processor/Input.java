@@ -11,24 +11,20 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class Input<T> implements Reproducible {
+public class Input<T> extends ProcessorComponent implements Reproducible {
 
     private final Class<T> type;
-    private String displayName;
-    private String description;
 
     private Source source;
     private Attribute sourceAttribute;
 
     private Input(Builder<T> builder) {
-        this.displayName = builder.displayName;
-        this.description = builder.description;
+        super(builder.id, builder.name, builder.description);
         this.type = builder.type;
     }
 
     private Input(Input<T> copyFromInput) {
-        this.displayName = copyFromInput.displayName;
-        this.description = copyFromInput.description;
+        super(copyFromInput);
         this.type = copyFromInput.type;
 
         if (copyFromInput.source != null) {
@@ -38,22 +34,6 @@ public class Input<T> implements Reproducible {
             this.source = newSource;
             this.sourceAttribute = newSourceAttribute;
         }
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Class<?> getType() {
@@ -105,7 +85,7 @@ public class Input<T> implements Reproducible {
         if (!sourceAttribute.isCompatibleWith(getType())) {
             throw new ValidationException(
                     String.format("The attribute '%s' is not compatible with the input '%s'", sourceAttribute,
-                            getDisplayName())
+                            getName())
             );
         }
         this.sourceAttribute = sourceAttribute;
@@ -115,45 +95,47 @@ public class Input<T> implements Reproducible {
         return new Input<T>(this);
     }
 
-    public static Builder<String> stringInput() {
-        return new Builder<String>(String.class);
+    public static Builder<String> stringInputWithId(int id) {
+        return new Builder<String>(id, String.class);
     }
 
-    public static Builder<Boolean> booleanInput() {
-        return new Builder<Boolean>(Boolean.class);
+    public static Builder<Boolean> booleanInputWithId(int id) {
+        return new Builder<Boolean>(id, Boolean.class);
     }
 
-    public static Builder<Long> longInput() {
-        return new Builder<Long>(Long.class);
+    public static Builder<Long> longInputWithId(int id) {
+        return new Builder<Long>(id, Long.class);
     }
 
-    public static Builder<Short> shortInput() {
-        return new Builder<Short>(Short.class);
+    public static Builder<Short> shortInputWithId(int id) {
+        return new Builder<Short>(id, Short.class);
     }
 
-    public static Builder<Integer> integerInput() {
-        return new Builder<Integer>(Integer.class);
+    public static Builder<Integer> integerInputWithId(int id) {
+        return new Builder<Integer>(id, Integer.class);
     }
 
-    public static Builder<Double> doubleInput() {
-        return new Builder<Double>(Double.class);
+    public static Builder<Double> doubleInputWithId(int id) {
+        return new Builder<Double>(id, Double.class);
     }
 
-    public static Builder<Float> floatInput() {
-        return new Builder<Float>(Float.class);
+    public static Builder<Float> floatInputWithId(int id) {
+        return new Builder<Float>(id, Float.class);
     }
 
     public static class Builder<T> {
-        private String displayName;
+        private String name;
         private String description;
+        private final int id;
         private final Class<T> type;
 
-        private Builder(Class<T> type) {
+        private Builder(int id, Class<T> type) {
+            this.id = id;
             this.type = type;
         }
 
-        public Builder<T> displayName(String displayName) {
-            this.displayName = displayName;
+        public Builder<T> name(String name) {
+            this.name = name;
             return this;
         }
 

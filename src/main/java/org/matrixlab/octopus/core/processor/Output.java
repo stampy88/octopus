@@ -6,30 +6,18 @@ import org.matrixlab.octopus.core.event.Attribute;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class Output<T> implements Reproducible {
+public class Output<T> extends ProcessorComponent implements Reproducible {
 
     private final Attribute<T> attribute;
-    private String displayName;
-    private String description;
 
     private Output(Builder<T> builder) {
-        this.displayName = builder.displayName;
-        this.description = builder.description;
+        super(builder.id, builder.name, builder.description);
         this.attribute = builder.attribute;
     }
 
     private Output(Output<T> existingOutput) {
-        this.displayName = existingOutput.displayName;
-        this.description = existingOutput.description;
+        super(existingOutput);
         this.attribute = existingOutput.attribute.newInstance();
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
     }
 
     public void setAttributeName(String name) {
@@ -44,64 +32,58 @@ public class Output<T> implements Reproducible {
         return attribute;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public Output<T> newInstance() {
         return new Output<T>(this);
     }
 
-    public static Builder<String> stringOutput() {
-        return new Builder<String>(String.class);
+    public static Builder<String> stringOutputWithId(int id) {
+        return new Builder<String>(id, String.class);
     }
 
-    public static Builder<Boolean> booleanOutput() {
-        return new Builder<Boolean>(Boolean.class);
+    public static Builder<Boolean> booleanOutputWithId(int id) {
+        return new Builder<Boolean>(id, Boolean.class);
     }
 
-    public static Builder<Long> longOutput() {
-        return new Builder<Long>(Long.class);
+    public static Builder<Long> longOutputWithId(int id) {
+        return new Builder<Long>(id, Long.class);
     }
 
-    public static Builder<Short> shortOutput() {
-        return new Builder<Short>(Short.class);
+    public static Builder<Short> shortOutputWithId(int id) {
+        return new Builder<Short>(id, Short.class);
     }
 
-    public static Builder<Integer> integerOutput() {
-        return new Builder<Integer>(Integer.class);
+    public static Builder<Integer> integerOutputWithId(int id) {
+        return new Builder<Integer>(id, Integer.class);
     }
 
-    public static Builder<Double> doubleOutput() {
-        return new Builder<Double>(Double.class);
+    public static Builder<Double> doubleOutputWithId(int id) {
+        return new Builder<Double>(id, Double.class);
     }
 
-    public static Builder<Float> floatOutput() {
-        return new Builder<Float>(Float.class);
+    public static Builder<Float> floatOutputWithId(int id) {
+        return new Builder<Float>(id, Float.class);
     }
 
     public static class Builder<T> {
-        private String displayName;
+        private final int id;
+        private String name;
         private String description;
         private Class<T> type;
         private String attributeName;
         private Attribute<T> attribute;
 
-        private Builder(Class<T> type) {
+        private Builder(int id, Class<T> type) {
+            this.id = id;
             this.type = type;
         }
 
-        public Builder<T> displayName(String name) {
-            this.displayName = name;
+        public Builder<T> name(String name) {
+            this.name = name;
             return this;
         }
 
-        public Builder<T> displayNameAndDescription(String name) {
-            this.displayName = name;
+        public Builder<T> nameAndDescription(String name) {
+            this.name = name;
             this.description = name;
             return this;
         }

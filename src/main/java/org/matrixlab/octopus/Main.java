@@ -3,7 +3,7 @@ package org.matrixlab.octopus;
 import com.google.common.collect.Maps;
 import org.matrixlab.octopus.core.ProcessingModel;
 import org.matrixlab.octopus.core.ProcessingRuntime;
-import org.matrixlab.octopus.core.compiler.EsperCompiler;
+import org.matrixlab.octopus.core.compiler.esper.EsperCompiler;
 import org.matrixlab.octopus.core.event.Attribute;
 import org.matrixlab.octopus.core.event.Event;
 import org.matrixlab.octopus.core.event.EventType;
