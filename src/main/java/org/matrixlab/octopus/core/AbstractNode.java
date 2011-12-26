@@ -92,6 +92,10 @@ public abstract class AbstractNode implements Node {
         return ProcessorComponent.getComponentById(parameters, parameterId);
     }
 
+    protected String getParameterValueAsString(int parameterId) {
+        return ProcessorComponent.getComponentById(parameters, parameterId).getValueAsString();
+    }
+
     @Override
     public Set<Parameter> getParameters() {
         return ImmutableSet.copyOf(this.parameters);
