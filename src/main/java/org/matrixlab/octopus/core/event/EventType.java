@@ -1,5 +1,6 @@
 package org.matrixlab.octopus.core.event;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -57,6 +58,10 @@ public class EventType {
 
     public boolean containsAttribute(Attribute attribute) {
         return attributes.contains(attribute);
+    }
+
+    public List<Attribute> getAttributes() {
+        return ImmutableList.copyOf(attributes);
     }
 
     public Map<String, Object> getEventDefinition() {
