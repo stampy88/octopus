@@ -88,6 +88,10 @@ public class Attribute<T> implements Reproducible {
             return shortAttribute(name);
         }
 
+        if (clazz == Boolean.class) {
+            return booleanAttribute(name);
+        }
+
         throw new IllegalArgumentException(String.format("%s is not a valid attribute type", clazz));
     }
 
@@ -119,5 +123,10 @@ public class Attribute<T> implements Reproducible {
     public static Attribute<Double> doubleAttribute(String name) throws ValidationException {
         checkValidity(name, "Attribute name");
         return new Attribute<Double>(name, Double.class);
+    }
+
+    public static Attribute<Boolean> booleanAttribute(String name) throws ValidationException {
+        checkValidity(name, "Attribute name");
+        return new Attribute<Boolean>(name, Boolean.class);
     }
 }
