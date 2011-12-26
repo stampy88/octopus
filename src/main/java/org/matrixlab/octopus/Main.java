@@ -2,13 +2,13 @@ package org.matrixlab.octopus;
 
 import com.google.common.collect.Maps;
 import org.matrixlab.octopus.core.ProcessingModel;
-import org.matrixlab.octopus.core.ProcessingRuntime;
 import org.matrixlab.octopus.core.compiler.esper.EsperCompiler;
 import org.matrixlab.octopus.core.event.Attribute;
 import org.matrixlab.octopus.core.event.Event;
 import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.external.source.TestSource;
 import org.matrixlab.octopus.core.processor.Sma;
+import org.matrixlab.octopus.core.runtime.ProcessingRuntime;
 
 import java.util.Map;
 import java.util.UUID;

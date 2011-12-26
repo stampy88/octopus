@@ -2,7 +2,6 @@ package org.matrixlab.octopus.core.compiler.esper;
 
 import com.espertech.esper.client.*;
 import org.matrixlab.octopus.core.ProcessingModel;
-import org.matrixlab.octopus.core.ProcessingRuntime;
 import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.external.ExternalSource;
 import org.matrixlab.octopus.core.memory.Memory;
@@ -10,7 +9,8 @@ import org.matrixlab.octopus.core.memory.heap.HeapMemoryProvider;
 import org.matrixlab.octopus.core.processor.CompiledProcessor;
 import org.matrixlab.octopus.core.processor.Input;
 import org.matrixlab.octopus.core.processor.Processor;
-import org.matrixlab.octopus.core.runtime.EsperRuntime;
+import org.matrixlab.octopus.core.runtime.ProcessingRuntime;
+import org.matrixlab.octopus.core.runtime.esper.EsperRuntime;
 
 import java.util.List;
 import java.util.Map;

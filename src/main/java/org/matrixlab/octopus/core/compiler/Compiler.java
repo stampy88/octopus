@@ -1,7 +1,7 @@
 package org.matrixlab.octopus.core.compiler;
 
 import org.matrixlab.octopus.core.ProcessingModel;
-import org.matrixlab.octopus.core.ProcessingRuntime;
+import org.matrixlab.octopus.core.runtime.ProcessingRuntime;
 
 /**
  * A {@link Compiler} is used to take a {@link ProcessingModel} and create a {@link ProcessingRuntime}. There
