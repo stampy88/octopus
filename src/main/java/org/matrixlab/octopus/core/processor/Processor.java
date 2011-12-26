@@ -2,7 +2,6 @@ package org.matrixlab.octopus.core.processor;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.matrixlab.octopus.core.AbstractNode;
 import org.matrixlab.octopus.core.Sink;
 import org.matrixlab.octopus.core.Source;
@@ -12,7 +11,6 @@ import org.matrixlab.octopus.core.memory.MemoryProvider;
 import org.matrixlab.octopus.core.processor.parameter.Parameter;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -28,7 +26,6 @@ import java.util.UUID;
 public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Source, Sink {
 
     private final UUID id;
-    private Set<Parameter> parameters = Sets.newHashSet();
 
     /**
      * A processor will be given zero or more inputs in order to perform its processing; this will be the
@@ -64,34 +61,14 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
      * @param copyFromProcessor that we are getting copies from
      */
     protected Processor(UUID id, Processor<MEMORY_TYPE> copyFromProcessor) {
-        super(copyFromProcessor.getName(), copyFromProcessor.getDescription());
+        super(copyFromProcessor);
         this.id = id;
-
-        for (Parameter parameter : copyFromProcessor.getParameters()) {
-            this.addParameter(parameter.newInstance());
-        }
 
         for (Input input : copyFromProcessor.getInputs()) {
             this.addInput(input.newInstance());
         }
 
         this.setOutput(copyFromProcessor.getOutput().newInstance());
-    }
-
-    protected void addParameter(Parameter parameter) {
-        this.parameters.add(parameter);
-    }
-
-    protected void addParameter(Parameter.Builder parameter) {
-        this.parameters.add(parameter.build());
-    }
-
-    protected Parameter getParameter(int parameterId) {
-        return ProcessorComponent.getComponentById(parameters, parameterId);
-    }
-
-    protected Set<Parameter> getParameters() {
-        return Sets.newHashSet(this.parameters);
     }
 
     protected void addInput(Input.Builder input) {
