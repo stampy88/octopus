@@ -92,7 +92,8 @@ public abstract class AbstractNode implements Node {
         return ProcessorComponent.getComponentById(parameters, parameterId);
     }
 
-    protected Set<Parameter> getParameters() {
+    @Override
+    public Set<Parameter> getParameters() {
         return ImmutableSet.copyOf(this.parameters);
     }
 

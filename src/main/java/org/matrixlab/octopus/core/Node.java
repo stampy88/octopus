@@ -1,6 +1,9 @@
 package org.matrixlab.octopus.core;
 
+import org.matrixlab.octopus.core.processor.parameter.Parameter;
+
 import java.awt.*;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -21,4 +24,6 @@ public interface Node extends Reproducible {
     Point getLocation();
 
     Node setLocation(Point location);
+
+    Set<Parameter> getParameters();
 }
