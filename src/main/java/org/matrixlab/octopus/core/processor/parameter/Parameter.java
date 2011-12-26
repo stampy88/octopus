@@ -76,6 +76,10 @@ public abstract class Parameter<T> extends ProcessorComponent implements Reprodu
         return constraint != null;
     }
 
+    public String getValueAsString() {
+        return (String) value;
+    }
+
     public Integer getValueAsInteger() {
         return (Integer) value;
     }
