@@ -1,12 +1,20 @@
 package org.matrixlab.octopus.core;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import org.matrixlab.octopus.core.processor.ProcessorComponent;
+import org.matrixlab.octopus.core.processor.parameter.Parameter;
+
 import java.awt.*;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Abstract Base class implementation of the {@link Node} interface that contains a {@link #name}, {@link #description}
  * and {@link #location} along with the corresponding setter/getter implementations from the {@link Node} interface.
+ * <p/>
+ * This class also provides method to manipulate the {@link Parameter}s for this node.
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
@@ -15,6 +23,7 @@ public abstract class AbstractNode implements Node {
     private String name;
     private String description;
     private Point location;
+    private Set<Parameter> parameters = Sets.newHashSet();
 
     protected AbstractNode() {
     }
@@ -22,6 +31,14 @@ public abstract class AbstractNode implements Node {
     protected AbstractNode(String name, String description) {
         setName(name);
         setDescription(description);
+    }
+
+    protected AbstractNode(AbstractNode copyFromNode) {
+        setName(copyFromNode.name);
+        setDescription(copyFromNode.description);
+        for (Parameter parameter : copyFromNode.getParameters()) {
+            this.addParameter(parameter.newInstance());
+        }
     }
 
     @Override
@@ -61,6 +78,22 @@ public abstract class AbstractNode implements Node {
         this.location = location;
 
         return this;
+    }
+
+    protected void addParameter(Parameter parameter) {
+        this.parameters.add(parameter);
+    }
+
+    protected void addParameter(Parameter.Builder parameter) {
+        this.parameters.add(parameter.build());
+    }
+
+    protected Parameter getParameter(int parameterId) {
+        return ProcessorComponent.getComponentById(parameters, parameterId);
+    }
+
+    protected Set<Parameter> getParameters() {
+        return ImmutableSet.copyOf(this.parameters);
     }
 
     /**
