@@ -3,12 +3,12 @@ package org.matrixlab.octopus.core.processor;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.matrixlab.octopus.core.AbstractNode;
-import org.matrixlab.octopus.core.Sink;
-import org.matrixlab.octopus.core.Source;
 import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.memory.Memory;
 import org.matrixlab.octopus.core.memory.MemoryProvider;
 import org.matrixlab.octopus.core.processor.parameter.Parameter;
+import org.matrixlab.octopus.core.sink.Sink;
+import org.matrixlab.octopus.core.source.Source;
 
 import java.util.List;
 import java.util.UUID;

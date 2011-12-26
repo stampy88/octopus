@@ -2,8 +2,8 @@ package org.matrixlab.octopus.core;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import org.matrixlab.octopus.core.external.ExternalSource;
 import org.matrixlab.octopus.core.processor.Processor;
+import org.matrixlab.octopus.core.source.external.ExternalSource;
 
 import java.util.Set;
 

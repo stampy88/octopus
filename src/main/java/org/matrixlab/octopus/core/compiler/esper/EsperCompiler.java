@@ -1,9 +1,10 @@
 package org.matrixlab.octopus.core.compiler.esper;
 
 import com.espertech.esper.client.*;
+import com.google.common.collect.Lists;
 import org.matrixlab.octopus.core.ProcessingModel;
+import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.EventType;
-import org.matrixlab.octopus.core.external.ExternalSource;
 import org.matrixlab.octopus.core.memory.Memory;
 import org.matrixlab.octopus.core.memory.heap.HeapMemoryProvider;
 import org.matrixlab.octopus.core.processor.CompiledProcessor;
@@ -11,10 +12,12 @@ import org.matrixlab.octopus.core.processor.Input;
 import org.matrixlab.octopus.core.processor.Processor;
 import org.matrixlab.octopus.core.runtime.ProcessingRuntime;
 import org.matrixlab.octopus.core.runtime.esper.EsperRuntime;
+import org.matrixlab.octopus.core.source.external.CompiledExternalSource;
+import org.matrixlab.octopus.core.source.external.ExternalSource;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -33,13 +36,11 @@ public class EsperCompiler implements org.matrixlab.octopus.core.compiler.Compil
         }
     }
 
-    @Override
-    public ProcessingRuntime compile(ProcessingModel model) {
-        Configuration configuration = new Configuration();
-
+    void registerEventTypesForModel(Configuration configuration, ProcessingModel model) {
         // register all of the model source event types
-        for (ExternalSource eventSource : model.getExternalSources()) {
-            EventType eventType = eventSource.getOutputEventType();
+        for (ExternalSource externalSource : model.getExternalSources()) {
+            // todo do we actually move this onto the source and not eventType?
+            EventType eventType = externalSource.getOutputEventType();
 
             configuration.addEventType(
                     EsperUtils.getEventNameForUUID(eventType.getId()),
@@ -58,14 +59,33 @@ public class EsperCompiler implements org.matrixlab.octopus.core.compiler.Compil
                 );
             }
         }
+    }
+
+    @Override
+    public ProcessingRuntime compile(ProcessingModel model) {
+        checkArgument(model != null, "model cannot be null");
+
+        Configuration configuration = new Configuration();
+
+        registerEventTypesForModel(configuration, model);
+
 
         EPServiceProvider epService = EPServiceProviderManager.getProvider(model.getModelName(), configuration);
         epService.initialize();
 
+        Collection<CompiledExternalSource> compiledSources = compileExternalSources(model.getExternalSources());
+        Collection<CompiledProcessor<?>> compiledProcessors = compileProcessors(epService, model.getProcessors());
+
+        return new EsperRuntime(epService, compiledSources);
+    }
+
+    private Collection<CompiledProcessor<?>> compileProcessors(EPServiceProvider epService, Collection<Processor> processors) {
         EPAdministrator admin = epService.getEPAdministrator();
         EPRuntime runtime = epService.getEPRuntime();
-        for (Processor processor : model.getProcessors()) {
 
+        Collection<CompiledProcessor<?>> compiledProcessors = Lists.newLinkedList();
+
+        for (Processor processor : processors) {
             // todo - check for output?
             Memory<?> processorMemory = processor.createMemoryForProcessor(new HeapMemoryProvider());
             CompiledProcessor<?> compiledProcessor = processor.compile();
@@ -83,10 +103,21 @@ public class EsperCompiler implements org.matrixlab.octopus.core.compiler.Compil
             String debugStmt = String.format("select * from %s", outputEventName);
             stmt = admin.createEPL(debugStmt);
             stmt.setSubscriber(new OutputDebugger(processor.getId()));
+
+            compiledProcessors.add(compiledProcessor);
         }
 
+        return compiledProcessors;
+    }
 
-        return new EsperRuntime(epService, model.getExternalSources());
+    private Collection<CompiledExternalSource> compileExternalSources(Set<ExternalSource> externalSources) throws ValidationException {
+        Collection<CompiledExternalSource> compiledSources = Lists.newLinkedList();
+
+        for (ExternalSource externalSource : externalSources) {
+            compiledSources.add(externalSource.compile());
+        }
+
+        return compiledSources;
     }
 
     String getStatementForCompiledProcessor(CompiledProcessor<?> compiledProcessor) {

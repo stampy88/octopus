@@ -1,5 +1,6 @@
-package org.matrixlab.octopus.core;
+package org.matrixlab.octopus.core.source;
 
+import org.matrixlab.octopus.core.Node;
 import org.matrixlab.octopus.core.event.EventType;
 
 /**

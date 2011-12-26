@@ -1,10 +1,10 @@
 package org.matrixlab.octopus.core.processor;
 
 import org.matrixlab.octopus.core.Reproducible;
-import org.matrixlab.octopus.core.Source;
 import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.Attribute;
 import org.matrixlab.octopus.core.event.EventType;
+import org.matrixlab.octopus.core.source.Source;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
