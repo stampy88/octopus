@@ -25,8 +25,6 @@ import java.util.UUID;
  */
 public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Source, Sink {
 
-    private final UUID id;
-
     /**
      * A processor will be given zero or more inputs in order to perform its processing; this will be the
      * list of all of these inputs.
@@ -48,12 +46,11 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
      * @param description of processor
      */
     protected Processor(UUID id, String name, String description) {
-        super(name, description);
-        this.id = id;
+        super(id, name, description);
     }
 
     /**
-     * Copy constructor for creating a new processor based off of the copyFromProcessor. Note that we are using the
+     * Copy constructor for creating a <b>new</b> processor based off of the copyFromProcessor. Note that we are using the
      * {@link org.matrixlab.octopus.core.Reproducible} interface on {@link Input}s, {@link Parameter}s and
      * {@link Output} if there is one.
      *
@@ -61,8 +58,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
      * @param copyFromProcessor that we are getting copies from
      */
     protected Processor(UUID id, Processor<MEMORY_TYPE> copyFromProcessor) {
-        super(copyFromProcessor);
-        this.id = id;
+        super(id, copyFromProcessor);
 
         for (Input input : copyFromProcessor.getInputs()) {
             this.addInput(input.newInstance());
@@ -70,6 +66,24 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
 
         this.setOutput(copyFromProcessor.getOutput().newInstance());
     }
+
+    /**
+     * Copy constructor for creating a new processor based off of an <b>exact</b> copy of the copyFromProcessor.
+     * Note that we are using the {@link org.matrixlab.octopus.core.Reproducible} interface on {@link Input}s,
+     * {@link Parameter}s and {@link Output} if there is one.
+     *
+     * @param copyFromProcessor that we are getting copies from
+     */
+    protected Processor(Processor<MEMORY_TYPE> copyFromProcessor) {
+        super(copyFromProcessor);
+
+        for (Input input : copyFromProcessor.getInputs()) {
+            this.addInput(input.copyOf());
+        }
+
+        this.setOutput(copyFromProcessor.getOutput().copyOf());
+    }
+
 
     protected void addInput(Input.Builder input) {
         addInput(input.build());
@@ -86,16 +100,13 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     protected void setOutput(Output output) {
         this.output = output;
 
-        this.outputEventType = new EventType(id);
+        // the event type id is the same as this processor's id
+        this.outputEventType = new EventType(getId());
         this.outputEventType.addAttribute(output.getAttribute());
     }
 
     public Output getOutput() {
         return output;
-    }
-
-    public UUID getId() {
-        return id;
     }
 
     public void setOutputAttributeName(String name) {
@@ -129,6 +140,8 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
      * @return new processor
      */
     public abstract Processor<MEMORY_TYPE> newInstance();
+
+    public abstract Processor<MEMORY_TYPE> copyOf();
 
     public abstract CompiledProcessor<MEMORY_TYPE> compile();
 

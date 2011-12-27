@@ -9,13 +9,18 @@ public class LongParameter extends Parameter<Long> {
         super(builder);
     }
 
-    protected LongParameter(LongParameter existingParameter) {
-        super(existingParameter);
+    protected LongParameter(LongParameter existingParameter, ReproductionMode mode) {
+        super(existingParameter, mode);
     }
 
     @Override
     public Parameter<Long> newInstance() {
-        return new LongParameter(this);
+        return new LongParameter(this, ReproductionMode.NEW_INSTANCE);
+    }
+
+    @Override
+    public Parameter<Long> copyOf() {
+        return new LongParameter(this, ReproductionMode.COPY_OF);
     }
 
     @Override

@@ -54,15 +54,20 @@ public abstract class Parameter<T> extends ProcessorComponent implements Reprodu
      * {@link org.matrixlab.octopus.core.Reproducible#newInstance()} for the {@link #constraint}
      *
      * @param copyFromParameter to get values
+     * @param mode              use to tell how to create/copy {@link org.matrixlab.octopus.core.Reproducible}
      */
     @SuppressWarnings("unchecked")
-    protected Parameter(Parameter<T> copyFromParameter) {
+    protected Parameter(Parameter<T> copyFromParameter, ReproductionMode mode) {
         super(copyFromParameter);
         this.value = copyFromParameter.value;
         this.required = copyFromParameter.required;
 
         if (copyFromParameter.constraint != null) {
-            this.constraint = (Constraint<T>) copyFromParameter.constraint.newInstance();
+            if (mode == ReproductionMode.NEW_INSTANCE) {
+                this.constraint = copyFromParameter.constraint.newInstance();
+            } else {
+                this.constraint = copyFromParameter.constraint.copyOf();
+            }
         } else {
             this.constraint = null;
         }
@@ -167,6 +172,14 @@ public abstract class Parameter<T> extends ProcessorComponent implements Reprodu
      * @return new parameter
      */
     public abstract Parameter<T> newInstance();
+
+    /**
+     * Subclasses need to implement this method to return a <b>new</b> {@link Parameter} that is an <b>exact</b> copy
+     * of this one.
+     *
+     * @return new parameter
+     */
+    public abstract Parameter<T> copyOf();
 
     @Override
     public String toString() {

@@ -7,6 +7,7 @@ import org.matrixlab.octopus.core.processor.parameter.Parameter;
 
 import java.awt.*;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -20,25 +21,43 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public abstract class AbstractNode implements Node {
 
+    private final UUID id;
     private String name;
     private String description;
     private Point location;
     private Set<Parameter> parameters = Sets.newHashSet();
 
-    protected AbstractNode() {
+    protected AbstractNode(UUID id) {
+        this.id = id;
     }
 
-    protected AbstractNode(String name, String description) {
+    protected AbstractNode(UUID id, String name, String description) {
+        this.id = id;
         setName(name);
         setDescription(description);
     }
 
-    protected AbstractNode(AbstractNode copyFromNode) {
+    protected AbstractNode(UUID id, AbstractNode copyFromNode) {
+        this.id = id;
         setName(copyFromNode.name);
         setDescription(copyFromNode.description);
         for (Parameter parameter : copyFromNode.getParameters()) {
             this.addParameter(parameter.newInstance());
         }
+    }
+
+    protected AbstractNode(AbstractNode copyFromNode) {
+        this.id = copyFromNode.id;
+        setName(copyFromNode.name);
+        setDescription(copyFromNode.description);
+
+        for (Parameter parameter : copyFromNode.getParameters()) {
+            this.addParameter(parameter.copyOf());
+        }
+    }
+
+    public final UUID getId() {
+        return id;
     }
 
     @Override

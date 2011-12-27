@@ -33,14 +33,15 @@ class EsperProcessorAdaptor {
 
         int index = 0;
         for (Input input : processor.getInputs()) {
-            String sourceId = EsperUtils.getEventNameForUUID(input.getSource().getId());
+            String sourceId = EsperUtils.getEventNameForEventType(input.getSource().getOutputEventType());
             Integer inputId = input.getId();
             sourceIdToInputId[index++] = Pair.newInstance(sourceId, inputId);
         }
 
         if (processor.generatesOutput()) {
             outputAttributeName = processor.getOutput().getAttributeName();
-            outputEventId = EsperUtils.getEventNameForUUID(processor.getId());
+            outputEventId = EsperUtils.getEventNameForEventType(processor.getOutputEventType());
+
         } else {
             outputAttributeName = null;
             outputEventId = null;

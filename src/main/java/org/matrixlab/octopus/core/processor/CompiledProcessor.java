@@ -1,11 +1,11 @@
 package org.matrixlab.octopus.core.processor;
 
 import org.matrixlab.octopus.core.event.Event;
+import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.memory.Memory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -13,20 +13,12 @@ import java.util.UUID;
 public abstract class CompiledProcessor<MEMORY_TYPE> {
     private final List<Input> inputs;
     private final Output output;
-    private final UUID processorId;
+    private final EventType outputEventType;
 
-    public CompiledProcessor(List<Input> inputs) {
-        this(inputs, null, null);
-    }
-
-    public CompiledProcessor(List<Input> inputs, Output output) {
-        this(inputs, output, null);
-    }
-
-    public CompiledProcessor(List<Input> inputs, Output output, UUID processorId) {
-        this.inputs = inputs;
-        this.output = output;
-        this.processorId = processorId;
+    protected CompiledProcessor(Processor<MEMORY_TYPE> processor) {
+        this.inputs = processor.getInputs();
+        this.output = processor.getOutput();
+        this.outputEventType = processor.getOutputEventType();
     }
 
     public List<Input> getInputs() {
@@ -38,11 +30,11 @@ public abstract class CompiledProcessor<MEMORY_TYPE> {
     }
 
     public boolean generatesOutput() {
-        return output != null && processorId != null;
+        return output != null && outputEventType != null;
     }
 
-    public UUID getId() {
-        return processorId;
+    public EventType getOutputEventType() {
+        return outputEventType;
     }
 
     public abstract Object processEvent(Memory<MEMORY_TYPE> memory, Map<Integer, Event> eventsByInputId);

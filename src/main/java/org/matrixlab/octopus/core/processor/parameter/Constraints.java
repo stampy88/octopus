@@ -1,7 +1,5 @@
 package org.matrixlab.octopus.core.processor.parameter;
 
-import org.matrixlab.octopus.core.Reproducible;
-
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
@@ -32,7 +30,12 @@ public class Constraints {
         }
 
         @Override
-        public Reproducible newInstance() {
+        public ClassConstraint newInstance() {
+            return new ClassConstraint(message);
+        }
+
+        @Override
+        public ClassConstraint copyOf() {
             return new ClassConstraint(message);
         }
     }

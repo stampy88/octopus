@@ -3,7 +3,6 @@ package org.matrixlab.octopus.core.source.external;
 import com.google.common.collect.Maps;
 import org.matrixlab.octopus.core.AbstractNode;
 import org.matrixlab.octopus.core.ProcessingException;
-import org.matrixlab.octopus.core.Reproducible;
 import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.Attribute;
 import org.matrixlab.octopus.core.event.Event;
@@ -36,7 +35,6 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
     private static final String DEFAULT_NAME = "JDBC";
     private static final String DEFAULT_DESCRIPTION = "JDBC Source for events";
 
-    private final UUID sourceId;
     public static final int URL_PARAMETER_ID = 1;
     public static final int USER_NAME_PARAMETER_ID = 2;
     public static final int PASSWORD_PARAMETER_ID = 3;
@@ -44,13 +42,15 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
     public static final int QUERY_PARAMETER_ID = 5;
 
     private SqlQuerySource(UUID sourceId, String name, String description) {
-        super(name, description);
-        this.sourceId = sourceId;
+        super(sourceId, name, description);
     }
 
     private SqlQuerySource(UUID sourceId, SqlQuerySource copyFromSource) {
+        super(sourceId, copyFromSource);
+    }
+
+    private SqlQuerySource(SqlQuerySource copyFromSource) {
         super(copyFromSource);
-        this.sourceId = sourceId;
     }
 
     @SuppressWarnings("unchecked")
@@ -80,18 +80,19 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
 
     @Override
     public EventType getOutputEventType() {
+        // todo 
         return null;
     }
 
     @Override
-    public UUID getId() {
-        return sourceId;
+    public SqlQuerySource newInstance() {
+        UUID sourceId = UUID.randomUUID();
+        return new SqlQuerySource(sourceId, this);
     }
 
     @Override
-    public Reproducible newInstance() {
-        UUID sourceId = UUID.randomUUID();
-        return new SqlQuerySource(sourceId, this);
+    public SqlQuerySource copyOf() {
+        return new SqlQuerySource(this);
     }
 
     public static SqlQuerySource newTemplate() {
@@ -117,12 +118,11 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
                 getParameterValueAsString(PASSWORD_PARAMETER_ID),
                 getParameterValueAsString(DRIVER_PARAMETER_ID),
                 getParameterValueAsString(QUERY_PARAMETER_ID),
-                getOutputEventType(), getId()
+                getOutputEventType()
         );
     }
 
     private static class CompiledSqlQuerySource implements CompiledExternalSource {
-        private final UUID sourceId;
         private final String url;
         private final String userName;
         private final String password;
@@ -133,14 +133,13 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
         private volatile boolean running;
 
         public CompiledSqlQuerySource(String url, String userName, String password, String className,
-                                      String query, EventType eventType, UUID sourceId) {
+                                      String query, EventType eventType) {
             this.url = url;
             this.userName = userName;
             this.password = password;
             this.className = className;
             this.query = query;
             this.eventType = eventType;
-            this.sourceId = sourceId;
         }
 
         @Override
@@ -170,7 +169,7 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
             while (!thread.isInterrupted() && running && rs.next()) {
                 Event newEvent = createEventFromResultSet(rs, eventType);
 
-                runtime.sendEvent(newEvent, sourceId);
+                runtime.sendEvent(newEvent, eventType);
             }
         }
 

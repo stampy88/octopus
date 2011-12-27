@@ -1,16 +1,16 @@
 package org.matrixlab.octopus.core.compiler.esper;
 
-import java.util.UUID;
+import org.matrixlab.octopus.core.event.EventType;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 abstract class EsperUtils {
 
-    static String getEventNameForUUID(UUID id) {
+    static String getEventNameForEventType(EventType eventType) {
         StringBuilder eventName = new StringBuilder("_");
 
-        String idAsString = id.toString();
+        String idAsString = eventType.getId().toString();
         for (int i = 0; i < idAsString.length(); ++i) {
             if (idAsString.charAt(i) != '-') {
                 eventName.append(idAsString.charAt(i));

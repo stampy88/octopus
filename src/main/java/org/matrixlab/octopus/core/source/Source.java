@@ -16,4 +16,8 @@ public interface Source extends Node {
      * @return event type from this source
      */
     EventType getOutputEventType();
+
+    Source newInstance();
+
+    Source copyOf();
 }

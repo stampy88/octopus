@@ -9,8 +9,8 @@ public class BooleanParameter extends Parameter<Boolean> {
         super(builder);
     }
 
-    protected BooleanParameter(BooleanParameter existingParameter) {
-        super(existingParameter);
+    protected BooleanParameter(BooleanParameter existingParameter, ReproductionMode mode) {
+        super(existingParameter, mode);
     }
 
     @Override
@@ -25,7 +25,12 @@ public class BooleanParameter extends Parameter<Boolean> {
 
     @Override
     public Parameter<Boolean> newInstance() {
-        return new BooleanParameter(this);
+        return new BooleanParameter(this, ReproductionMode.NEW_INSTANCE);
+    }
+
+    @Override
+    public Parameter<Boolean> copyOf() {
+        return new BooleanParameter(this, ReproductionMode.COPY_OF);
     }
 
     static Boolean parseBoolean(String value) throws ConversionException {

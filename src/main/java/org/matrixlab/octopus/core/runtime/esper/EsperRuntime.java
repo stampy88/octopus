@@ -2,13 +2,13 @@ package org.matrixlab.octopus.core.runtime.esper;
 
 import com.espertech.esper.client.EPServiceProvider;
 import org.matrixlab.octopus.core.event.Event;
+import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.runtime.ProcessingRuntime;
 import org.matrixlab.octopus.core.source.external.CompiledExternalSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
@@ -83,22 +83,22 @@ public class EsperRuntime implements ProcessingRuntime {
     }
 
     @Override
-    public void sendEvent(Event event, UUID eventTypeId) {
+    public void sendEvent(Event event, EventType eventType) {
         readLock.lock();
 
         try {
             checkState(currentState == State.RUNNING, "Cannot send an event unless the runtime has been started");
 
-            epService.getEPRuntime().sendEvent(event.getData(), getEventNameForUUID(eventTypeId));
+            epService.getEPRuntime().sendEvent(event.getData(), getEventNameForUUID(eventType));
         } finally {
             readLock.unlock();
         }
     }
 
-    static String getEventNameForUUID(UUID id) {
+    static String getEventNameForUUID(EventType eventType) {
         StringBuilder eventName = new StringBuilder("_");
 
-        String idAsString = id.toString();
+        String idAsString = eventType.getId().toString();
         for (int i = 0; i < idAsString.length(); ++i) {
             if (idAsString.charAt(i) != '-') {
                 eventName.append(idAsString.charAt(i));

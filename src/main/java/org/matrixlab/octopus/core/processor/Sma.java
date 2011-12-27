@@ -1,13 +1,11 @@
 package org.matrixlab.octopus.core.processor;
 
-import com.google.common.collect.Lists;
 import org.matrixlab.octopus.core.event.Event;
 import org.matrixlab.octopus.core.memory.Memory;
 import org.matrixlab.octopus.core.memory.MemoryProvider;
 import org.matrixlab.octopus.core.processor.parameter.Parameter;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -46,6 +44,10 @@ public class Sma extends Processor<Double> {
         super(id, copyFromSma);
     }
 
+    protected Sma(Sma copyFromSma) {
+        super(copyFromSma);
+    }
+
     public int getWindowLength() {
         return getParameter(WINDOW_LENGTH_PARAMETER_ID).getValueAsInteger();
     }
@@ -63,6 +65,11 @@ public class Sma extends Processor<Double> {
     @Override
     public Sma newInstance() {
         return new Sma(UUID.randomUUID(), this);
+    }
+
+    @Override
+    public Sma copyOf() {
+        return new Sma(this);
     }
 
     /**
@@ -87,13 +94,8 @@ public class Sma extends Processor<Double> {
         // todo validate cross input/output/parameters here??
 
         // we copy all the inputs and output taking a "snapshot" of this processor so we are isolated of changes
-        Input inputCopy = getInput().newInstance();
-
-        List<Input> inputs = Lists.newArrayList(inputCopy);
-        Output outputCopy = getOutput().newInstance();
-
-        // todo do we hide the source attribute name as input??
-        return new CompiledSma(inputs, outputCopy, getId(), inputCopy.getSourceAttributeName());
+        Sma copy = copyOf();
+        return new CompiledSma(copy);
     }
 
     /**
@@ -129,9 +131,9 @@ public class Sma extends Processor<Double> {
     static class CompiledSma extends CompiledProcessor<Double> {
         private final String inputAttributeName;
 
-        protected CompiledSma(List<Input> inputs, Output output, UUID smaId, String inputAttributeName) {
-            super(inputs, output, smaId);
-            this.inputAttributeName = inputAttributeName;
+        protected CompiledSma(Sma sma) {
+            super(sma);
+            this.inputAttributeName = sma.getInput().getSourceAttributeName();
         }
 
         @Override

@@ -9,13 +9,18 @@ public class IntegerParameter extends Parameter<Integer> {
         super(builder);
     }
 
-    protected IntegerParameter(IntegerParameter existingParameter) {
-        super(existingParameter);
+    protected IntegerParameter(IntegerParameter existingParameter, ReproductionMode mode) {
+        super(existingParameter, mode);
     }
 
     @Override
     public Parameter<Integer> newInstance() {
-        return new IntegerParameter(this);
+        return new IntegerParameter(this, ReproductionMode.NEW_INSTANCE);
+    }
+
+    @Override
+    public Parameter<Integer> copyOf() {
+        return new IntegerParameter(this, ReproductionMode.COPY_OF);
     }
 
     @Override

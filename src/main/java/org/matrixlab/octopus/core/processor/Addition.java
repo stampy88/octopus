@@ -1,10 +1,8 @@
 package org.matrixlab.octopus.core.processor;
 
-import com.google.common.collect.Lists;
 import org.matrixlab.octopus.core.event.Event;
 import org.matrixlab.octopus.core.memory.Memory;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -35,6 +33,10 @@ public class Addition extends Processor<Void> {
         super(id, additionToCopy);
     }
 
+    protected Addition(Addition additionToCopy) {
+        super(additionToCopy);
+    }
+
     public Input getFirstInput() {
         // there is only one input for an Sma
         return getInputs().get(0);
@@ -51,20 +53,18 @@ public class Addition extends Processor<Void> {
     }
 
     @Override
+    public Addition copyOf() {
+        return new Addition(this);
+    }
+
+    @Override
     public CompiledProcessor<Void> compile() {
         // todo validate cross input/output/parameters here??
 
         // we copy all the inputs and output taking a "snapshot" of this processor so we are isolated of changes
-        Input firstInputCopy = getFirstInput();
-        Input secondInputCopy = getSecondInput();
+        Addition copy = copyOf();
 
-        List<Input> inputs = Lists.newArrayList(firstInputCopy, secondInputCopy);
-        Output outputCopy = getOutput().newInstance();
-
-        // todo do we hide the source attribute name as input??
-        return new CompiledAddition(inputs, outputCopy, getId(),
-                firstInputCopy.getSourceAttributeName(), secondInputCopy.getSourceAttributeName()
-        );
+        return new CompiledAddition(copy);
     }
 
     /**
@@ -93,11 +93,11 @@ public class Addition extends Processor<Void> {
         private final String firstAttributeName;
         private final String secondAttributeName;
 
-        protected CompiledAddition(List<Input> inputs, Output output, UUID smaId,
-                                   String firstAttributeName, String secondAttributeName) {
-            super(inputs, output, smaId);
-            this.firstAttributeName = firstAttributeName;
-            this.secondAttributeName = secondAttributeName;
+        protected CompiledAddition(Addition addition) {
+            super(addition);
+
+            firstAttributeName = addition.getFirstInput().getSourceAttributeName();
+            secondAttributeName = addition.getSecondInput().getSourceAttributeName();
         }
 
         @Override

@@ -8,4 +8,8 @@ import org.matrixlab.octopus.core.Reproducible;
 public interface Constraint<T> extends Reproducible {
 
     void validate(String name, T value) throws ConstraintException;
+
+    Constraint<T> newInstance();
+
+    Constraint<T> copyOf();
 }

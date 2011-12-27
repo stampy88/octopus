@@ -9,15 +9,19 @@ public class ShortParameter extends Parameter<Short> {
         super(builder);
     }
 
-    protected ShortParameter(ShortParameter existingParameter) {
-        super(existingParameter);
+    protected ShortParameter(ShortParameter existingParameter, ReproductionMode mode) {
+        super(existingParameter, mode);
     }
 
     @Override
     public Parameter<Short> newInstance() {
-        return new ShortParameter(this);
+        return new ShortParameter(this, ReproductionMode.NEW_INSTANCE);
     }
 
+    @Override
+    public Parameter<Short> copyOf() {
+        return new ShortParameter(this, ReproductionMode.COPY_OF);
+    }
 
     @Override
     public Short parseValueFromString(String stringValue) throws ConversionException {

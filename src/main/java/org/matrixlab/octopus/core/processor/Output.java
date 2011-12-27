@@ -15,9 +15,15 @@ public class Output<T> extends ProcessorComponent implements Reproducible {
         this.attribute = builder.attribute;
     }
 
-    private Output(Output<T> existingOutput) {
+    private Output(Output<T> existingOutput, ReproductionMode mode) {
         super(existingOutput);
-        this.attribute = existingOutput.attribute.newInstance();
+
+        if (mode == ReproductionMode.NEW_INSTANCE) {
+            this.attribute = existingOutput.attribute.newInstance();
+
+        } else {
+            this.attribute = existingOutput.attribute.copyOf();
+        }
     }
 
     public void setAttributeName(String name) {
@@ -33,7 +39,12 @@ public class Output<T> extends ProcessorComponent implements Reproducible {
     }
 
     public Output<T> newInstance() {
-        return new Output<T>(this);
+        return new Output<T>(this, ReproductionMode.NEW_INSTANCE);
+    }
+
+    @Override
+    public Output<T> copyOf() {
+        return new Output<T>(this, ReproductionMode.COPY_OF);
     }
 
     public static Builder<String> stringOutputWithId(int id) {

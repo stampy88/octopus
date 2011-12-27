@@ -15,4 +15,15 @@ public interface Reproducible {
      * @return new instance
      */
     Reproducible newInstance();
+
+    /**
+     * Implementers need to return new instance that is an <b>exact</b> copy of this instance.
+     *
+     * @return copy of this instance
+     */
+    Reproducible copyOf();
+
+    public static enum ReproductionMode {
+        NEW_INSTANCE, COPY_OF
+    }
 }

@@ -19,14 +19,20 @@ public class TestSource extends AbstractNode implements ExternalSource {
     private final LinkedList<Event> events = Lists.newLinkedList();
     private final EventType eventType;
 
-    public TestSource(String name, String description, EventType eventType) {
-        super(name, description);
+    public TestSource(UUID id, String name, String description, EventType eventType) {
+        super(id, name, description);
         this.eventType = eventType;
     }
 
-    private TestSource(TestSource copyFromSource) {
-        super(copyFromSource.getName(), copyFromSource.getDescription());
+    private TestSource(UUID id, TestSource copyFromSource) {
+        super(id, copyFromSource);
         // todo do we need to reproduce this?
+        this.eventType = copyFromSource.eventType;
+        this.events.addAll(copyFromSource.events);
+    }
+
+    public TestSource(TestSource copyFromSource) {
+        super(copyFromSource);
         this.eventType = copyFromSource.eventType;
         this.events.addAll(copyFromSource.events);
     }
@@ -36,37 +42,38 @@ public class TestSource extends AbstractNode implements ExternalSource {
     }
 
     @Override
-    public UUID getId() {
-        return eventType.getId();
-    }
-
-    @Override
     public EventType getOutputEventType() {
         return eventType;
     }
 
     @Override
     public TestSource newInstance() {
+        UUID sourceId = UUID.randomUUID();
+        return new TestSource(sourceId, this);
+    }
+
+    @Override
+    public TestSource copyOf() {
         return new TestSource(this);
     }
 
     @Override
     public CompiledExternalSource compile() throws ValidationException {
-        return new CompiledTestSource(getId(), events);
+        return new CompiledTestSource(eventType, events);
     }
 
     static class CompiledTestSource implements CompiledExternalSource {
 
         private final LinkedList<Event> events = Lists.newLinkedList();
-        private final UUID sourceId;
+        private final EventType eventType;
 
         /**
          * Running is declared volatile because it may be access my different threads
          */
         private volatile boolean running;
 
-        public CompiledTestSource(UUID sourceId, List<Event> events) {
-            this.sourceId = sourceId;
+        public CompiledTestSource(EventType eventType, List<Event> events) {
+            this.eventType = eventType;
             this.events.addAll(events);
         }
 
@@ -78,7 +85,7 @@ public class TestSource extends AbstractNode implements ExternalSource {
             while (!thread.isInterrupted() && running && events.size() > 0) {
                 Event e = events.pop();
 
-                runtime.sendEvent(e, sourceId);
+                runtime.sendEvent(e, eventType);
             }
         }
 

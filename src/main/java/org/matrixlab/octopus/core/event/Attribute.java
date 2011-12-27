@@ -56,6 +56,11 @@ public class Attribute<T> implements Reproducible {
     }
 
     @Override
+    public Attribute<T> copyOf() {
+        return new Attribute<T>(this);
+    }
+
+    @Override
     public String toString() {
         return "Attribute{" +
                 "name='" + name + '\'' +

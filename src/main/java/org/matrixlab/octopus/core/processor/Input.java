@@ -23,14 +23,22 @@ public class Input<T> extends ProcessorComponent implements Reproducible {
         this.type = builder.type;
     }
 
-    private Input(Input<T> copyFromInput) {
+    private Input(Input<T> copyFromInput, ReproductionMode mode) {
         super(copyFromInput);
         this.type = copyFromInput.type;
 
         if (copyFromInput.source != null) {
-            Source newSource = (Source) copyFromInput.source.newInstance();
-            Attribute newSourceAttribute = (copyFromInput.sourceAttribute == null) ? null : copyFromInput.sourceAttribute.newInstance();
+            Source newSource;
+            Attribute newSourceAttribute;
 
+            if (mode == ReproductionMode.NEW_INSTANCE) {
+                newSource = copyFromInput.source.newInstance();
+                newSourceAttribute = (copyFromInput.sourceAttribute == null) ? null : copyFromInput.sourceAttribute.newInstance();
+
+            } else {
+                newSource = copyFromInput.source.copyOf();
+                newSourceAttribute = (copyFromInput.sourceAttribute == null) ? null : copyFromInput.sourceAttribute.copyOf();
+            }
             this.source = newSource;
             this.sourceAttribute = newSourceAttribute;
         }
@@ -92,7 +100,12 @@ public class Input<T> extends ProcessorComponent implements Reproducible {
     }
 
     public Input<T> newInstance() {
-        return new Input<T>(this);
+        return new Input<T>(this, ReproductionMode.NEW_INSTANCE);
+    }
+
+    @Override
+    public Input<T> copyOf() {
+        return new Input<T>(this, ReproductionMode.COPY_OF);
     }
 
     public static Builder<String> stringInputWithId(int id) {

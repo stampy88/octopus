@@ -1,8 +1,7 @@
 package org.matrixlab.octopus.core.runtime;
 
 import org.matrixlab.octopus.core.event.Event;
-
-import java.util.UUID;
+import org.matrixlab.octopus.core.event.EventType;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -10,5 +9,5 @@ import java.util.UUID;
 public interface ProcessingRuntime {
     void start();
 
-    void sendEvent(Event event, UUID eventTypeId);
+    void sendEvent(Event event, EventType eventType);
 }
