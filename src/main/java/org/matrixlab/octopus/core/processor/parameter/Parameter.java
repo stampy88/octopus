@@ -1,6 +1,5 @@
 package org.matrixlab.octopus.core.processor.parameter;
 
-import org.matrixlab.octopus.core.Reproducible;
 import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.processor.ProcessorComponent;
 
@@ -20,7 +19,7 @@ import org.matrixlab.octopus.core.processor.ProcessorComponent;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public abstract class Parameter<T> extends ProcessorComponent implements Reproducible {
+public abstract class Parameter<T> extends ProcessorComponent {
 
     /**
      * The actual value of the parameter
@@ -157,6 +156,23 @@ public abstract class Parameter<T> extends ProcessorComponent implements Reprodu
      */
     public final T getValue() {
         return this.value;
+    }
+
+    /**
+     * Validates whether the current state of this parameter is valid. If the {@link #value} of this {@link Parameter}
+     * is non-null meaning that it is either the default, or it was set and validated via the {@link #setValue(Object)},
+     * we no it is valid. If, however, the value is null we need to check the {@link #required} flag and throw an
+     * exception if it is required.
+     *
+     * @throws ValidationException if there is a validation error
+     */
+    @Override
+    public void validate() throws ValidationException {
+        if (value == null && isRequired()) {
+            throw new ValidationException(String.format("%s is a required parameter.", getName()));
+        }
+
+        // not null - only can be so if it is valid - so we are ok
     }
 
     /**
