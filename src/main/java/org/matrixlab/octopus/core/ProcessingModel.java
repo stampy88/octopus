@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class ProcessingModel {
+public class ProcessingModel implements Validatable {
 
     private final String modelName;
 
@@ -39,5 +39,21 @@ public class ProcessingModel {
 
     public String getModelName() {
         return modelName;
+    }
+
+    /**
+     * Validates the {@link #externalSources} and {@link #processors} for this mode.
+     *
+     * @throws ValidationException thrown if any source or processor is invalid.
+     */
+    @Override
+    public void validate() throws ValidationException {
+        for (ExternalSource source : externalSources) {
+            source.validate();
+        }
+
+        for (Processor<?> processor : processors) {
+            processor.validate();
+        }
     }
 }
