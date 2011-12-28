@@ -1,5 +1,9 @@
 package org.matrixlab.octopus.core.processor;
 
+import org.matrixlab.octopus.core.Reproducible;
+import org.matrixlab.octopus.core.Validatable;
+import org.matrixlab.octopus.core.ValidationException;
+
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -12,7 +16,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public abstract class ProcessorComponent {
+public abstract class ProcessorComponent implements Reproducible, Validatable {
     /**
      * The id is used internally by a {@link Processor} to have something to identity an individual component by. This is
      * needed because both the {@link #name} and {@link #description} are mutable.
@@ -56,6 +60,11 @@ public abstract class ProcessorComponent {
 
     public final void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public void validate() throws ValidationException {
+        // nothing to validate
     }
 
     @Override

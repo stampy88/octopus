@@ -1,12 +1,11 @@
 package org.matrixlab.octopus.core.processor;
 
-import org.matrixlab.octopus.core.Reproducible;
 import org.matrixlab.octopus.core.event.Attribute;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class Output<T> extends ProcessorComponent implements Reproducible {
+public class Output<T> extends ProcessorComponent {
 
     private final Attribute<T> attribute;
 
@@ -38,6 +37,7 @@ public class Output<T> extends ProcessorComponent implements Reproducible {
         return attribute;
     }
 
+    @Override
     public Output<T> newInstance() {
         return new Output<T>(this, ReproductionMode.NEW_INSTANCE);
     }

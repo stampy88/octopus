@@ -1,6 +1,5 @@
 package org.matrixlab.octopus.core.processor;
 
-import org.matrixlab.octopus.core.Reproducible;
 import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.Attribute;
 import org.matrixlab.octopus.core.event.EventType;
@@ -11,7 +10,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class Input<T> extends ProcessorComponent implements Reproducible {
+public class Input<T> extends ProcessorComponent {
 
     private final Class<T> type;
 
@@ -82,7 +81,7 @@ public class Input<T> extends ProcessorComponent implements Reproducible {
 
     public void setSourceAttribute(Attribute sourceAttribute) throws ValidationException {
         if (this.source == null) {
-            throw new ValidationException(String.format("Cannot set the source attribute before setting the source"));
+            throw new ValidationException("Cannot set the source before setting the source attribute");
         }
         EventType sourceType = source.getOutputEventType();
 
@@ -106,6 +105,24 @@ public class Input<T> extends ProcessorComponent implements Reproducible {
     @Override
     public Input<T> copyOf() {
         return new Input<T>(this, ReproductionMode.COPY_OF);
+    }
+
+    /**
+     * Validates the state of this input to ensure that both the {@link #source} and {@link #sourceAttribute} are
+     * non-null.
+     *
+     * @throws ValidationException thrown if there is a problem
+     */
+    @Override
+    public void validate() throws ValidationException {
+        // just need to ensure that an source and sourceAttribute have been set
+        if (this.source == null) {
+            throw new ValidationException(String.format("Please set the source for input %s", getName()));
+        }
+
+        if (this.sourceAttribute == null) {
+            throw new ValidationException(String.format("Please set the source attribute for input %s", getName()));
+        }
     }
 
     public static Builder<String> stringInputWithId(int id) {
