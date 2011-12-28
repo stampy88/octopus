@@ -35,22 +35,30 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
     private static final String DEFAULT_NAME = "JDBC";
     private static final String DEFAULT_DESCRIPTION = "JDBC Source for events";
 
-    public static final int URL_PARAMETER_ID = 1;
-    public static final int USER_NAME_PARAMETER_ID = 2;
-    public static final int PASSWORD_PARAMETER_ID = 3;
-    public static final int DRIVER_PARAMETER_ID = 4;
-    public static final int QUERY_PARAMETER_ID = 5;
+    private static final int URL_PARAMETER_ID = 1;
+    private static final int USER_NAME_PARAMETER_ID = 2;
+    private static final int PASSWORD_PARAMETER_ID = 3;
+    private static final int DRIVER_PARAMETER_ID = 4;
+    private static final int QUERY_PARAMETER_ID = 5;
+
+    private final EventType outputEventType;
 
     private SqlQuerySource(UUID sourceId, String name, String description) {
         super(sourceId, name, description);
+        // the event type id is the same as this source's id
+        this.outputEventType = new EventType(sourceId);
     }
 
     private SqlQuerySource(UUID sourceId, SqlQuerySource copyFromSource) {
         super(sourceId, copyFromSource);
+        // the event type id is the same as this source's id
+        this.outputEventType = new EventType(sourceId);
     }
 
     private SqlQuerySource(SqlQuerySource copyFromSource) {
         super(copyFromSource);
+        // the event type id is the same as this source's id
+        this.outputEventType = new EventType(getId());
     }
 
     @SuppressWarnings("unchecked")
@@ -59,29 +67,28 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
     }
 
     @SuppressWarnings("unchecked")
-    public void setUsername(String url) {
-        getParameter(USER_NAME_PARAMETER_ID).setValue(url);
+    public void setUsername(String username) {
+        getParameter(USER_NAME_PARAMETER_ID).setValue(username);
     }
 
     @SuppressWarnings("unchecked")
-    public void setPassword(String url) {
-        getParameter(PASSWORD_PARAMETER_ID).setValue(url);
+    public void setPassword(String password) {
+        getParameter(PASSWORD_PARAMETER_ID).setValue(password);
     }
 
     @SuppressWarnings("unchecked")
-    public void setDriverClass(String url) {
-        getParameter(DRIVER_PARAMETER_ID).setValue(url);
+    public void setDriverClass(String driverClass) {
+        getParameter(DRIVER_PARAMETER_ID).setValue(driverClass);
     }
 
     @SuppressWarnings("unchecked")
-    public void setQuery(String url) {
-        getParameter(QUERY_PARAMETER_ID).setValue(url);
+    public void setQuery(String query) {
+        getParameter(QUERY_PARAMETER_ID).setValue(query);
     }
 
     @Override
     public EventType getOutputEventType() {
-        // todo 
-        return null;
+        return outputEventType;
     }
 
     @Override
@@ -111,7 +118,8 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
 
     @Override
     public CompiledExternalSource compile() throws ValidationException {
-        // todo validate
+        validate();
+
         return new CompiledSqlQuerySource(
                 getParameterValueAsString(URL_PARAMETER_ID),
                 getParameterValueAsString(USER_NAME_PARAMETER_ID),
@@ -144,7 +152,12 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
 
         @Override
         public void startProcessingEvents(ProcessingRuntime runtime) {
-            checkState(!running, "Source is already processing events. Cannot call processEvents again");
+            // this needs to be atomic, both the check and set
+            synchronized (this) {
+                checkState(!running, "Source is already processing events. Cannot call processEvents again");
+                running = true;
+            }
+
             Connection connection = getConnection(className, url, userName, password);
             Statement statement = null;
             ResultSet rs = null;

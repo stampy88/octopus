@@ -69,19 +69,20 @@ public class AbstractNodeTest {
     private static class AbstractNodeImpl extends AbstractNode {
 
         private AbstractNodeImpl(String name, String description) {
-            super(name, description);
+            super(UUID.randomUUID(), name, description);
         }
 
         private AbstractNodeImpl() {
-        }
-
-        @Override
-        public UUID getId() {
-            return null;
+            super(UUID.randomUUID());
         }
 
         @Override
         public Reproducible newInstance() {
+            return new AbstractNodeImpl(this.getName(), this.getDescription());
+        }
+
+        @Override
+        public Reproducible copyOf() {
             return new AbstractNodeImpl(this.getName(), this.getDescription());
         }
     }

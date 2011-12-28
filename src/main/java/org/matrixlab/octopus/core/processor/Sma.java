@@ -1,5 +1,6 @@
 package org.matrixlab.octopus.core.processor;
 
+import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.Event;
 import org.matrixlab.octopus.core.memory.Memory;
 import org.matrixlab.octopus.core.memory.MemoryProvider;
@@ -90,8 +91,8 @@ public class Sma extends Processor<Double> {
      *
      * @return CompiledProcessor
      */
-    public CompiledProcessor<Double> compile() {
-        // todo validate cross input/output/parameters here??
+    public CompiledProcessor<Double> compile() throws ValidationException {
+        validate();
 
         // we copy all the inputs and output taking a "snapshot" of this processor so we are isolated of changes
         Sma copy = copyOf();

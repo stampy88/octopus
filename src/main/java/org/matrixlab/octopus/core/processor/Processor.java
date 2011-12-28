@@ -3,6 +3,7 @@ package org.matrixlab.octopus.core.processor;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.matrixlab.octopus.core.AbstractNode;
+import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.memory.Memory;
 import org.matrixlab.octopus.core.memory.MemoryProvider;
@@ -133,6 +134,26 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
 
     public List<Input> getInputs() {
         return ImmutableList.copyOf(inputs);
+    }
+
+    /**
+     * The {@link org.matrixlab.octopus.core.processor.Processor} will validate it's {@link #parameters}, {@link #inputs},
+     * and {@link #output} in that order. Any subclass that wants to do cross parameter validation should override
+     * this method to do so.
+     *
+     * @throws ValidationException if there is a validation problem
+     */
+    @Override
+    public void validate() throws ValidationException {
+        super.validate();
+
+        for (Input input : inputs) {
+            input.validate();
+        }
+
+        if (output != null) {
+            output.validate();
+        }
     }
 
     /**

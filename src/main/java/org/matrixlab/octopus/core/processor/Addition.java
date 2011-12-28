@@ -1,5 +1,6 @@
 package org.matrixlab.octopus.core.processor;
 
+import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.Event;
 import org.matrixlab.octopus.core.memory.Memory;
 
@@ -58,8 +59,8 @@ public class Addition extends Processor<Void> {
     }
 
     @Override
-    public CompiledProcessor<Void> compile() {
-        // todo validate cross input/output/parameters here??
+    public CompiledProcessor<Void> compile() throws ValidationException {
+        validate();
 
         // we copy all the inputs and output taking a "snapshot" of this processor so we are isolated of changes
         Addition copy = copyOf();

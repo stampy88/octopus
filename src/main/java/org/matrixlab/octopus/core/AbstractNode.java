@@ -121,6 +121,18 @@ public abstract class AbstractNode implements Node {
     }
 
     /**
+     * This node will check the validity of it's {@link #parameters}
+     *
+     * @throws ValidationException if a parameter is not valid
+     */
+    @Override
+    public void validate() throws ValidationException {
+        for (Parameter parameter : parameters) {
+            parameter.validate();
+        }
+    }
+
+    /**
      * This implementation of equals will check that the specified otherObject is an instance of a {@link Node}
      * and the {@link #getId()} are equivalent.
      *
