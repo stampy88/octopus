@@ -7,11 +7,12 @@ import org.matrixlab.octopus.core.ValidationException;
  */
 public class ConstraintException extends ValidationException {
 
-    public ConstraintException(Throwable cause) {
-        super(cause);
-    }
-
     public ConstraintException(String message) {
         super(message);
     }
+
+    public ConstraintException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }
