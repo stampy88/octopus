@@ -58,6 +58,11 @@ public class TestSource extends AbstractNode implements ExternalSource {
     }
 
     @Override
+    public void validate() throws ValidationException {
+        // nothing to validate
+    }
+
+    @Override
     public CompiledExternalSource compile() throws ValidationException {
         return new CompiledTestSource(eventType, events);
     }
