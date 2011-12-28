@@ -25,7 +25,7 @@ public class Constraints {
             try {
                 Class.forName(value);
             } catch (ClassNotFoundException e) {
-                throw new ConstraintException(String.format(message, value));
+                throw new ConstraintException(String.format(message, value), e);
             }
         }
 
