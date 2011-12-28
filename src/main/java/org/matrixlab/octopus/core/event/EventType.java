@@ -3,6 +3,7 @@ package org.matrixlab.octopus.core.event;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.matrixlab.octopus.core.Reproducible;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,13 +13,18 @@ import java.util.UUID;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class EventType {
+public class EventType implements Reproducible {
 
     private final UUID id;
     private final List<Attribute> attributes = Lists.newLinkedList();
 
     public EventType(UUID id) {
         this.id = id;
+    }
+
+    private EventType(EventType copyFromEventType) {
+        this.id = copyFromEventType.id;
+        this.attributes.addAll(copyFromEventType.attributes);
     }
 
     private EventType(UUID id, EventType copyFromEventType) {
@@ -31,16 +37,15 @@ public class EventType {
     }
 
     public EventType unionWith(EventType eventType) {
-        // todo do we create a new id?
-        EventType newEventType = new EventType(this.id);
-        newEventType.attributes.addAll(this.attributes);
-        newEventType.attributes.addAll(eventType.attributes);
+        attributes.addAll(eventType.attributes);
 
-        return newEventType;
+        return this;
     }
 
-    public void addAttribute(Attribute attribute) {
+    public EventType addAttribute(Attribute attribute) {
         attributes.add(attribute);
+
+        return this;
     }
 
     public Attribute getAttributeByName(String name) {
@@ -90,9 +95,13 @@ public class EventType {
                 '}';
     }
 
-    // TODO is event type reproducible?
-
+    @Override
     public EventType newInstance() {
         return new EventType(UUID.randomUUID(), this);
+    }
+
+    @Override
+    public Reproducible copyOf() {
+        return new EventType(this);
     }
 }
