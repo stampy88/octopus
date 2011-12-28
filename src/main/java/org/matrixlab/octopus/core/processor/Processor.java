@@ -64,6 +64,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
             this.addInput(input.newInstance());
         }
 
+        // todo no side effect? 
         this.setOutput(copyFromProcessor.getOutput().newInstance());
     }
 
