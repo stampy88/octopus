@@ -1,8 +1,8 @@
-package org.matrixlab.octopus.core.processor;
+package org.matrixlab.octopus.core;
 
-import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.Attribute;
 import org.matrixlab.octopus.core.event.EventType;
+import org.matrixlab.octopus.core.processor.ProcessorComponent;
 import org.matrixlab.octopus.core.source.Source;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -77,6 +77,28 @@ public class Input<T> extends ProcessorComponent {
         this.source = source;
 
         return this;
+    }
+
+    public void setSourceAttribute(String attributeName) throws ValidationException {
+        if (this.source == null) {
+            throw new ValidationException("Cannot set the source before setting the source attribute");
+        }
+
+        EventType sourceType = source.getOutputEventType();
+
+        Attribute sourceAttribute = sourceType.getAttributeByName(attributeName);
+
+        if (sourceAttribute == null) {
+            throw new ValidationException(String.format("Source does not contain an attribute named '%s'", attributeName));
+        }
+
+        if (!sourceAttribute.isCompatibleWith(getType())) {
+            throw new ValidationException(
+                    String.format("The attribute '%s' is not compatible with the input '%s'", sourceAttribute,
+                            getName())
+            );
+        }
+        this.sourceAttribute = sourceAttribute;
     }
 
     public void setSourceAttribute(Attribute sourceAttribute) throws ValidationException {

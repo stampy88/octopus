@@ -8,7 +8,6 @@ import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.runtime.ProcessingRuntime;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -59,22 +58,20 @@ public class TestSource extends AbstractNode implements ExternalSource {
 
     @Override
     public CompiledExternalSource compile() throws ValidationException {
-        return new CompiledTestSource(eventType, events);
+        return new CompiledTestSource(copyOf());
     }
 
     static class CompiledTestSource implements CompiledExternalSource {
 
-        private final LinkedList<Event> events = Lists.newLinkedList();
-        private final EventType eventType;
+        private final TestSource source;
 
         /**
          * Running is declared volatile because it may be access my different threads
          */
         private volatile boolean running;
 
-        public CompiledTestSource(EventType eventType, List<Event> events) {
-            this.eventType = eventType;
-            this.events.addAll(events);
+        public CompiledTestSource(TestSource source) {
+            this.source = source;
         }
 
         @Override
@@ -82,10 +79,11 @@ public class TestSource extends AbstractNode implements ExternalSource {
             Thread thread = Thread.currentThread();
             running = true;
 
-            while (!thread.isInterrupted() && running && events.size() > 0) {
-                Event e = events.pop();
 
-                runtime.sendEvent(e, eventType);
+            while (!thread.isInterrupted() && running && source.events.size() > 0) {
+                Event e = source.events.pop();
+
+                runtime.sendEventFromSource(e, source);
             }
         }
 

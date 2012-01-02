@@ -2,18 +2,19 @@ package org.matrixlab.octopus.core.compiler.esper;
 
 import com.espertech.esper.client.*;
 import com.google.common.collect.Lists;
+import org.matrixlab.octopus.core.Input;
 import org.matrixlab.octopus.core.ProcessingModel;
 import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.memory.Memory;
 import org.matrixlab.octopus.core.memory.heap.HeapMemoryProvider;
 import org.matrixlab.octopus.core.processor.CompiledProcessor;
-import org.matrixlab.octopus.core.processor.Input;
 import org.matrixlab.octopus.core.processor.Processor;
 import org.matrixlab.octopus.core.runtime.ProcessingRuntime;
 import org.matrixlab.octopus.core.runtime.esper.EsperRuntime;
 import org.matrixlab.octopus.core.source.external.CompiledExternalSource;
 import org.matrixlab.octopus.core.source.external.ExternalSource;
+import org.matrixlab.octopus.util.esper.EsperUtils;
 
 import java.util.*;
 
@@ -43,7 +44,7 @@ public class EsperCompiler implements org.matrixlab.octopus.core.compiler.Compil
             EventType eventType = externalSource.getOutputEventType();
 
             configuration.addEventType(
-                    EsperUtils.getEventNameForEventType(eventType),
+                    EsperUtils.getEventNameForSource(externalSource),
                     eventType.getEventDefinition()
             );
         }
@@ -54,7 +55,7 @@ public class EsperCompiler implements org.matrixlab.octopus.core.compiler.Compil
                 EventType eventType = processor.getOutputEventType();
 
                 configuration.addEventType(
-                        EsperUtils.getEventNameForEventType(eventType),
+                        EsperUtils.getEventNameForSource(processor),
                         eventType.getEventDefinition()
                 );
             }
@@ -97,8 +98,7 @@ public class EsperCompiler implements org.matrixlab.octopus.core.compiler.Compil
             stmt.setSubscriber(runner);
 
             // todo this is temporary think we want the output to have the id possibly
-            EventType outputEventType = processor.getOutputEventType();
-            String outputEventName = EsperUtils.getEventNameForEventType(outputEventType);
+            String outputEventName = EsperUtils.getEventNameForSource(processor);
             System.out.println("Compiler " + outputEventName);
             String debugStmt = String.format("select * from %s", outputEventName);
             stmt = admin.createEPL(debugStmt);
@@ -136,7 +136,7 @@ public class EsperCompiler implements org.matrixlab.octopus.core.compiler.Compil
                 fromClause.append(", ");
             }
 
-            String inputName = EsperUtils.getEventNameForEventType(input.getSource().getOutputEventType());
+            String inputName = EsperUtils.getEventNameForSource(input.getSource());
 
             String aliasName = "_" + aliasIndex++;
             selectClause.append(aliasName).append(".*");

@@ -46,19 +46,18 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
     private SqlQuerySource(UUID sourceId, String name, String description) {
         super(sourceId, name, description);
         // the event type id is the same as this source's id
-        this.outputEventType = new EventType(sourceId);
+        this.outputEventType = new EventType();
     }
 
     private SqlQuerySource(UUID sourceId, SqlQuerySource copyFromSource) {
         super(sourceId, copyFromSource);
-        // the event type id is the same as this source's id
-        this.outputEventType = new EventType(sourceId);
+        this.outputEventType = copyFromSource.outputEventType.newInstance();
     }
 
     private SqlQuerySource(SqlQuerySource copyFromSource) {
         super(copyFromSource);
-        // the event type id is the same as this source's id
-        this.outputEventType = new EventType(getId());
+
+        this.outputEventType = copyFromSource.outputEventType.copyOf();
     }
 
     @SuppressWarnings("unchecked")
@@ -66,9 +65,17 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
         getParameter(URL_PARAMETER_ID).setValue(url);
     }
 
+    public String getUrl() {
+        return getParameter(URL_PARAMETER_ID).getValueAsString();
+    }
+
     @SuppressWarnings("unchecked")
     public void setUsername(String username) {
         getParameter(USER_NAME_PARAMETER_ID).setValue(username);
+    }
+
+    public String getUsername() {
+        return getParameter(USER_NAME_PARAMETER_ID).getValueAsString();
     }
 
     @SuppressWarnings("unchecked")
@@ -76,14 +83,26 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
         getParameter(PASSWORD_PARAMETER_ID).setValue(password);
     }
 
+    public String getPassword() {
+        return getParameter(PASSWORD_PARAMETER_ID).getValueAsString();
+    }
+
     @SuppressWarnings("unchecked")
     public void setDriverClass(String driverClass) {
         getParameter(DRIVER_PARAMETER_ID).setValue(driverClass);
     }
 
+    public String getDriverClass() {
+        return getParameter(DRIVER_PARAMETER_ID).getValueAsString();
+    }
+
     @SuppressWarnings("unchecked")
     public void setQuery(String query) {
         getParameter(QUERY_PARAMETER_ID).setValue(query);
+    }
+
+    public String getQuery() {
+        return getParameter(QUERY_PARAMETER_ID).getValueAsString();
     }
 
     @Override
@@ -120,34 +139,16 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
     public CompiledExternalSource compile() throws ValidationException {
         validate();
 
-        return new CompiledSqlQuerySource(
-                getParameterValueAsString(URL_PARAMETER_ID),
-                getParameterValueAsString(USER_NAME_PARAMETER_ID),
-                getParameterValueAsString(PASSWORD_PARAMETER_ID),
-                getParameterValueAsString(DRIVER_PARAMETER_ID),
-                getParameterValueAsString(QUERY_PARAMETER_ID),
-                getOutputEventType()
-        );
+        return new CompiledSqlQuerySource(this.copyOf());
     }
 
     private static class CompiledSqlQuerySource implements CompiledExternalSource {
-        private final String url;
-        private final String userName;
-        private final String password;
-        private final String className;
-        private final String query;
-        private final EventType eventType;
+        private final SqlQuerySource source;
 
         private volatile boolean running;
 
-        public CompiledSqlQuerySource(String url, String userName, String password, String className,
-                                      String query, EventType eventType) {
-            this.url = url;
-            this.userName = userName;
-            this.password = password;
-            this.className = className;
-            this.query = query;
-            this.eventType = eventType;
+        public CompiledSqlQuerySource(SqlQuerySource source) {
+            this.source = source;
         }
 
         @Override
@@ -158,13 +159,13 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
                 running = true;
             }
 
-            Connection connection = getConnection(className, url, userName, password);
+            Connection connection = getConnection(source.getDriverClass(), source.getUrl(), source.getUsername(), source.getPassword());
             Statement statement = null;
             ResultSet rs = null;
             try {
                 statement = connection.createStatement();
 
-                rs = statement.executeQuery(query);
+                rs = statement.executeQuery(source.getQuery());
                 processResultSet(rs, runtime);
             } catch (SQLException e) {
                 throw new ProcessingException("Problem processing result set from database. Please check your settings.", e);
@@ -178,11 +179,12 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
 
         void processResultSet(ResultSet rs, ProcessingRuntime runtime) throws SQLException {
             Thread thread = Thread.currentThread();
+            EventType eventType = source.getOutputEventType();
 
             while (!thread.isInterrupted() && running && rs.next()) {
                 Event newEvent = createEventFromResultSet(rs, eventType);
 
-                runtime.sendEvent(newEvent, eventType);
+                runtime.sendEventFromSource(newEvent, source);
             }
         }
 

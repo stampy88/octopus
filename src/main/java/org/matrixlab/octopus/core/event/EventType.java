@@ -8,32 +8,22 @@ import org.matrixlab.octopus.core.Reproducible;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
+ * An {@link EventType} is the definition of an {@link Event} that describes some or all of the attributes a event
+ * will have.
+ *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class EventType implements Reproducible {
 
-    private final UUID id;
     private final List<Attribute> attributes = Lists.newLinkedList();
 
-    public EventType(UUID id) {
-        this.id = id;
+    public EventType() {
     }
 
     private EventType(EventType copyFromEventType) {
-        this.id = copyFromEventType.id;
         this.attributes.addAll(copyFromEventType.attributes);
-    }
-
-    private EventType(UUID id, EventType copyFromEventType) {
-        this.id = id;
-        this.attributes.addAll(copyFromEventType.attributes);
-    }
-
-    public UUID getId() {
-        return id;
     }
 
     public EventType unionWith(EventType eventType) {
@@ -90,18 +80,17 @@ public class EventType implements Reproducible {
     @Override
     public String toString() {
         return "EventType{" +
-                "id='" + id + '\'' +
-                ", attributes=" + attributes +
+                "attributes=" + attributes +
                 '}';
     }
 
     @Override
     public EventType newInstance() {
-        return new EventType(UUID.randomUUID(), this);
+        return new EventType(this);
     }
 
     @Override
-    public Reproducible copyOf() {
+    public EventType copyOf() {
         return new EventType(this);
     }
 }

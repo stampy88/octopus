@@ -1,6 +1,7 @@
-package org.matrixlab.octopus.core.processor;
+package org.matrixlab.octopus.core;
 
 import org.matrixlab.octopus.core.event.Attribute;
+import org.matrixlab.octopus.core.processor.ProcessorComponent;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -9,9 +10,16 @@ public class Output<T> extends ProcessorComponent {
 
     private final Attribute<T> attribute;
 
+    //private final EventType eventType;
+
     private Output(Builder<T> builder) {
         super(builder.id, builder.name, builder.description);
         this.attribute = builder.attribute;
+
+//        this.eventType = new EventType();
+//        if(attribute != null) {
+//            this.eventType.addAttribute(attribute);
+//        }
     }
 
     private Output(Output<T> existingOutput, ReproductionMode mode) {
@@ -19,9 +27,10 @@ public class Output<T> extends ProcessorComponent {
 
         if (mode == ReproductionMode.NEW_INSTANCE) {
             this.attribute = existingOutput.attribute.newInstance();
-
+            // this.eventType = existingOutput.eventType.newInstance();
         } else {
             this.attribute = existingOutput.attribute.copyOf();
+            // this.eventType = existingOutput.eventType.copyOf();
         }
     }
 
@@ -33,7 +42,7 @@ public class Output<T> extends ProcessorComponent {
         return attribute.getName();
     }
 
-    Attribute<T> getAttribute() {
+    public Attribute<T> getAttribute() {
         return attribute;
     }
 

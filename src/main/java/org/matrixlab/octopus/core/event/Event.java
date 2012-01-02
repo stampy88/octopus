@@ -47,6 +47,7 @@ public class Event {
     }
 
     public Double getAttributeAsDouble(String attributeName) {
+        // todo return null??
         return ((Number) data.get(attributeName)).doubleValue();
     }
 

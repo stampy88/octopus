@@ -3,6 +3,8 @@ package org.matrixlab.octopus.core.processor;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.matrixlab.octopus.core.AbstractNode;
+import org.matrixlab.octopus.core.Input;
+import org.matrixlab.octopus.core.Output;
 import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.memory.Memory;
@@ -20,8 +22,8 @@ import java.util.UUID;
  * that affect the behavior of the processor.
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
- * @see org.matrixlab.octopus.core.processor.Input
- * @see org.matrixlab.octopus.core.processor.Output
+ * @see org.matrixlab.octopus.core.Input
+ * @see org.matrixlab.octopus.core.Output
  * @see org.matrixlab.octopus.core.processor.parameter.Parameter
  */
 public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Source, Sink {
@@ -102,8 +104,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     protected void setOutput(Output output) {
         this.output = output;
 
-        // the event type id is the same as this processor's id
-        this.outputEventType = new EventType(getId());
+        this.outputEventType = new EventType();
         this.outputEventType.addAttribute(output.getAttribute());
     }
 

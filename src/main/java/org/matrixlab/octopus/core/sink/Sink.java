@@ -1,7 +1,7 @@
 package org.matrixlab.octopus.core.sink;
 
+import org.matrixlab.octopus.core.Input;
 import org.matrixlab.octopus.core.Node;
-import org.matrixlab.octopus.core.processor.Input;
 
 import java.util.Collection;
 

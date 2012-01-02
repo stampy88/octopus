@@ -1,5 +1,7 @@
 package org.matrixlab.octopus.core.processor;
 
+import org.matrixlab.octopus.core.Input;
+import org.matrixlab.octopus.core.Output;
 import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.Event;
 import org.matrixlab.octopus.core.memory.Memory;
@@ -70,7 +72,7 @@ public class Addition extends Processor<Void> {
 
     /**
      * Returns a new {@link Addition} processor configured with all the appropriate
-     * {@link org.matrixlab.octopus.core.processor.parameter.Parameter}s, {@link Input}s and {@link Output}.
+     * {@link org.matrixlab.octopus.core.processor.parameter.Parameter}s, {@link org.matrixlab.octopus.core.Input}s and {@link org.matrixlab.octopus.core.Output}.
      *
      * @return new {@link Addition}
      */

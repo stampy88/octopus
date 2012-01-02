@@ -2,9 +2,10 @@ package org.matrixlab.octopus.core.runtime.esper;
 
 import com.espertech.esper.client.EPServiceProvider;
 import org.matrixlab.octopus.core.event.Event;
-import org.matrixlab.octopus.core.event.EventType;
 import org.matrixlab.octopus.core.runtime.ProcessingRuntime;
+import org.matrixlab.octopus.core.source.Source;
 import org.matrixlab.octopus.core.source.external.CompiledExternalSource;
+import org.matrixlab.octopus.util.esper.EsperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,29 +84,16 @@ public class EsperRuntime implements ProcessingRuntime {
     }
 
     @Override
-    public void sendEvent(Event event, EventType eventType) {
+    public void sendEventFromSource(Event event, Source source) {
         readLock.lock();
 
         try {
             checkState(currentState == State.RUNNING, "Cannot send an event unless the runtime has been started");
 
-            epService.getEPRuntime().sendEvent(event.getData(), getEventNameForUUID(eventType));
+            epService.getEPRuntime().sendEvent(event.getData(), EsperUtils.getEventNameForSource(source));
         } finally {
             readLock.unlock();
         }
-    }
-
-    static String getEventNameForUUID(EventType eventType) {
-        StringBuilder eventName = new StringBuilder("_");
-
-        String idAsString = eventType.getId().toString();
-        for (int i = 0; i < idAsString.length(); ++i) {
-            if (idAsString.charAt(i) != '-') {
-                eventName.append(idAsString.charAt(i));
-            }
-        }
-
-        return eventName.toString();
     }
 
     /**

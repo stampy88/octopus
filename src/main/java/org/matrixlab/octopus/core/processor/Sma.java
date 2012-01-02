@@ -1,5 +1,7 @@
 package org.matrixlab.octopus.core.processor;
 
+import org.matrixlab.octopus.core.Input;
+import org.matrixlab.octopus.core.Output;
 import org.matrixlab.octopus.core.ValidationException;
 import org.matrixlab.octopus.core.event.Event;
 import org.matrixlab.octopus.core.memory.Memory;
@@ -142,8 +144,11 @@ public class Sma extends Processor<Double> {
             // sma only has a single event
             Event event = eventsByInputId.get(INPUT_ID);
 
-            double newItem = event.getAttributeAsDouble(inputAttributeName);
+            Double newItem = event.getAttributeAsDouble(inputAttributeName);
 
+            if (newItem == null) {
+                newItem = 0D;
+            }
             memory.add(newItem);
 
             double total = 0;

@@ -2,11 +2,12 @@ package org.matrixlab.octopus.core.compiler.esper;
 
 import com.espertech.esper.client.EPRuntime;
 import com.google.common.collect.Maps;
+import org.matrixlab.octopus.core.Input;
 import org.matrixlab.octopus.core.event.Event;
 import org.matrixlab.octopus.core.memory.Memory;
 import org.matrixlab.octopus.core.processor.CompiledProcessor;
-import org.matrixlab.octopus.core.processor.Input;
 import org.matrixlab.octopus.util.Pair;
+import org.matrixlab.octopus.util.esper.EsperUtils;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -33,14 +34,14 @@ class EsperProcessorAdaptor {
 
         int index = 0;
         for (Input input : processor.getInputs()) {
-            String sourceId = EsperUtils.getEventNameForEventType(input.getSource().getOutputEventType());
+            String sourceId = EsperUtils.getEventNameForSource(input.getSource());
             Integer inputId = input.getId();
             sourceIdToInputId[index++] = Pair.newInstance(sourceId, inputId);
         }
 
         if (processor.generatesOutput()) {
             outputAttributeName = processor.getOutput().getAttributeName();
-            outputEventId = EsperUtils.getEventNameForEventType(processor.getOutputEventType());
+            outputEventId = EsperUtils.getEventNameForSource(processor);
 
         } else {
             outputAttributeName = null;
