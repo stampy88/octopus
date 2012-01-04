@@ -2,7 +2,6 @@ package org.lisapark.octopus.core;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import org.lisapark.octopus.core.processor.ProcessorComponent;
 import org.lisapark.octopus.core.processor.parameter.Parameter;
 
 import java.awt.*;
@@ -42,7 +41,7 @@ public abstract class AbstractNode implements Node {
         setName(copyFromNode.name);
         setDescription(copyFromNode.description);
         for (Parameter parameter : copyFromNode.getParameters()) {
-            this.addParameter(parameter.newInstance());
+            this.addParameter(parameter.copyOf());
         }
     }
 
@@ -108,11 +107,11 @@ public abstract class AbstractNode implements Node {
     }
 
     protected Parameter getParameter(int parameterId) {
-        return ProcessorComponent.getComponentById(parameters, parameterId);
+        return AbstractComponent.getComponentById(parameters, parameterId);
     }
 
     protected String getParameterValueAsString(int parameterId) {
-        return ProcessorComponent.getComponentById(parameters, parameterId).getValueAsString();
+        return AbstractComponent.getComponentById(parameters, parameterId).getValueAsString();
     }
 
     @Override

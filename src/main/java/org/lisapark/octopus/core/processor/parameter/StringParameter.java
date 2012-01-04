@@ -9,18 +9,13 @@ public class StringParameter extends Parameter<String> {
         super(spec);
     }
 
-    protected StringParameter(StringParameter existingParameter, ReproductionMode mode) {
-        super(existingParameter, mode);
-    }
-
-    @Override
-    public Parameter<String> newInstance() {
-        return new StringParameter(this, ReproductionMode.NEW_INSTANCE);
+    protected StringParameter(StringParameter existingParameter) {
+        super(existingParameter);
     }
 
     @Override
     public Parameter<String> copyOf() {
-        return new StringParameter(this, ReproductionMode.COPY_OF);
+        return new StringParameter(this);
     }
 
     @Override

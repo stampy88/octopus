@@ -1,7 +1,7 @@
 package org.lisapark.octopus.core.processor.parameter;
 
+import org.lisapark.octopus.core.AbstractComponent;
 import org.lisapark.octopus.core.ValidationException;
-import org.lisapark.octopus.core.processor.ProcessorComponent;
 
 /**
  * A {@link Parameter} is an instance of a configurable parameter of a
@@ -11,7 +11,7 @@ import org.lisapark.octopus.core.processor.ProcessorComponent;
  * the user enters a value. Lastly, the parameter can be configured with a {@link #constraint} in order to restrict
  * allowed values for this parameter.
  * <p/>
- * They are generally created via the a static builder method or the {@link #newInstance()} in which case they based
+ * They are generally created via the a static builder method or the {@link #copyOf()} in which case they based
  * on an existing {@link Parameter}.
  * <p/>
  * Subclasses need to implement the {@link #parseValueFromString(String)} to convert the specified string to the type
@@ -19,7 +19,7 @@ import org.lisapark.octopus.core.processor.ProcessorComponent;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public abstract class Parameter<T> extends ProcessorComponent {
+public abstract class Parameter<T> extends AbstractComponent {
 
     /**
      * The actual value of the parameter
@@ -50,23 +50,18 @@ public abstract class Parameter<T> extends ProcessorComponent {
 
     /**
      * Copy constructor for creating a new {@link Parameter} based off the copyFromParameter. Note that we use the
-     * {@link org.lisapark.octopus.core.Reproducible#newInstance()} for the {@link #constraint}
+     * {@link org.lisapark.octopus.core.Copyable#copyOf()} for the {@link #constraint}
      *
      * @param copyFromParameter to get values
-     * @param mode              use to tell how to create/copy {@link org.lisapark.octopus.core.Reproducible}
      */
     @SuppressWarnings("unchecked")
-    protected Parameter(Parameter<T> copyFromParameter, ReproductionMode mode) {
+    protected Parameter(Parameter<T> copyFromParameter) {
         super(copyFromParameter);
         this.value = copyFromParameter.value;
         this.required = copyFromParameter.required;
 
         if (copyFromParameter.constraint != null) {
-            if (mode == ReproductionMode.NEW_INSTANCE) {
-                this.constraint = copyFromParameter.constraint.newInstance();
-            } else {
-                this.constraint = copyFromParameter.constraint.copyOf();
-            }
+            this.constraint = copyFromParameter.constraint.copyOf();
         } else {
             this.constraint = null;
         }
@@ -181,13 +176,6 @@ public abstract class Parameter<T> extends ProcessorComponent {
      * @return parameter type
      */
     public abstract Class<T> getType();
-
-    /**
-     * Subclasses need to implement this method to return a <b>new</b> {@link Parameter} based on this one.
-     *
-     * @return new parameter
-     */
-    public abstract Parameter<T> newInstance();
 
     /**
      * Subclasses need to implement this method to return a <b>new</b> {@link Parameter} that is an <b>exact</b> copy

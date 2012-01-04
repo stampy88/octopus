@@ -8,6 +8,7 @@ import org.lisapark.octopus.core.event.Event;
 import org.lisapark.octopus.core.event.EventType;
 import org.lisapark.octopus.core.processor.Sma;
 import org.lisapark.octopus.core.runtime.ProcessingRuntime;
+import org.lisapark.octopus.core.sink.external.ConsoleSink;
 import org.lisapark.octopus.core.source.external.TestSource;
 
 import java.util.Map;
@@ -42,9 +43,14 @@ public class Main {
         sma.setOutputAttributeName("averageAge");
 
         // connect the sma input to the test source's age attribute
-        sma.getInput().connectSource(testSource).setSourceAttribute(eventType.getAttributeByName("age"));
+        sma.getInput().connectSource(testSource).setSourceAttribute("age");
 
         model.addProcessor(sma);
+
+        ConsoleSink consoleSink = ConsoleSink.newTemplate();
+        consoleSink.getInput().connectSource(sma);
+
+        model.addExternalSink(consoleSink);
 
         EsperCompiler compiler = new EsperCompiler();
         ProcessingRuntime runtime = compiler.compile(model);

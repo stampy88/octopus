@@ -9,18 +9,13 @@ public class DoubleParameter extends Parameter<Double> {
         super(builder);
     }
 
-    protected DoubleParameter(DoubleParameter existingParameter, ReproductionMode mode) {
-        super(existingParameter, mode);
-    }
-
-    @Override
-    public Parameter<Double> newInstance() {
-        return new DoubleParameter(this, ReproductionMode.NEW_INSTANCE);
+    protected DoubleParameter(DoubleParameter existingParameter) {
+        super(existingParameter);
     }
 
     @Override
     public Parameter<Double> copyOf() {
-        return new DoubleParameter(this, ReproductionMode.COPY_OF);
+        return new DoubleParameter(this);
     }
 
     @Override

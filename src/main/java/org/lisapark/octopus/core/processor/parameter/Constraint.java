@@ -1,15 +1,13 @@
 package org.lisapark.octopus.core.processor.parameter;
 
-import org.lisapark.octopus.core.Reproducible;
+import org.lisapark.octopus.core.Copyable;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public interface Constraint<T> extends Reproducible {
+public interface Constraint<T> extends Copyable {
 
     void validate(String name, T value) throws ConstraintException;
-
-    Constraint<T> newInstance();
 
     Constraint<T> copyOf();
 }

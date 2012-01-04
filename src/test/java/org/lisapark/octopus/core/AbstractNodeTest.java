@@ -82,8 +82,8 @@ public class AbstractNodeTest {
         }
 
         @Override
-        public Reproducible copyOf() {
-            return new AbstractNodeImpl(this.getName(), this.getDescription());
+        public Copyable copyOf() {
+            return null;
         }
     }
 }

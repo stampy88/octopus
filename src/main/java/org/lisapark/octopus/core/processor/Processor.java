@@ -6,7 +6,6 @@ import org.lisapark.octopus.core.AbstractNode;
 import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.ValidationException;
-import org.lisapark.octopus.core.event.EventType;
 import org.lisapark.octopus.core.memory.Memory;
 import org.lisapark.octopus.core.memory.MemoryProvider;
 import org.lisapark.octopus.core.processor.parameter.Parameter;
@@ -32,14 +31,12 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
      * A processor will be given zero or more inputs in order to perform its processing; this will be the
      * list of all of these inputs.
      */
-    private List<Input> inputs = Lists.newLinkedList();
+    private List<ProcessorInput> inputs = Lists.newLinkedList();
 
-    // todo event type inside output??
     /**
      * A processor may produce an output after its processing.
      */
-    private Output output;
-    private EventType outputEventType;
+    private ProcessorOutput output;
 
     /**
      * Constructor that takes id of processor, name and description.
@@ -63,12 +60,11 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     protected Processor(UUID id, Processor<MEMORY_TYPE> copyFromProcessor) {
         super(id, copyFromProcessor);
 
-        for (Input input : copyFromProcessor.getInputs()) {
-            this.addInput(input.newInstance());
+        for (ProcessorInput input : copyFromProcessor.getInputs()) {
+            this.addInput(input.copyOf());
         }
 
-        // todo no side effect? 
-        this.setOutput(copyFromProcessor.getOutput().newInstance());
+        this.setOutput(copyFromProcessor.getOutput().copyOf());
     }
 
     /**
@@ -81,7 +77,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     protected Processor(Processor<MEMORY_TYPE> copyFromProcessor) {
         super(copyFromProcessor);
 
-        for (Input input : copyFromProcessor.getInputs()) {
+        for (ProcessorInput input : copyFromProcessor.getInputs()) {
             this.addInput(input.copyOf());
         }
 
@@ -89,26 +85,23 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     }
 
 
-    protected void addInput(Input.Builder input) {
+    protected void addInput(ProcessorInput.Builder input) {
         addInput(input.build());
     }
 
-    protected void addInput(Input input) {
+    protected void addInput(ProcessorInput input) {
         this.inputs.add(input);
     }
 
-    protected void setOutput(Output.Builder output) {
+    protected void setOutput(ProcessorOutput.Builder output) {
         setOutput(output.build());
     }
 
-    protected void setOutput(Output output) {
+    protected void setOutput(ProcessorOutput output) {
         this.output = output;
-
-        this.outputEventType = new EventType();
-        this.outputEventType.addAttribute(output.getAttribute());
     }
 
-    public Output getOutput() {
+    public ProcessorOutput getOutput() {
         return output;
     }
 
@@ -120,20 +113,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
         return output.getAttributeName();
     }
 
-    public boolean generatesOutput() {
-        return outputEventType != null;
-    }
-
-    public boolean hasInputs() {
-        return !inputs.isEmpty();
-    }
-
-    @Override
-    public EventType getOutputEventType() {
-        return outputEventType;
-    }
-
-    public List<Input> getInputs() {
+    public List<ProcessorInput> getInputs() {
         return ImmutableList.copyOf(inputs);
     }
 
@@ -148,12 +128,14 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     public void validate() throws ValidationException {
         super.validate();
 
-        for (Input input : inputs) {
+        for (ProcessorInput input : inputs) {
             input.validate();
         }
 
         if (output != null) {
             output.validate();
+        } else {
+            throw new ValidationException("Please specify the output for this processor");
         }
     }
 

@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public interface Node extends Reproducible, Validatable {
+public interface Node extends Reproducible, Validatable, Copyable {
 
     UUID getId();
 

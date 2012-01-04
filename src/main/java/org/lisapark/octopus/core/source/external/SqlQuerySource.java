@@ -2,6 +2,7 @@ package org.lisapark.octopus.core.source.external;
 
 import com.google.common.collect.Maps;
 import org.lisapark.octopus.core.AbstractNode;
+import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.ProcessingException;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Attribute;
@@ -25,9 +26,9 @@ import static com.google.common.base.Preconditions.checkState;
  * This class is an {@link ExternalSource} that is used to access relational databases. It can be configured with
  * a JDBC Url for the database, username, password, Driver fully qualified class name, and a query to execute.
  * <p/>
- * Currently, the source uses the {@link #getOutputEventType()} to get the names of the columns and types of the columns,
- * but it will probably be changed in the future to support a mapper that takes a {@link ResultSet} and produces an
- * {@link Event}.
+ * Currently, the source uses the {@link org.lisapark.octopus.core.Output#getEventType()} to get the names of the
+ * columns and types of the columns, but it will probably be changed in the future to support a mapper that takes
+ * a {@link ResultSet} and produces an {@link Event}.
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
@@ -41,23 +42,23 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
     private static final int DRIVER_PARAMETER_ID = 4;
     private static final int QUERY_PARAMETER_ID = 5;
 
-    private final EventType outputEventType;
+    private final Output output;
 
     private SqlQuerySource(UUID sourceId, String name, String description) {
         super(sourceId, name, description);
-        // the event type id is the same as this source's id
-        this.outputEventType = new EventType();
+
+        this.output = Output.outputWithId(1);
     }
 
     private SqlQuerySource(UUID sourceId, SqlQuerySource copyFromSource) {
         super(sourceId, copyFromSource);
-        this.outputEventType = copyFromSource.outputEventType.newInstance();
+        this.output = copyFromSource.output.copyOf();
     }
 
     private SqlQuerySource(SqlQuerySource copyFromSource) {
         super(copyFromSource);
 
-        this.outputEventType = copyFromSource.outputEventType.copyOf();
+        this.output = copyFromSource.output.copyOf();
     }
 
     @SuppressWarnings("unchecked")
@@ -106,8 +107,13 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
     }
 
     @Override
-    public EventType getOutputEventType() {
-        return outputEventType;
+    public Output getOutput() {
+        return output;
+    }
+
+    public EventType getEventType() {
+        // todo?? mutable
+        return getOutput().getEventType();
     }
 
     @Override
@@ -179,7 +185,7 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
 
         void processResultSet(ResultSet rs, ProcessingRuntime runtime) throws SQLException {
             Thread thread = Thread.currentThread();
-            EventType eventType = source.getOutputEventType();
+            EventType eventType = source.getEventType();
 
             while (!thread.isInterrupted() && running && rs.next()) {
                 Event newEvent = createEventFromResultSet(rs, eventType);

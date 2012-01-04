@@ -30,11 +30,6 @@ public class Constraints {
         }
 
         @Override
-        public ClassConstraint newInstance() {
-            return new ClassConstraint(message);
-        }
-
-        @Override
         public ClassConstraint copyOf() {
             return new ClassConstraint(message);
         }

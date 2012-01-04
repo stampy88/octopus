@@ -2,6 +2,7 @@ package org.lisapark.octopus.core.source.external;
 
 import com.google.common.collect.Lists;
 import org.lisapark.octopus.core.AbstractNode;
+import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Event;
 import org.lisapark.octopus.core.event.EventType;
@@ -16,23 +17,23 @@ import java.util.UUID;
 public class TestSource extends AbstractNode implements ExternalSource {
 
     private final LinkedList<Event> events = Lists.newLinkedList();
-    private final EventType eventType;
+    private final Output output;
 
     public TestSource(UUID id, String name, String description, EventType eventType) {
         super(id, name, description);
-        this.eventType = eventType;
+        output = Output.outputWithIdAndEventType(1, eventType);
     }
 
     private TestSource(UUID id, TestSource copyFromSource) {
         super(id, copyFromSource);
         // todo do we need to reproduce this?
-        this.eventType = copyFromSource.eventType;
+        this.output = copyFromSource.getOutput().copyOf();
         this.events.addAll(copyFromSource.events);
     }
 
     public TestSource(TestSource copyFromSource) {
         super(copyFromSource);
-        this.eventType = copyFromSource.eventType;
+        this.output = copyFromSource.getOutput().copyOf();
         this.events.addAll(copyFromSource.events);
     }
 
@@ -41,8 +42,8 @@ public class TestSource extends AbstractNode implements ExternalSource {
     }
 
     @Override
-    public EventType getOutputEventType() {
-        return eventType;
+    public Output getOutput() {
+        return output;
     }
 
     @Override

@@ -1,9 +1,10 @@
 package org.lisapark.octopus.core.event;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.lisapark.octopus.core.Reproducible;
+import org.lisapark.octopus.core.Copyable;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.Map;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class EventType implements Reproducible {
+public class EventType implements Copyable {
 
     private final List<Attribute> attributes = Lists.newLinkedList();
 
@@ -23,7 +24,9 @@ public class EventType implements Reproducible {
     }
 
     private EventType(EventType copyFromEventType) {
-        this.attributes.addAll(copyFromEventType.attributes);
+        for (Attribute copyFromAttribute : copyFromEventType.attributes) {
+            this.attributes.add(copyFromAttribute.copyOf());
+        }
     }
 
     public EventType unionWith(EventType eventType) {
@@ -79,14 +82,7 @@ public class EventType implements Reproducible {
 
     @Override
     public String toString() {
-        return "EventType{" +
-                "attributes=" + attributes +
-                '}';
-    }
-
-    @Override
-    public EventType newInstance() {
-        return new EventType(this);
+        return Objects.toStringHelper(this).add("attributes", attributes).toString();
     }
 
     @Override

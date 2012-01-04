@@ -1,6 +1,6 @@
 package org.lisapark.octopus.core.event;
 
-import org.lisapark.octopus.core.Reproducible;
+import org.lisapark.octopus.core.Copyable;
 import org.lisapark.octopus.core.ValidationException;
 
 import static org.lisapark.octopus.util.Naming.checkValidity;
@@ -8,7 +8,7 @@ import static org.lisapark.octopus.util.Naming.checkValidity;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class Attribute<T> implements Reproducible {
+public class Attribute<T> implements Copyable {
 
     private String name;
     private final Class<T> type;
@@ -48,11 +48,6 @@ public class Attribute<T> implements Reproducible {
 
     private boolean isNumeric(Class<?> type) {
         return Number.class.isAssignableFrom(type);
-    }
-
-    @Override
-    public Attribute<T> newInstance() {
-        return new Attribute<T>(this);
     }
 
     @Override

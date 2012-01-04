@@ -9,5 +9,9 @@ import org.lisapark.octopus.core.source.Source;
 public interface ExternalSource extends Source {
 
     CompiledExternalSource compile() throws ValidationException;
+
+    Source newInstance();
+
+    Source copyOf();
 }
 

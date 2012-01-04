@@ -1,7 +1,5 @@
 package org.lisapark.octopus.core.processor;
 
-import org.lisapark.octopus.core.Input;
-import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Event;
 import org.lisapark.octopus.core.memory.Memory;
@@ -40,12 +38,12 @@ public class Addition extends Processor<Void> {
         super(additionToCopy);
     }
 
-    public Input getFirstInput() {
+    public ProcessorInput getFirstInput() {
         // there is only one input for an Sma
         return getInputs().get(0);
     }
 
-    public Input getSecondInput() {
+    public ProcessorInput getSecondInput() {
         // there is only one input for an Sma
         return getInputs().get(1);
     }
@@ -81,11 +79,11 @@ public class Addition extends Processor<Void> {
         Addition addition = new Addition(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         // two double inputs
-        addition.addInput(Input.doubleInputWithId(FIRST_INPUT_ID).name("First Operand").description("First operand for addition"));
-        addition.addInput(Input.doubleInputWithId(SECOND_INPUT_ID).name("Second Operand").description("Second operand for addition"));
+        addition.addInput(ProcessorInput.doubleInputWithId(FIRST_INPUT_ID).name("First Operand").description("First operand for addition"));
+        addition.addInput(ProcessorInput.doubleInputWithId(SECOND_INPUT_ID).name("Second Operand").description("Second operand for addition"));
 
         // double output
-        addition.setOutput(Output.doubleOutputWithId(OUTPUT_ID).nameAndDescription("Total").attributeName("sum"));
+        addition.setOutput(ProcessorOutput.doubleOutputWithId(OUTPUT_ID).nameAndDescription("Total").attributeName("sum"));
 
         return addition;
     }

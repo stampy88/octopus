@@ -9,18 +9,13 @@ public class ShortParameter extends Parameter<Short> {
         super(builder);
     }
 
-    protected ShortParameter(ShortParameter existingParameter, ReproductionMode mode) {
-        super(existingParameter, mode);
-    }
-
-    @Override
-    public Parameter<Short> newInstance() {
-        return new ShortParameter(this, ReproductionMode.NEW_INSTANCE);
+    protected ShortParameter(ShortParameter existingParameter) {
+        super(existingParameter);
     }
 
     @Override
     public Parameter<Short> copyOf() {
-        return new ShortParameter(this, ReproductionMode.COPY_OF);
+        return new ShortParameter(this);
     }
 
     @Override

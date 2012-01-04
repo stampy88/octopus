@@ -60,7 +60,7 @@ public class Sma extends Processor<Double> {
         getParameter(WINDOW_LENGTH_PARAMETER_ID).setValue(windowLength);
     }
 
-    public Input getInput() {
+    public ProcessorInput getInput() {
         // there is only one input for an Sma
         return getInputs().get(0);
     }
@@ -118,11 +118,11 @@ public class Sma extends Processor<Double> {
 
         // only a single double input
         sma.addInput(
-                Input.doubleInputWithId(INPUT_ID).name("Input").description("Input for SMA")
+                ProcessorInput.doubleInputWithId(INPUT_ID).name("Input").description("Input for SMA")
         );
         // double output
         sma.setOutput(
-                Output.doubleOutputWithId(OUTPUT_ID).nameAndDescription("Moving Average").attributeName("average")
+                ProcessorOutput.doubleOutputWithId(OUTPUT_ID).nameAndDescription("Moving Average").attributeName("average")
         );
 
         return sma;

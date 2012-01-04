@@ -9,8 +9,8 @@ public class FloatParameter extends Parameter<Float> {
         super(builder);
     }
 
-    protected FloatParameter(FloatParameter existingParameter, ReproductionMode mode) {
-        super(existingParameter, mode);
+    protected FloatParameter(FloatParameter existingParameter) {
+        super(existingParameter);
     }
 
     @Override
@@ -19,13 +19,8 @@ public class FloatParameter extends Parameter<Float> {
     }
 
     @Override
-    public Parameter<Float> newInstance() {
-        return new FloatParameter(this, ReproductionMode.NEW_INSTANCE);
-    }
-
-    @Override
     public Parameter<Float> copyOf() {
-        return new FloatParameter(this, ReproductionMode.COPY_OF);
+        return new FloatParameter(this);
     }
 
     @Override

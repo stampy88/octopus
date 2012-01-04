@@ -39,14 +39,8 @@ class EsperProcessorAdaptor {
             sourceIdToInputId[index++] = Pair.newInstance(sourceId, inputId);
         }
 
-        if (processor.generatesOutput()) {
-            outputAttributeName = processor.getOutput().getAttributeName();
-            outputEventId = EsperUtils.getEventNameForSource(processor);
-
-        } else {
-            outputAttributeName = null;
-            outputEventId = null;
-        }
+        outputAttributeName = processor.getOutput().getAttributeName();
+        outputEventId = EsperUtils.getEventNameForSource(processor);
     }
 
     Pair<String, Integer>[] getSourceIdToInputId() {
