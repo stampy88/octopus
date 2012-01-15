@@ -15,8 +15,8 @@ import java.util.UUID;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class ConsoleSink extends AbstractNode implements ExternalSink {
-    private static final String DEFAULT_NAME = "SMA";
-    private static final String DEFAULT_DESCRIPTION = "Simple Moving Average";
+    private static final String DEFAULT_NAME = "Console";
+    private static final String DEFAULT_DESCRIPTION = "Console Output";
 
     private Input<Event> input;
 
