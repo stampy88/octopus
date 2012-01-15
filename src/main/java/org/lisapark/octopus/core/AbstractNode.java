@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.lisapark.octopus.core.processor.parameter.Parameter;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.Set;
 import java.util.UUID;
@@ -24,6 +25,7 @@ public abstract class AbstractNode implements Node {
     private String name;
     private String description;
     private Point location;
+    private Icon icon;
     private Set<Parameter> parameters = Sets.newHashSet();
 
     protected AbstractNode(UUID id) {
@@ -94,6 +96,19 @@ public abstract class AbstractNode implements Node {
     public AbstractNode setLocation(Point location) {
         checkArgument(location != null, "location cannot be null");
         this.location = location;
+
+        return this;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return icon;
+    }
+
+    @Override
+    public Node setIcon(Icon icon) {
+        checkArgument(icon != null, "Icon cannot be null");
+        this.icon = icon;
 
         return this;
     }
