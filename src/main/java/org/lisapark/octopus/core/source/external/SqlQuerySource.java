@@ -16,7 +16,11 @@ import org.lisapark.octopus.util.jdbc.Connections;
 import org.lisapark.octopus.util.jdbc.ResultSets;
 import org.lisapark.octopus.util.jdbc.Statements;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,8 +37,8 @@ import static com.google.common.base.Preconditions.checkState;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class SqlQuerySource extends AbstractNode implements ExternalSource {
-    private static final String DEFAULT_NAME = "JDBC";
-    private static final String DEFAULT_DESCRIPTION = "JDBC Source for events";
+    private static final String DEFAULT_NAME = "Sql Query";
+    private static final String DEFAULT_DESCRIPTION = "Database query source for events";
 
     private static final int URL_PARAMETER_ID = 1;
     private static final int USER_NAME_PARAMETER_ID = 2;
