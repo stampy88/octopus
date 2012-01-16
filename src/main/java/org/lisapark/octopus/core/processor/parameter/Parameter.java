@@ -75,6 +75,10 @@ public abstract class Parameter<T> extends AbstractComponent {
         return constraint != null;
     }
 
+    public Constraint<T> getConstraint() {
+        return constraint;
+    }
+
     public String getValueAsString() {
         return (String) value;
     }
