@@ -26,6 +26,10 @@ public class ProcessorOutput extends Output {
         addAttribute(builder.attribute);
     }
 
+    public Class<?> getAttributeType() {
+        return attribute.getType();
+    }
+
     public void setAttributeName(String name) {
         attribute.setName(name);
     }
