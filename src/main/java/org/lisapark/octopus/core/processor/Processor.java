@@ -8,7 +8,7 @@ import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.memory.Memory;
 import org.lisapark.octopus.core.memory.MemoryProvider;
-import org.lisapark.octopus.core.processor.parameter.Parameter;
+import org.lisapark.octopus.core.parameter.Parameter;
 import org.lisapark.octopus.core.sink.Sink;
 import org.lisapark.octopus.core.source.Source;
 
@@ -17,13 +17,13 @@ import java.util.UUID;
 
 /**
  * A {@link Processor} is a program unit that has one or more {@link Input}s and potentially produces an {@link Output}.
- * In addition to {@link Input}s and an {@link Output}, a processor can be configured with additional {@link Parameter}s
+ * In addition to {@link Input}s and an {@link Output}, a processor can be configured with additional {@link org.lisapark.octopus.core.parameter.Parameter}s
  * that affect the behavior of the processor.
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  * @see org.lisapark.octopus.core.Input
  * @see org.lisapark.octopus.core.Output
- * @see org.lisapark.octopus.core.processor.parameter.Parameter
+ * @see org.lisapark.octopus.core.parameter.Parameter
  */
 public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Source, Sink {
 
@@ -51,7 +51,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
 
     /**
      * Copy constructor for creating a <b>new</b> processor based off of the copyFromProcessor. Note that we are using the
-     * {@link org.lisapark.octopus.core.Reproducible} interface on {@link Input}s, {@link Parameter}s and
+     * {@link org.lisapark.octopus.core.Reproducible} interface on {@link Input}s, {@link org.lisapark.octopus.core.parameter.Parameter}s and
      * {@link Output} if there is one.
      *
      * @param id                of new processor

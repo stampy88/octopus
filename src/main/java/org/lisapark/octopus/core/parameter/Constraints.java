@@ -1,4 +1,4 @@
-package org.lisapark.octopus.core.processor.parameter;
+package org.lisapark.octopus.core.parameter;
 
 import static com.google.common.base.Preconditions.checkArgument;
 

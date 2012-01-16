@@ -1,4 +1,4 @@
-package org.lisapark.octopus.core.processor.parameter;
+package org.lisapark.octopus.core.parameter;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)

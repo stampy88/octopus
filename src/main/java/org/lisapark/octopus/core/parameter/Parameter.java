@@ -1,4 +1,4 @@
-package org.lisapark.octopus.core.processor.parameter;
+package org.lisapark.octopus.core.parameter;
 
 import org.lisapark.octopus.core.AbstractComponent;
 import org.lisapark.octopus.core.ValidationException;

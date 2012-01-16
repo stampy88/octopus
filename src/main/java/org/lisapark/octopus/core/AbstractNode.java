@@ -2,7 +2,7 @@ package org.lisapark.octopus.core;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import org.lisapark.octopus.core.processor.parameter.Parameter;
+import org.lisapark.octopus.core.parameter.Parameter;
 
 import javax.swing.*;
 import java.awt.*;

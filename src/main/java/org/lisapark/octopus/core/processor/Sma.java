@@ -6,7 +6,7 @@ import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Event;
 import org.lisapark.octopus.core.memory.Memory;
 import org.lisapark.octopus.core.memory.MemoryProvider;
-import org.lisapark.octopus.core.processor.parameter.Parameter;
+import org.lisapark.octopus.core.parameter.Parameter;
 
 import java.util.Collection;
 import java.util.Map;
@@ -102,7 +102,7 @@ public class Sma extends Processor<Double> {
     }
 
     /**
-     * Returns a new {@link Sma} processor configured with all the appropriate {@link Parameter}s, {@link Input}s
+     * Returns a new {@link Sma} processor configured with all the appropriate {@link org.lisapark.octopus.core.parameter.Parameter}s, {@link Input}s
      * and {@link Output}.
      *
      * @return new {@link Sma}

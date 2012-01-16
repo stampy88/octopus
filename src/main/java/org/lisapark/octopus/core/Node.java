@@ -1,6 +1,6 @@
 package org.lisapark.octopus.core;
 
-import org.lisapark.octopus.core.processor.parameter.Parameter;
+import org.lisapark.octopus.core.parameter.Parameter;
 
 import javax.swing.*;
 import java.awt.*;

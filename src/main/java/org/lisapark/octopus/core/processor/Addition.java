@@ -70,7 +70,7 @@ public class Addition extends Processor<Void> {
 
     /**
      * Returns a new {@link Addition} processor configured with all the appropriate
-     * {@link org.lisapark.octopus.core.processor.parameter.Parameter}s, {@link org.lisapark.octopus.core.Input}s and {@link org.lisapark.octopus.core.Output}.
+     * {@link org.lisapark.octopus.core.parameter.Parameter}s, {@link org.lisapark.octopus.core.Input}s and {@link org.lisapark.octopus.core.Output}.
      *
      * @return new {@link Addition}
      */
