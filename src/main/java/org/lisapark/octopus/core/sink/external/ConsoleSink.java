@@ -27,6 +27,7 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
 
     private ConsoleSink(UUID id, ConsoleSink copyFromNode) {
         super(id, copyFromNode);
+        input = Input.eventInputWithId(1);
     }
 
     private ConsoleSink(ConsoleSink copyFromNode) {
