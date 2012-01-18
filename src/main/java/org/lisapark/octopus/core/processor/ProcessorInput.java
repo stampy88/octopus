@@ -1,10 +1,11 @@
 package org.lisapark.octopus.core.processor;
 
 import org.lisapark.octopus.core.Input;
-import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.source.Source;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -51,41 +52,31 @@ public class ProcessorInput<T> extends Input<T> {
     }
 
     public void setSourceAttribute(String attributeName) throws ValidationException {
+        checkArgument(attributeName != null, "attributeName cannot be null");
+
         if (this.getSource() == null) {
             throw new ValidationException("Cannot set the source before setting the source attribute");
         }
 
         Attribute sourceAttribute = getSource().getOutput().getAttributeByName(attributeName);
-
         if (sourceAttribute == null) {
             throw new ValidationException(String.format("Source does not contain an attribute named '%s'", attributeName));
         }
-
         if (!sourceAttribute.isCompatibleWith(getType())) {
             throw new ValidationException(
-                    String.format("The attribute '%s' is not compatible with the input '%s'", sourceAttribute,
-                            getName())
+                    String.format("The attribute '%s' of type '%s' is not compatible with the input '%s' of type %s",
+                            sourceAttribute, sourceAttribute.getType().getSimpleName(),
+                            getName(), getType().getSimpleName())
             );
         }
         this.sourceAttribute = sourceAttribute;
     }
 
     public void setSourceAttribute(Attribute sourceAttribute) throws ValidationException {
-        if (this.getSource() == null) {
-            throw new ValidationException("Cannot set the source before setting the source attribute");
-        }
-        Output sourceType = getSource().getOutput();
+        checkArgument(sourceAttribute != null, "sourceAttribute cannot be null");
 
-        if (!sourceType.containsAttribute(sourceAttribute)) {
-            throw new ValidationException(String.format("Source does not contain an attribute named '%s'", sourceAttribute));
-        }
+        validateAttribute(sourceAttribute);
 
-        if (!sourceAttribute.isCompatibleWith(getType())) {
-            throw new ValidationException(
-                    String.format("The attribute '%s' is not compatible with the input '%s'", sourceAttribute,
-                            getName())
-            );
-        }
         this.sourceAttribute = sourceAttribute;
     }
 
@@ -107,6 +98,35 @@ public class ProcessorInput<T> extends Input<T> {
 
         if (this.sourceAttribute == null) {
             throw new ValidationException(String.format("Please set the source attribute for input %s", getName()));
+        }
+    }
+
+    /**
+     * Will try and validate the specified attribute according to this specification. Will throw a
+     * {@link ValidationException} if the value is not valid according to it.
+     *
+     * @param attribute we are trying to use - should be from the source
+     * @throws ValidationException if the attributeName is not valid in according to this specification
+     */
+    public void validateAttribute(Attribute attribute) throws ValidationException {
+        if (this.getSource() == null) {
+            throw new ValidationException("Cannot set the source before setting the source attribute");
+        }
+
+        String attributeName = attribute.getName();
+        Attribute sourceAttribute = getSource().getOutput().getAttributeByName(attributeName);
+
+        if (sourceAttribute == null) {
+            throw new ValidationException(String.format("Source does not contain an attribute named '%s'", attributeName));
+        }
+
+        // todo remove duplicate code
+        if (!sourceAttribute.isCompatibleWith(getType())) {
+            throw new ValidationException(
+                    String.format("The attribute '%s' of type '%s' is not compatible with the input '%s' of type %s",
+                            attributeName, sourceAttribute.getType().getSimpleName(),
+                            getName(), getType().getSimpleName())
+            );
         }
     }
 
