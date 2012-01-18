@@ -14,6 +14,11 @@ public class ShortParameter extends Parameter<Short> {
     }
 
     @Override
+    public String getValueForDisplay() {
+        return String.valueOf(getValue());
+    }
+
+    @Override
     public Parameter<Short> copyOf() {
         return new ShortParameter(this);
     }

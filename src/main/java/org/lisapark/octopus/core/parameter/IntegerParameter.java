@@ -14,6 +14,11 @@ public class IntegerParameter extends Parameter<Integer> {
     }
 
     @Override
+    public String getValueForDisplay() {
+        return String.valueOf(getValue());
+    }
+
+    @Override
     public Parameter<Integer> copyOf() {
         return new IntegerParameter(this);
     }

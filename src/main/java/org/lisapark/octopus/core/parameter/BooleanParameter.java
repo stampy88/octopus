@@ -19,6 +19,11 @@ public class BooleanParameter extends Parameter<Boolean> {
     }
 
     @Override
+    public String getValueForDisplay() {
+        return String.valueOf(getValue());
+    }
+
+    @Override
     public Boolean parseValueFromString(String stringValue) throws ConversionException {
         return parseBoolean(stringValue);
     }

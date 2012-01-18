@@ -14,6 +14,11 @@ public class StringParameter extends Parameter<String> {
     }
 
     @Override
+    public String getValueForDisplay() {
+        return getValue();
+    }
+
+    @Override
     public Parameter<String> copyOf() {
         return new StringParameter(this);
     }

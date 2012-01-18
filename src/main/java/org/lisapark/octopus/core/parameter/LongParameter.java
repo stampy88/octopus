@@ -14,6 +14,11 @@ public class LongParameter extends Parameter<Long> {
     }
 
     @Override
+    public String getValueForDisplay() {
+        return String.valueOf(getValue());
+    }
+
+    @Override
     public Parameter<Long> copyOf() {
         return new LongParameter(this);
     }

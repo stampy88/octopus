@@ -3,6 +3,9 @@ package org.lisapark.octopus.core.parameter;
 import org.lisapark.octopus.core.AbstractComponent;
 import org.lisapark.octopus.core.ValidationException;
 
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+
 /**
  * A {@link Parameter} is an instance of a configurable parameter of a
  * {@link org.lisapark.octopus.core.processor.Processor}. They have a {@link #name} that can be displayed in a
@@ -37,6 +40,20 @@ public abstract class Parameter<T> extends AbstractComponent {
     private final Constraint<T> constraint;
 
     /**
+     * Some parameters have unique editing requirements. The user can set a specific {@link TableCellEditor} type if
+     * that is the case. A null will uses the defaults provided by the user interface library. This is usually
+     * dependent on the {@link #getType()}
+     */
+    private final Class<TableCellEditor> cellEditorClass;
+
+    /**
+     * Some parameters have unique rendering requirements. The user can set a specific {@link TableCellRenderer} type if
+     * that is the case. A null will uses the defaults provided by the user interface library. This is usually
+     * dependent on the {@link #getType()}
+     */
+    private final Class<TableCellRenderer> cellRendererClass;
+
+    /**
      * Creates a new parameter according to the specified {@link Builder}
      *
      * @param builder to create parameter based off of
@@ -46,6 +63,8 @@ public abstract class Parameter<T> extends AbstractComponent {
         this.required = builder.required;
         this.value = builder.defaultValue;
         this.constraint = builder.constraint;
+        this.cellEditorClass = builder.cellEditorClass;
+        this.cellRendererClass = builder.cellRendererClass;
     }
 
     /**
@@ -65,6 +84,9 @@ public abstract class Parameter<T> extends AbstractComponent {
         } else {
             this.constraint = null;
         }
+
+        this.cellEditorClass = copyFromParameter.cellEditorClass;
+        this.cellRendererClass = copyFromParameter.cellRendererClass;
     }
 
     public boolean isRequired() {
@@ -75,9 +97,21 @@ public abstract class Parameter<T> extends AbstractComponent {
         return constraint != null;
     }
 
+    public Class<TableCellEditor> getCellEditorClass() {
+        return cellEditorClass;
+    }
+
     public Constraint<T> getConstraint() {
         return constraint;
     }
+
+    /**
+     * Subclasses need to implement this method to return a string that can be used for display purposes in
+     * a User Interface.
+     *
+     * @return string display version of {@link #value}
+     */
+    public abstract String getValueForDisplay();
 
     public String getValueAsString() {
         return (String) value;
@@ -125,7 +159,7 @@ public abstract class Parameter<T> extends AbstractComponent {
      */
     public final void setValue(T value) throws ValidationException {
         // ensure it is a valid according to the spec
-        validate(getName(), value);
+        validateValue(value);
 
         this.value = value;
     }
@@ -134,17 +168,17 @@ public abstract class Parameter<T> extends AbstractComponent {
      * Will try and validate the specified value according to this specification. Will throw a
      * {@link ValidationException} if the value is not valid according to it.
      *
-     * @param name  of parameter - used in error message
      * @param value to validate
      * @throws ValidationException thrown if the value doesn't meet this specification
      */
-    void validate(String name, T value) throws ValidationException {
+    public void validateValue(T value) throws ValidationException {
         if (value == null && isRequired()) {
-            throw new ValidationException(String.format("%s is a required parameter.", name));
+            throw new ValidationException(String.format("Please enter a valid %s. %s is a required parameter.",
+                    getType().getSimpleName(), getName()));
         }
 
         if (constraint != null) {
-            constraint.validate(name, value);
+            constraint.validate(getName(), value);
         }
     }
 
@@ -231,6 +265,8 @@ public abstract class Parameter<T> extends AbstractComponent {
         private T defaultValue;
         private boolean required;
         private Constraint<T> constraint;
+        private Class<TableCellEditor> cellEditorClass;
+        private Class<TableCellRenderer> cellRendererClass;
 
         private Builder(int id, String name, Class<T> type) {
             this.id = id;
@@ -260,6 +296,16 @@ public abstract class Parameter<T> extends AbstractComponent {
 
         public Builder<T> constraint(Constraint<T> constraint) {
             this.constraint = constraint;
+            return this;
+        }
+
+        public Builder<T> cellEditorClass(Class<TableCellEditor> cellEditorClass) {
+            this.cellEditorClass = cellEditorClass;
+            return this;
+        }
+
+        public Builder<T> cellRendererClass(Class<TableCellRenderer> cellRendererClass) {
+            this.cellRendererClass = cellRendererClass;
             return this;
         }
 

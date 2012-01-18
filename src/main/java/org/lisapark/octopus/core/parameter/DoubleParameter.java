@@ -14,6 +14,11 @@ public class DoubleParameter extends Parameter<Double> {
     }
 
     @Override
+    public String getValueForDisplay() {
+        return String.valueOf(getValue());
+    }
+
+    @Override
     public Parameter<Double> copyOf() {
         return new DoubleParameter(this);
     }

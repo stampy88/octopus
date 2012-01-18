@@ -14,6 +14,11 @@ public class FloatParameter extends Parameter<Float> {
     }
 
     @Override
+    public String getValueForDisplay() {
+        return String.valueOf(getValue());
+    }
+
+    @Override
     public Class<Float> getType() {
         return Float.class;
     }
