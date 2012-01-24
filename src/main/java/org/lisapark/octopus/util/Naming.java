@@ -23,26 +23,25 @@ public abstract class Naming {
             throw new ValidationException(String.format("%s cannot be null", nameType));
         }
 
-        String trimmedName = name.trim();
-        if (trimmedName.length() == 0) {
+        if (name.length() == 0) {
             throw new ValidationException(String.format("%s cannot be empty", nameType));
         }
 
-        if (trimmedName.indexOf(' ') > -1) {
+        if (name.indexOf(' ') > -1) {
             throw new ValidationException(String.format("%s cannot have spaces in it", nameType));
         }
 
-        if (!Character.isJavaIdentifierStart(trimmedName.charAt(0))) {
+        if (!Character.isJavaIdentifierStart(name.charAt(0))) {
             throw new ValidationException(
                     String.format("%s cannot start with a '%c'. " +
-                            "Names can only begin with a letter, a '$' or an '_'", nameType, trimmedName.charAt(0))
+                            "Names can only begin with a letter, a '$' or an '_'", nameType, name.charAt(0))
             );
         }
 
         for (int index = 1; index < name.length(); ++index) {
-            if (!Character.isJavaIdentifierPart(trimmedName.charAt(index))) {
+            if (!Character.isJavaIdentifierPart(name.charAt(index))) {
                 throw new ValidationException(
-                        String.format("%s cannot contain a '%c'", nameType, trimmedName.charAt(index))
+                        String.format("%s cannot contain a '%c'", nameType, name.charAt(index))
                 );
             }
         }
