@@ -51,7 +51,7 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
     private SqlQuerySource(UUID sourceId, String name, String description) {
         super(sourceId, name, description);
 
-        this.output = Output.outputWithId(1);
+        this.output = Output.outputWithId(1).setName("Output");
     }
 
     private SqlQuerySource(UUID sourceId, SqlQuerySource copyFromSource) {
@@ -132,8 +132,8 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
     }
 
     public static SqlQuerySource newTemplate() {
-        UUID processorId = UUID.randomUUID();
-        SqlQuerySource jdbc = new SqlQuerySource(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+        UUID sourceId = UUID.randomUUID();
+        SqlQuerySource jdbc = new SqlQuerySource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(URL_PARAMETER_ID, "URL").required(true));
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(USER_NAME_PARAMETER_ID, "User name"));
