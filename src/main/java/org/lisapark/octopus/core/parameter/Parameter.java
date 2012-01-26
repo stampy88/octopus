@@ -101,6 +101,10 @@ public abstract class Parameter<T> extends AbstractComponent {
         return cellEditorClass;
     }
 
+    public Class<TableCellRenderer> getCellRendererClass() {
+        return cellRendererClass;
+    }
+
     public Constraint<T> getConstraint() {
         return constraint;
     }
