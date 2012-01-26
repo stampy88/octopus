@@ -17,7 +17,6 @@ import org.lisapark.octopus.service.DefaultProcessorService;
 import org.lisapark.octopus.view.ApplicationController;
 
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -32,7 +31,8 @@ public class Main {
 
         ProcessingModel model = new ProcessingModel("test");
 
-        TestSource testSource = new TestSource(UUID.randomUUID(), "Test Source", "This source produces preconfigured events", eventType);
+        TestSource testSource = TestSource.newTemplate();
+        testSource.setEventType(eventType);
         testSource.addEvent(personWithFirstNameLastNameAndAge("John", "Smith", 5));
         testSource.addEvent(personWithFirstNameLastNameAndAge("Dave", "Sinclair", 10));
         testSource.addEvent(personWithFirstNameLastNameAndAge("Yuliya", "Zhurba", 33));
