@@ -7,7 +7,7 @@ import org.lisapark.octopus.core.source.external.ExternalSource;
 import org.lisapark.octopus.service.ExternalSinkService;
 import org.lisapark.octopus.service.ExternalSourceService;
 import org.lisapark.octopus.service.ProcessorService;
-import org.lisapark.octopus.view.designer.DesignerView;
+import org.lisapark.octopus.view.canvas.DesignerView;
 import org.lisapark.octopus.view.palette.PaletteModel;
 import org.lisapark.octopus.view.palette.PaletteView;
 import org.lisapark.octopus.view.properties.PropertiesController;
@@ -15,6 +15,8 @@ import org.netbeans.api.visual.model.ObjectSceneEvent;
 import org.netbeans.api.visual.model.ObjectSceneEventType;
 import org.netbeans.api.visual.model.ObjectSceneListener;
 import org.netbeans.api.visual.model.ObjectState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -23,6 +25,7 @@ import java.util.Set;
  */
 public class ApplicationController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ApplicationController.class);
     // todo other services
 
     private final ProcessingModel model;
@@ -91,19 +94,17 @@ public class ApplicationController {
 
         @Override
         public void objectAdded(ObjectSceneEvent event, Object addedObject) {
-            System.out.println("objectAdded");
+            LOG.debug("objectAdded to scene {}", addedObject);
         }
 
         @Override
         public void objectRemoved(ObjectSceneEvent event, Object removedObject) {
-            System.out.println("removedObject");
+            LOG.debug("objectRemoved from scene {}", removedObject);
         }
 
         @Override
         public void objectStateChanged(ObjectSceneEvent event, Object changedObject, ObjectState previousState, ObjectState newState) {
-            System.out.println("objectStateChanged");
-
-            System.out.printf("%s %s -> %s", changedObject, previousState, newState);
+            LOG.debug(String.format("objectStateChanged on scene %s %s -> %s", changedObject, previousState, newState));
 
             // Sma@f5e806a ObjectState@41f227 -> org.netbeans.api.visual.model.ObjectState@1811e2cselectionChanged
             if (changedObject != null && newState != null && newState.isSelected()) {
@@ -124,22 +125,22 @@ public class ApplicationController {
 
         @Override
         public void selectionChanged(ObjectSceneEvent event, Set<Object> previousSelection, Set<Object> newSelection) {
-            System.out.println("selectionChanged");
+            LOG.debug("selectionChanged on scene {}", newSelection);
         }
 
         @Override
         public void highlightingChanged(ObjectSceneEvent event, Set<Object> previousHighlighting, Set<Object> newHighlighting) {
-            System.out.println("highlightingChanged");
+            LOG.debug("highlightingChanged on scene {}", newHighlighting);
         }
 
         @Override
         public void hoverChanged(ObjectSceneEvent event, Object previousHoveredObject, Object newHoveredObject) {
-            System.out.println("hoverChanged");
+            LOG.debug("hoverChanged on scene {}", newHoveredObject);
         }
 
         @Override
         public void focusChanged(ObjectSceneEvent event, Object previousFocusedObject, Object newFocusedObject) {
-            System.out.println("focusChanged");
+            LOG.debug("focusChanged on scene {}", newFocusedObject);
         }
     }
 }

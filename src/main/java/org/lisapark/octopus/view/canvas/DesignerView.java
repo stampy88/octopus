@@ -1,4 +1,4 @@
-package org.lisapark.octopus.view.designer;
+package org.lisapark.octopus.view.canvas;
 
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.view.Constants;
@@ -22,7 +22,6 @@ public class DesignerView extends JPanel {
 
         scene = new ProcessingScene(model);
         sceneView = scene.createView();
-        //sceneScrollPane = new JideScrollPane(sceneView);
 
         add(sceneView);
     }

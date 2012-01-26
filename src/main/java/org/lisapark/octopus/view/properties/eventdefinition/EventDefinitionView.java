@@ -15,6 +15,8 @@ import org.lisapark.octopus.core.event.EventType;
 import org.lisapark.octopus.swing.DefaultValidationFailedListener;
 import org.lisapark.octopus.swing.EnhancedContextSensitiveTable;
 import org.lisapark.octopus.util.Naming;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +25,7 @@ import java.awt.*;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class EventDefinitionView extends PopupPanel {
+    private static final Logger LOG = LoggerFactory.getLogger(EventDefinitionView.class);
 
     private EventDefinitionTableModel model = new EventDefinitionTableModel();
 
@@ -43,11 +46,10 @@ public class EventDefinitionView extends PopupPanel {
         return model.getEventType();
     }
 
-    public void setSelectedObject(Object paramObject) {
-        System.out.println(paramObject.getClass());
-        System.out.println(paramObject);
-        if (paramObject != null) {
-            model.setEventType((EventType) paramObject);
+    public void setSelectedObject(Object selectedObject) {
+        LOG.debug("Editing event type {}", selectedObject);
+        if (selectedObject != null) {
+            model.setEventType((EventType) selectedObject);
         }
     }
 

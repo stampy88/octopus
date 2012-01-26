@@ -1,4 +1,4 @@
-package org.lisapark.octopus.view.designer;
+package org.lisapark.octopus.view.canvas;
 
 import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.source.Source;

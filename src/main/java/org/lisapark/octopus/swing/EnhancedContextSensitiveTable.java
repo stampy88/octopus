@@ -32,7 +32,6 @@ public class EnhancedContextSensitiveTable extends ContextSensitiveTable {
     @Override
     public void editingStopped(ChangeEvent e) {
         try {
-            System.out.println(e.getSource());
             super.editingStopped(e);
 
         } catch (EditingNotStoppedException ex) {

@@ -1,4 +1,4 @@
-package org.lisapark.octopus.view.designer;
+package org.lisapark.octopus.view.canvas;
 
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LabelWidget;

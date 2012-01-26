@@ -1,4 +1,4 @@
-package org.lisapark.octopus.view.designer;
+package org.lisapark.octopus.view.canvas;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)

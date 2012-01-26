@@ -1,4 +1,4 @@
-package org.lisapark.octopus.view.designer;
+package org.lisapark.octopus.view.canvas;
 
 import com.google.common.collect.Lists;
 import org.lisapark.octopus.core.Input;
@@ -8,7 +8,7 @@ import org.lisapark.octopus.core.processor.Processor;
 import org.lisapark.octopus.core.sink.external.ExternalSink;
 import org.lisapark.octopus.core.source.Source;
 import org.lisapark.octopus.core.source.external.ExternalSource;
-import org.lisapark.octopus.view.designer.actions.RemoveConnectionAction;
+import org.lisapark.octopus.view.canvas.actions.RemoveConnectionAction;
 import org.lisapark.octopus.view.dnd.NodeAcceptProvider;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.WidgetAction;
@@ -28,6 +28,8 @@ import org.netbeans.api.visual.widget.EventProcessingType;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.util.Utilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.util.Collection;
@@ -37,11 +39,12 @@ import java.util.Set;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessingScene.class);
+
     private final LayerWidget mainLayer = new LayerWidget(this);
     private final LayerWidget connectionLayer = new LayerWidget(this);
     private final LayerWidget interactionLayer = new LayerWidget(this);
     private LayerWidget backgroundLayer = new LayerWidget(this);
-
 
     private Router router;
 
@@ -162,7 +165,8 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
             VMDNodeWidget nodeWidget = (VMDNodeWidget) addNode(source);
 
             nodeWidget.setPreferredLocation(source.getLocation());
-            nodeWidget.setNodeName(source.getName() + " - " + source.getDescription());
+            nodeWidget.setNodeName(source.getName());
+            nodeWidget.setToolTipText(source.getDescription());
 
             VMDPinWidget pinWidget = (VMDPinWidget) addPin(source, new OutputPin(source));
             // TODO think we need the output, not type
@@ -176,12 +180,14 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
             VMDNodeWidget nodeWidget = (VMDNodeWidget) addNode(sink);
 
             nodeWidget.setPreferredLocation(sink.getLocation());
-            nodeWidget.setNodeName(sink.getName() + " - " + sink.getDescription());
+            nodeWidget.setNodeName(sink.getName());
+            nodeWidget.setToolTipText(sink.getDescription());
 
             // add the input pins
             for (Input input : sink.getInputs()) {
                 VMDPinWidget pinWidget = (VMDPinWidget) addPin(sink, new InputPin(sink, input));
-                pinWidget.setPinName(input.getName() + " - " + input.getDescription());
+                pinWidget.setPinName(input.getName());
+                pinWidget.setToolTipText(input.getDescription());
             }
         }
     }
@@ -193,12 +199,14 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
             VMDNodeWidget nodeWidget = (VMDNodeWidget) addNode(processor);
 
             nodeWidget.setPreferredLocation(processor.getLocation());
-            nodeWidget.setNodeName(processor.getName() + " - " + processor.getDescription());
+            nodeWidget.setNodeName(processor.getName());
+            nodeWidget.setToolTipText(processor.getDescription());
 
             // add the input pins
             for (Input input : processor.getInputs()) {
                 VMDPinWidget pinWidget = (VMDPinWidget) addPin(processor, new InputPin(processor, input));
-                pinWidget.setPinName(input.getName() + " - " + input.getDescription());
+                pinWidget.setPinName(input.getName());
+                pinWidget.setToolTipText(input.getDescription());
             }
 
             // add the output pin if this processor generates an output
@@ -206,7 +214,8 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
             VMDPinWidget pinWidget = (VMDPinWidget) addPin(processor, new OutputPin(processor));
 
             // TODO not sure about output on processor
-            pinWidget.setPinName(processor.getOutput().getName() + " - " + processor.getOutput().getDescription());
+            pinWidget.setPinName(processor.getOutput().getName());
+            pinWidget.setToolTipText(processor.getOutput().getDescription());
         }
     }
 
@@ -270,7 +279,7 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
 
     @Override
     protected void attachEdgeSourceAnchor(Connection edge, Pin oldSourcePin, Pin sourcePin) {
-        System.err.printf("attachEdgeSourceAnchor Edge %s, oldSourcePin %s, sourcePin %s\n", edge, oldSourcePin, sourcePin);
+        LOG.debug(String.format("attachEdgeSourceAnchor Edge %s, oldSourcePin %s, sourcePin %s", edge, oldSourcePin, sourcePin));
 
         if (sourcePin != null) {
             ((ConnectionWidget) findWidget(edge)).setSourceAnchor(getPinAnchor(sourcePin));
@@ -281,7 +290,7 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
 
     @Override
     protected void attachEdgeTargetAnchor(Connection edge, Pin oldTargetPin, Pin targetPin) {
-        System.err.printf("attachEdgeTargetAnchor Edge %s, oldTargetPin %s, targetPin %s\n", edge, oldTargetPin, targetPin);
+        LOG.debug(String.format("attachEdgeTargetAnchor Edge %s, oldTargetPin %s, targetPin %s", edge, oldTargetPin, targetPin));
 
         if (targetPin != null) {
             ((ConnectionWidget) findWidget(edge)).setTargetAnchor(getPinAnchor(targetPin));

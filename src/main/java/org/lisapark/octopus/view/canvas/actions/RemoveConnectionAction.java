@@ -1,7 +1,7 @@
-package org.lisapark.octopus.view.designer.actions;
+package org.lisapark.octopus.view.canvas.actions;
 
-import org.lisapark.octopus.view.designer.Connection;
-import org.lisapark.octopus.view.designer.ProcessingScene;
+import org.lisapark.octopus.view.canvas.Connection;
+import org.lisapark.octopus.view.canvas.ProcessingScene;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.widget.Widget;
 

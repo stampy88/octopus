@@ -15,7 +15,7 @@ import com.jidesoft.swing.JideBoxLayout;
 import com.jidesoft.swing.JideMenu;
 import com.jidesoft.swing.JideScrollPane;
 import com.jidesoft.utils.Lm;
-import org.lisapark.octopus.view.designer.DesignerView;
+import org.lisapark.octopus.view.canvas.DesignerView;
 import org.lisapark.octopus.view.palette.PaletteView;
 import org.lisapark.octopus.view.properties.PropertiesView;
 

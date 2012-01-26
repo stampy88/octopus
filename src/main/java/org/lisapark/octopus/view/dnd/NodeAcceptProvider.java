@@ -3,7 +3,7 @@ package org.lisapark.octopus.view.dnd;
 import org.lisapark.octopus.core.processor.Processor;
 import org.lisapark.octopus.core.sink.external.ExternalSink;
 import org.lisapark.octopus.core.source.external.ExternalSource;
-import org.lisapark.octopus.view.designer.ProcessingScene;
+import org.lisapark.octopus.view.canvas.ProcessingScene;
 import org.netbeans.api.visual.action.AcceptProvider;
 import org.netbeans.api.visual.action.ConnectorState;
 import org.netbeans.api.visual.widget.Widget;
