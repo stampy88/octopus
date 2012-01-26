@@ -10,7 +10,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class ProcessorOutput extends Output {
 
-    private final Attribute<?> attribute;
+    private final Attribute attribute;
 
     protected ProcessorOutput(ProcessorOutput existingOutput) {
         super(existingOutput);
@@ -77,7 +77,7 @@ public class ProcessorOutput extends Output {
         private String description;
         private Class<T> type;
         private String attributeName;
-        private Attribute<T> attribute;
+        private Attribute attribute;
 
         private Builder(int id, Class<T> type) {
             this.id = id;
@@ -108,7 +108,7 @@ public class ProcessorOutput extends Output {
         @SuppressWarnings("unchecked")
         public ProcessorOutput build() {
             checkState(attributeName != null, "attributeName is required");
-            attribute = (Attribute<T>) Attribute.newAttribute(type, attributeName);
+            attribute = (Attribute) Attribute.newAttribute(type, attributeName);
             return new ProcessorOutput(this);
         }
     }

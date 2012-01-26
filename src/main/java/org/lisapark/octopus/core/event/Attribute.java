@@ -8,7 +8,7 @@ import static org.lisapark.octopus.util.Naming.checkValidity;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class Attribute<T> implements Copyable {
+public class Attribute implements Copyable {
 
     public static final Class[] SUPPORTED_TYPES = {
             String.class,
@@ -21,14 +21,14 @@ public class Attribute<T> implements Copyable {
     };
 
     private String name;
-    private final Class<T> type;
+    private Class type;
 
-    private Attribute(String name, Class<T> type) {
+    private Attribute(String name, Class type) {
         this.name = name;
         this.type = type;
     }
 
-    private Attribute(Attribute<T> attribute) {
+    private Attribute(Attribute attribute) {
         this.name = attribute.name;
         this.type = attribute.type;
     }
@@ -42,8 +42,12 @@ public class Attribute<T> implements Copyable {
         this.name = name;
     }
 
-    public Class<T> getType() {
+    public Class getType() {
         return type;
+    }
+
+    public void setType(Class type) {
+        this.type = type;
     }
 
     public boolean isCompatibleWith(Class<?> type) {
@@ -61,8 +65,8 @@ public class Attribute<T> implements Copyable {
     }
 
     @Override
-    public Attribute<T> copyOf() {
-        return new Attribute<T>(this);
+    public Attribute copyOf() {
+        return new Attribute(this);
     }
 
     @Override
@@ -105,38 +109,38 @@ public class Attribute<T> implements Copyable {
         throw new IllegalArgumentException(String.format("%s is not a valid attribute type", clazz));
     }
 
-    public static Attribute<String> stringAttribute(String name) throws ValidationException {
+    public static Attribute stringAttribute(String name) throws ValidationException {
         checkValidity(name, "Attribute name");
-        return new Attribute<String>(name, String.class);
+        return new Attribute(name, String.class);
     }
 
-    public static Attribute<Integer> integerAttribute(String name) throws ValidationException {
+    public static Attribute integerAttribute(String name) throws ValidationException {
         checkValidity(name, "Attribute name");
-        return new Attribute<Integer>(name, Integer.class);
+        return new Attribute(name, Integer.class);
     }
 
-    public static Attribute<Short> shortAttribute(String name) throws ValidationException {
+    public static Attribute shortAttribute(String name) throws ValidationException {
         checkValidity(name, "Attribute name");
-        return new Attribute<Short>(name, Short.class);
+        return new Attribute(name, Short.class);
     }
 
-    public static Attribute<Long> longAttribute(String name) throws ValidationException {
+    public static Attribute longAttribute(String name) throws ValidationException {
         checkValidity(name, "Attribute name");
-        return new Attribute<Long>(name, Long.class);
+        return new Attribute(name, Long.class);
     }
 
-    public static Attribute<Float> floatAttribute(String name) throws ValidationException {
+    public static Attribute floatAttribute(String name) throws ValidationException {
         checkValidity(name, "Attribute name");
-        return new Attribute<Float>(name, Float.class);
+        return new Attribute(name, Float.class);
     }
 
-    public static Attribute<Double> doubleAttribute(String name) throws ValidationException {
+    public static Attribute doubleAttribute(String name) throws ValidationException {
         checkValidity(name, "Attribute name");
-        return new Attribute<Double>(name, Double.class);
+        return new Attribute(name, Double.class);
     }
 
-    public static Attribute<Boolean> booleanAttribute(String name) throws ValidationException {
+    public static Attribute booleanAttribute(String name) throws ValidationException {
         checkValidity(name, "Attribute name");
-        return new Attribute<Boolean>(name, Boolean.class);
+        return new Attribute(name, Boolean.class);
     }
 }

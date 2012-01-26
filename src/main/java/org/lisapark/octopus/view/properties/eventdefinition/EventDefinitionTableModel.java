@@ -40,13 +40,13 @@ public class EventDefinitionTableModel extends AbstractTableModel implements Con
     }
 
     @Override
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+    public void setValueAt(Object value, int rowIndex, int columnIndex) {
         Attribute attribute = eventType.getAttributeAt(rowIndex);
 
         if (columnIndex == 0) {
-            attribute.setName((String) aValue);
+            attribute.setName((String) value);
         } else {
-
+            attribute.setType((Class) value);
         }
     }
 
