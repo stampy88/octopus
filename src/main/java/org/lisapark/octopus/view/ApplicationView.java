@@ -57,12 +57,13 @@ public class ApplicationView extends DefaultDockableBarDockableHolder {
         dockingManager.beginLoadLayoutData();
         dockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_WEST_SOUTH_NORTH);
 
-        DockableFrame modelFrame = createDockableFrameWithName("Properties");
-        modelFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
-        modelFrame.getContext().setInitSide(DockContext.DOCK_SIDE_WEST);
-        modelFrame.add(createScrollPaneForComponent(propertiesView));
+        DockableFrame propertiesFrame = createDockableFrameWithName("Properties");
+        propertiesFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
+        propertiesFrame.getContext().setInitSide(DockContext.DOCK_SIDE_WEST);
+        propertiesFrame.getContext().setInitIndex(1);
+        propertiesFrame.add(createScrollPaneForComponent(propertiesView));
 
-        dockingManager.addFrame(modelFrame);
+        dockingManager.addFrame(propertiesFrame);
 
         // todo real output and can we hook it up with some meaningful messages?
         DockableFrame logFrame = createDockableFrameWithName("Output");
@@ -75,7 +76,8 @@ public class ApplicationView extends DefaultDockableBarDockableHolder {
 
         DockableFrame paletteFrame = createDockableFrameWithName("Palette");
         paletteFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
-        paletteFrame.getContext().setInitSide(DockContext.DOCK_SIDE_EAST);
+        paletteFrame.getContext().setInitSide(DockContext.DOCK_SIDE_WEST);
+        paletteFrame.getContext().setInitIndex(2);
         paletteFrame.add(createScrollPaneForComponent(paletteView));
 
         dockingManager.addFrame(paletteFrame);
