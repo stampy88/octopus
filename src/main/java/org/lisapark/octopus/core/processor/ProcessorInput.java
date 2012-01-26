@@ -75,7 +75,23 @@ public class ProcessorInput<T> extends Input<T> {
     public void setSourceAttribute(Attribute sourceAttribute) throws ValidationException {
         checkArgument(sourceAttribute != null, "sourceAttribute cannot be null");
 
-        validateAttribute(sourceAttribute);
+        if (this.getSource() == null) {
+            throw new ValidationException("Cannot set the source before setting the source attribute");
+        }
+
+        String attributeName = sourceAttribute.getName();
+        if (getSource().getOutput().getAttributeByName(attributeName) == null) {
+            throw new ValidationException(String.format("Source does not contain an attribute named '%s'", attributeName));
+        }
+
+        // todo remove duplicate code
+        if (!sourceAttribute.isCompatibleWith(getType())) {
+            throw new ValidationException(
+                    String.format("The attribute '%s' of type '%s' is not compatible with the input '%s' of type %s",
+                            attributeName, sourceAttribute.getType().getSimpleName(),
+                            getName(), getType().getSimpleName())
+            );
+        }
 
         this.sourceAttribute = sourceAttribute;
     }
@@ -98,35 +114,6 @@ public class ProcessorInput<T> extends Input<T> {
 
         if (this.sourceAttribute == null) {
             throw new ValidationException(String.format("Please set the source attribute for input %s", getName()));
-        }
-    }
-
-    /**
-     * Will try and validate the specified attribute according to this specification. Will throw a
-     * {@link ValidationException} if the value is not valid according to it.
-     *
-     * @param attribute we are trying to use - should be from the source
-     * @throws ValidationException if the attributeName is not valid in according to this specification
-     */
-    public void validateAttribute(Attribute attribute) throws ValidationException {
-        if (this.getSource() == null) {
-            throw new ValidationException("Cannot set the source before setting the source attribute");
-        }
-
-        String attributeName = attribute.getName();
-        Attribute sourceAttribute = getSource().getOutput().getAttributeByName(attributeName);
-
-        if (sourceAttribute == null) {
-            throw new ValidationException(String.format("Source does not contain an attribute named '%s'", attributeName));
-        }
-
-        // todo remove duplicate code
-        if (!sourceAttribute.isCompatibleWith(getType())) {
-            throw new ValidationException(
-                    String.format("The attribute '%s' of type '%s' is not compatible with the input '%s' of type %s",
-                            attributeName, sourceAttribute.getType().getSimpleName(),
-                            getName(), getType().getSimpleName())
-            );
         }
     }
 
