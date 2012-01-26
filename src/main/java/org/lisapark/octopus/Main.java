@@ -1,6 +1,7 @@
 package org.lisapark.octopus;
 
 import com.google.common.collect.Maps;
+import com.jidesoft.plaf.LookAndFeelFactory;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.core.compiler.esper.EsperCompiler;
 import org.lisapark.octopus.core.event.Attribute;
@@ -10,6 +11,10 @@ import org.lisapark.octopus.core.processor.Sma;
 import org.lisapark.octopus.core.runtime.ProcessingRuntime;
 import org.lisapark.octopus.core.sink.external.ConsoleSink;
 import org.lisapark.octopus.core.source.external.TestSource;
+import org.lisapark.octopus.service.DefaultExternalSinkService;
+import org.lisapark.octopus.service.DefaultExternalSourceService;
+import org.lisapark.octopus.service.DefaultProcessorService;
+import org.lisapark.octopus.view.ApplicationController;
 
 import java.util.Map;
 import java.util.UUID;
@@ -55,6 +60,8 @@ public class Main {
         EsperCompiler compiler = new EsperCompiler();
         ProcessingRuntime runtime = compiler.compile(model);
         runtime.start();
+
+        createView(model);
     }
 
     private static Event personWithFirstNameLastNameAndAge(String firstName, String lastName, int age) {
@@ -64,5 +71,17 @@ public class Main {
         data.put("age", age);
 
         return new Event(data);
+    }
+
+    public static void createView(ProcessingModel model) {
+        LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
+
+        ApplicationController app = new ApplicationController(
+                model,
+                new DefaultProcessorService(),
+                new DefaultExternalSourceService(),
+                new DefaultExternalSinkService());
+        app.start();
+
     }
 }
