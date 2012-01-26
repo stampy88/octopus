@@ -15,6 +15,18 @@
 
     <repositories>
         <repository>
+            <id>netbeans</id>
+            <name>netbeans</name>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <url>http://bits.netbeans.org/maven2</url>
+        </repository>
+        <!-- Local repository where we install jide artifacts -->
+        <repository>
             <id>lib</id>
             <name>lib</name>
             <releases>
@@ -71,6 +83,13 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>0.9.30</version>
+        </dependency>
+
+        <!-- Netbeans -->
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-visual</artifactId>
+            <version>RELEASE701</version>
         </dependency>
 
         <!-- Jide Stuff -->
