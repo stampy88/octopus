@@ -1,7 +1,6 @@
 package org.lisapark.octopus.core.source.external;
 
 import com.google.common.collect.Maps;
-import org.lisapark.octopus.core.AbstractNode;
 import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.ProcessingException;
 import org.lisapark.octopus.core.ValidationException;
@@ -36,7 +35,7 @@ import static com.google.common.base.Preconditions.checkState;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class SqlQuerySource extends AbstractNode implements ExternalSource {
+public class SqlQuerySource extends ExternalSource {
     private static final String DEFAULT_NAME = "Sql Query";
     private static final String DEFAULT_DESCRIPTION = "Database query source for events";
 
@@ -46,23 +45,16 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
     private static final int DRIVER_PARAMETER_ID = 4;
     private static final int QUERY_PARAMETER_ID = 5;
 
-    private final Output output;
-
     private SqlQuerySource(UUID sourceId, String name, String description) {
         super(sourceId, name, description);
-
-        this.output = Output.outputWithId(1).setName("Output");
     }
 
     private SqlQuerySource(UUID sourceId, SqlQuerySource copyFromSource) {
         super(sourceId, copyFromSource);
-        this.output = copyFromSource.output.copyOf();
     }
 
     private SqlQuerySource(SqlQuerySource copyFromSource) {
         super(copyFromSource);
-
-        this.output = copyFromSource.output.copyOf();
     }
 
     @SuppressWarnings("unchecked")
@@ -110,11 +102,6 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
         return getParameter(QUERY_PARAMETER_ID).getValueAsString();
     }
 
-    @Override
-    public Output getOutput() {
-        return output;
-    }
-
     public EventType getEventType() {
         // todo?? mutable
         return getOutput().getEventType();
@@ -141,6 +128,8 @@ public class SqlQuerySource extends AbstractNode implements ExternalSource {
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(DRIVER_PARAMETER_ID, "Driver Class").required(true).
                 constraint(Constraints.classConstraintWithMessage("%s is not a valid Driver Class")));
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(QUERY_PARAMETER_ID, "Query").required(true));
+
+        jdbc.setOutput(Output.outputWithId(1).setName("Output"));
 
         return jdbc;
     }

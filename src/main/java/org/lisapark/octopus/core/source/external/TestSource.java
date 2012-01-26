@@ -1,7 +1,6 @@
 package org.lisapark.octopus.core.source.external;
 
 import com.google.common.collect.Lists;
-import org.lisapark.octopus.core.AbstractNode;
 import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Event;
@@ -14,43 +13,33 @@ import java.util.UUID;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class TestSource extends AbstractNode implements ExternalSource {
+public class TestSource extends ExternalSource {
 
     private static final String DEFAULT_NAME = "Test Source";
     private static final String DEFAULT_DESCRIPTION = "Source for generating predefined events";
 
     private final LinkedList<Event> events = Lists.newLinkedList();
-    private final Output output;
 
     public TestSource(UUID id, String name, String description) {
         super(id, name, description);
-        output = Output.outputWithId(1).setName("Output");
     }
 
     private TestSource(UUID id, TestSource copyFromSource) {
         super(id, copyFromSource);
-        // todo do we need to reproduce this?
-        this.output = copyFromSource.getOutput().copyOf();
         this.events.addAll(copyFromSource.events);
     }
 
     public TestSource(TestSource copyFromSource) {
         super(copyFromSource);
-        this.output = copyFromSource.getOutput().copyOf();
         this.events.addAll(copyFromSource.events);
     }
 
     public void setEventType(EventType eventType) {
-        output.setEventType(eventType);
+        getOutput().setEventType(eventType);
     }
 
     public void addEvent(Event event) {
         this.events.add(event);
-    }
-
-    @Override
-    public Output getOutput() {
-        return output;
     }
 
     @Override
@@ -67,7 +56,10 @@ public class TestSource extends AbstractNode implements ExternalSource {
     public static TestSource newTemplate() {
         UUID sourceId = UUID.randomUUID();
 
-        return new TestSource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+        TestSource testSource = new TestSource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+        testSource.setOutput(Output.outputWithId(1).setName("Output"));
+
+        return testSource;
     }
 
     @Override
