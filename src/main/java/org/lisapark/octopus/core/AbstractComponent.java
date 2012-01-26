@@ -47,7 +47,7 @@ public abstract class AbstractComponent implements Copyable, Validatable {
         return description;
     }
 
-    public final AbstractComponent setDescription(String description) {
+    public AbstractComponent setDescription(String description) {
         this.description = description;
         return this;
     }
@@ -56,7 +56,7 @@ public abstract class AbstractComponent implements Copyable, Validatable {
         return name;
     }
 
-    public final AbstractComponent setName(String name) {
+    public AbstractComponent setName(String name) {
         this.name = name;
         return this;
     }

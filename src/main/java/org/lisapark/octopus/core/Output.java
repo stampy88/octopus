@@ -47,6 +47,16 @@ public class Output extends AbstractComponent {
         return new Output(this);
     }
 
+    @Override
+    public Output setDescription(String description) {
+        return (Output) super.setDescription(description);
+    }
+
+    @Override
+    public Output setName(String name) {
+        return (Output) super.setName(name);
+    }
+
     public EventType addAttribute(Attribute attribute) {
         return eventType.addAttribute(attribute);
     }
