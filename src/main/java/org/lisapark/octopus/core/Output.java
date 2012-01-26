@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class Output extends AbstractComponent {
 
-    private final EventType eventType;
+    private EventType eventType;
 
     protected Output(int id) {
         super(id);
@@ -34,6 +34,10 @@ public class Output extends AbstractComponent {
         this.eventType = existingOutput.eventType.copyOf();
     }
 
+    public void setEventType(EventType eventType) {
+        this.eventType = eventType;
+    }
+
     public EventType getEventType() {
         return eventType.copyOf();
     }
@@ -45,6 +49,10 @@ public class Output extends AbstractComponent {
 
     public EventType addAttribute(Attribute attribute) {
         return eventType.addAttribute(attribute);
+    }
+
+    public EventType removeAttribute(Attribute attribute) {
+        return eventType.removeAttribute(attribute);
     }
 
     public boolean containsAttribute(Attribute attribute) {
