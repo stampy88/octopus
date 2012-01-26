@@ -26,6 +26,11 @@ import java.util.UUID;
 public class Sma extends Processor<Double> {
     private static final String DEFAULT_NAME = "SMA";
     private static final String DEFAULT_DESCRIPTION = "Simple Moving Average";
+    private static final String DEFAULT_WINDOW_LENGTH_DESCRIPTION = "Number of data points to consider when performing the average.";
+    private static final String DEFAULT_INPUT_DESCRIPTION = "This is the attribute from the connected source that the" +
+            " SMA will be averaging.";
+    private static final String DEFAULT_OUTPUT_DESCRIPTION = "This is the name of the output attribute that the" +
+            " SMA is producing.";
 
     /**
      * Sma takes only a single parameter, namely how long the time scale or window is. This is the identifier of the
@@ -113,16 +118,18 @@ public class Sma extends Processor<Double> {
 
         // sma only has window length paramater
         sma.addParameter(
-                Parameter.integerParameterWithIdAndName(WINDOW_LENGTH_PARAMETER_ID, "Window Length").defaultValue(10).required(true)
+                Parameter.integerParameterWithIdAndName(WINDOW_LENGTH_PARAMETER_ID, "Window Length").
+                        description(DEFAULT_WINDOW_LENGTH_DESCRIPTION).
+                        defaultValue(10).required(true)
         );
 
         // only a single double input
         sma.addInput(
-                ProcessorInput.doubleInputWithId(INPUT_ID).name("Input").description("Input for SMA")
+                ProcessorInput.doubleInputWithId(INPUT_ID).name("Input").description(DEFAULT_INPUT_DESCRIPTION)
         );
         // double output
         sma.setOutput(
-                ProcessorOutput.doubleOutputWithId(OUTPUT_ID).nameAndDescription("Moving Average").attributeName("average")
+                ProcessorOutput.doubleOutputWithId(OUTPUT_ID).name("Moving Average").description(DEFAULT_OUTPUT_DESCRIPTION).attributeName("average")
         );
 
         return sma;
