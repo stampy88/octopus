@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class EventType implements Copyable {
 
-    private final List<Attribute> attributes = Lists.newLinkedList();
+    private final List<Attribute> attributes = Lists.newArrayList();
 
     public EventType() {
     }
@@ -29,6 +29,14 @@ public class EventType implements Copyable {
         }
     }
 
+    public int getNumberOfAttributes() {
+        return attributes.size();
+    }
+
+    public Attribute getAttributeAt(int index) {
+        return attributes.get(index);
+    }
+
     public EventType unionWith(EventType eventType) {
         attributes.addAll(eventType.attributes);
 
@@ -37,6 +45,12 @@ public class EventType implements Copyable {
 
     public EventType addAttribute(Attribute attribute) {
         attributes.add(attribute);
+
+        return this;
+    }
+
+    public EventType removeAttribute(Attribute attribute) {
+        attributes.remove(attribute);
 
         return this;
     }
