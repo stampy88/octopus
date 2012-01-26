@@ -46,6 +46,7 @@ public class EventDefinitionTableModel extends AbstractTableModel implements Con
         if (columnIndex == 0) {
             attribute.setName((String) value);
         } else {
+            // todo warn about change and follow references to invalidate
             attribute.setType((Class) value);
         }
     }
