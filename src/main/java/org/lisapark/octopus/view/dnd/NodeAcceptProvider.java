@@ -99,17 +99,22 @@ public class NodeAcceptProvider implements AcceptProvider {
                 if (acceptableFlavor == ProcessorTransferable.FLAVOR) {
                     Processor processor = (Processor) transferable.getTransferData(ProcessorTransferable.FLAVOR);
                     processor.setLocation(point);
+
+                    LOG.debug("Dropping processor {} at location {}", processor, point);
                     scene.addProcessor(processor);
 
                 } else if (acceptableFlavor == ExternalSourceTransferable.FLAVOR) {
                     ExternalSource externalSource = (ExternalSource) transferable.getTransferData(ExternalSourceTransferable.FLAVOR);
                     externalSource.setLocation(point);
+
+                    LOG.debug("Dropping external source {} at location {}", externalSource, point);
                     scene.addExternalSource(externalSource);
 
                 } else if (acceptableFlavor == ExternalSinkTransferable.FLAVOR) {
                     ExternalSink externalSink = (ExternalSink) transferable.getTransferData(ExternalSinkTransferable.FLAVOR);
                     externalSink.setLocation(point);
 
+                    LOG.debug("Dropping external sink {} at location {}", externalSink, point);
                     scene.addExternalSink(externalSink);
                 }
             } else {
