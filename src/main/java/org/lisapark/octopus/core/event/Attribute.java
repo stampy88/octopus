@@ -10,6 +10,16 @@ import static org.lisapark.octopus.util.Naming.checkValidity;
  */
 public class Attribute<T> implements Copyable {
 
+    public static final Class[] SUPPORTED_TYPES = {
+            String.class,
+            Short.class,
+            Integer.class,
+            Long.class,
+            Float.class,
+            Double.class,
+            Boolean.class
+    };
+
     private String name;
     private final Class<T> type;
 
