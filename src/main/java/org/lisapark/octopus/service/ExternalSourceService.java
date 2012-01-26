@@ -5,7 +5,7 @@ import org.lisapark.octopus.core.source.external.ExternalSource;
 import java.util.List;
 
 /**
- * dave sinclair(david.sinclair@lisa-park.com)
+ * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public interface ExternalSourceService {
 

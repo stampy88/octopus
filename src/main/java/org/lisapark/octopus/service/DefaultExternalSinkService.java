@@ -7,7 +7,7 @@ import org.lisapark.octopus.core.sink.external.ExternalSink;
 import java.util.List;
 
 /**
- * dave sinclair(david.sinclair@lisa-park.com)
+ * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class DefaultExternalSinkService implements ExternalSinkService {
 

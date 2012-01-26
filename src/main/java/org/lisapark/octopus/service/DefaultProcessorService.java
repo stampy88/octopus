@@ -8,7 +8,7 @@ import org.lisapark.octopus.core.processor.Sma;
 import java.util.List;
 
 /**
- * dave sinclair(david.sinclair@lisa-park.com)
+ * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class DefaultProcessorService implements ProcessorService {
 
