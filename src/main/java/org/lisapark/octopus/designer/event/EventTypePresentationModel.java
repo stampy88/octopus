@@ -51,9 +51,8 @@ public class EventTypePresentationModel {
      */
     private final EventTypeTableModel tableModel;
 
-    public EventTypePresentationModel(PropertiesPresentationModel propertiesPresentationModel, EventType eventType) {
+    public EventTypePresentationModel(PropertiesPresentationModel propertiesPresentationModel) {
         this.propertiesPresentationModel = propertiesPresentationModel;
-        this.eventType = eventType;
         this.tableModel = new EventTypeTableModel();
     }
 
@@ -102,11 +101,11 @@ public class EventTypePresentationModel {
         return Attribute.SUPPORTED_TYPES;
     }
 
-    EventType getEventType() {
+    public EventType getEventType() {
         return this.eventType;
     }
 
-    void setEventType(EventType eventType) {
+    public void setEventType(EventType eventType) {
         this.eventType = eventType;
         tableModel.fireTableDataChanged();
     }

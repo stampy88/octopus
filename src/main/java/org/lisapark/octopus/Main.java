@@ -11,10 +11,10 @@ import org.lisapark.octopus.core.processor.Sma;
 import org.lisapark.octopus.core.runtime.ProcessingRuntime;
 import org.lisapark.octopus.core.sink.external.ConsoleSink;
 import org.lisapark.octopus.core.source.external.TestSource;
+import org.lisapark.octopus.designer.DesignerController;
 import org.lisapark.octopus.service.DefaultExternalSinkService;
 import org.lisapark.octopus.service.DefaultExternalSourceService;
 import org.lisapark.octopus.service.DefaultProcessorService;
-import org.lisapark.octopus.view.ApplicationController;
 
 import java.util.Map;
 
@@ -57,6 +57,10 @@ public class Main {
 
         model.addExternalSink(consoleSink);
 
+//        OctopusDao dao = new OctopusDb4oDao("test.dave");
+//        dao.storeProcessingModel(model);
+//        dao.getProcessingModelsByName("test");
+
         EsperCompiler compiler = new EsperCompiler();
         ProcessingRuntime runtime = compiler.compile(model);
         runtime.start();
@@ -76,7 +80,7 @@ public class Main {
     public static void createView(ProcessingModel model) {
         LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
 
-        ApplicationController app = new ApplicationController(
+        DesignerController app = new DesignerController(
                 model,
                 new DefaultProcessorService(),
                 new DefaultExternalSourceService(),
