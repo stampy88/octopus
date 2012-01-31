@@ -51,6 +51,12 @@ public class ProcessorInput<T> extends Input<T> {
         return (ProcessorInput<T>) super.connectSource(source);
     }
 
+    public ProcessorInput<T> clearSourceAttribute() {
+        this.sourceAttribute = null;
+
+        return this;
+    }
+
     public void setSourceAttribute(String attributeName) throws ValidationException {
         checkArgument(attributeName != null, "attributeName cannot be null");
 
