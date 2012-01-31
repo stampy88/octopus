@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * An {@link EventType} is the definition of an {@link Event} that describes some or all of the attributes a event
  * will have.
@@ -37,10 +39,29 @@ public class EventType implements Copyable {
         return attributes.get(index);
     }
 
-    public EventType unionWith(EventType eventType) {
-        attributes.addAll(eventType.attributes);
+    public void removeAttributeAt(int index) {
+        checkArgument(index > -1 && index < attributes.size(), "index is out of range");
+        attributes.remove(index);
+    }
 
-        return this;
+    public int indexOfAttribute(Attribute attribute) {
+        checkArgument(attribute != null, "attribute cannot be null");
+        int index = -1;
+
+        for (int i = 0; i < attributes.size(); ++i) {
+            Attribute candidateAttribute = attributes.get(i);
+
+            if (candidateAttribute.equals(attribute)) {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
+    }
+
+    public boolean containsAttributeWithName(String attributeName) {
+        return getAttributeByName(attributeName) != null;
     }
 
     public EventType addAttribute(Attribute attribute) {
