@@ -1,6 +1,5 @@
 package org.lisapark.octopus.core.event;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
@@ -9,14 +8,14 @@ import java.util.Map;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class Event {
-    private final Map<String, Object> data;
+    private final Map<String, Object> data = Maps.newHashMap();
 
     public Event(String attributeName, Object value) {
-        this.data = ImmutableMap.of(attributeName, value);
+        data.put(attributeName, value);
     }
 
     public Event(Map<String, Object> data) {
-        this.data = ImmutableMap.copyOf(data);
+        this.data.putAll(data);
     }
 
     public Event unionWith(Event event) {
