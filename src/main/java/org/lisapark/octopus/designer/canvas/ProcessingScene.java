@@ -5,10 +5,16 @@ import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.Node;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.core.processor.Processor;
+import org.lisapark.octopus.core.sink.Sink;
 import org.lisapark.octopus.core.sink.external.ExternalSink;
 import org.lisapark.octopus.core.source.Source;
 import org.lisapark.octopus.core.source.external.ExternalSource;
 import org.lisapark.octopus.designer.canvas.actions.RemoveConnectionAction;
+import org.lisapark.octopus.designer.canvas.actions.RemoveExternalSinkAction;
+import org.lisapark.octopus.designer.canvas.actions.RemoveExternalSourceAction;
+import org.lisapark.octopus.designer.canvas.actions.RemoveProcessorAction;
+import org.lisapark.octopus.designer.canvas.providers.NodeMoveProvider;
+import org.lisapark.octopus.designer.canvas.providers.ProcessingSceneConnectProvider;
 import org.lisapark.octopus.designer.dnd.NodeAcceptProvider;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.WidgetAction;
@@ -17,7 +23,6 @@ import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.graph.GraphPinScene;
 import org.netbeans.api.visual.graph.layout.GridGraphLayout;
 import org.netbeans.api.visual.layout.LayoutFactory;
-import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.api.visual.router.Router;
 import org.netbeans.api.visual.router.RouterFactory;
 import org.netbeans.api.visual.vmd.VMDConnectionWidget;
@@ -33,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -44,30 +50,27 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
     private final LayerWidget mainLayer = new LayerWidget(this);
     private final LayerWidget connectionLayer = new LayerWidget(this);
     private final LayerWidget interactionLayer = new LayerWidget(this);
-    private LayerWidget backgroundLayer = new LayerWidget(this);
 
     private Router router;
 
     private WidgetAction connectAction = ActionFactory.createExtendedConnectAction(interactionLayer, new ProcessingSceneConnectProvider(this));
-    //private WidgetAction reconnectAction = ActionFactory.createReconnectAction(new SceneReconnectProvider(this));
+    //private WidgetAction reconnectAction = ActionFactory.createReconnectAction(new ProcessingSceneReconnectProvider(this));
     private WidgetAction moveControlPointAction = ActionFactory.createOrthogonalMoveControlPointAction();
-    private WidgetAction moveAction = ActionFactory.createMoveAction();
+    private WidgetAction moveAction = ActionFactory.createMoveAction(ActionFactory.createFreeMoveStrategy(), new NodeMoveProvider(this));
     private WidgetAction acceptAction = ActionFactory.createAcceptAction(new NodeAcceptProvider(this));
 
-    private RemoveConnectionAction removeConnectionAction = new RemoveConnectionAction(this);
-
-    private SceneLayout sceneLayout;
+    private WidgetAction removeConnectionAction = new RemoveConnectionAction(this);
+    private WidgetAction removeExternalSinkAction = new RemoveExternalSinkAction(this);
+    private WidgetAction removeExternalSourceAction = new RemoveExternalSourceAction(this);
+    private WidgetAction removeProcessorAction = new RemoveProcessorAction(this);
 
     private ProcessingModel model;
-
-    public ProcessingScene() {
-        this(new ProcessingModel("example"));
-    }
 
     public ProcessingScene(ProcessingModel model) {
         this.model = model;
         setKeyEventProcessingType(EventProcessingType.FOCUSED_WIDGET_AND_ITS_PARENTS);
 
+        LayerWidget backgroundLayer = new LayerWidget(this);
         addChild(backgroundLayer);
         addChild(mainLayer);
         addChild(connectionLayer);
@@ -80,14 +83,14 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
         getActions().addAction(ActionFactory.createRectangularSelectAction(this, backgroundLayer));
         getActions().addAction(acceptAction);
 
-        sceneLayout = LayoutFactory.createSceneGraphLayout(this, new GridGraphLayout<Node, Connection>().setChecker(true));
+        LayoutFactory.createSceneGraphLayout(this, new GridGraphLayout<Node, Connection>().setChecker(true));
 
         initializeFromModel(model);
+
     }
 
     private void initializeFromModel(ProcessingModel model) {
         Set<ExternalSource> externalSources = model.getExternalSources();
-
         for (ExternalSource externalSource : externalSources) {
             addExternalSource(externalSource);
         }
@@ -95,6 +98,30 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
         Set<Processor> processors = model.getProcessors();
         for (Processor processor : processors) {
             addProcessor(processor);
+        }
+
+        Set<ExternalSink> externalSinks = model.getExternalSinks();
+        for (ExternalSink externalSink : externalSinks) {
+            addExternalSink(externalSink);
+        }
+
+        for (ExternalSink sink : externalSinks) {
+            List<? extends Input> inputs = sink.getInputs();
+
+            for (Input input : inputs) {
+                Source sinkSource = input.getSource();
+
+                if (sinkSource != null) {
+                    Connection edge = Connection.connectSourceToSinkInput(sinkSource, input);
+                    addEdge(edge);
+
+                    OutputPin sourcePin = findOutputPinForSource(sinkSource);
+                    setEdgeSource(edge, sourcePin);
+
+                    InputPin destinationPin = findInputPinForSinkAndInput(sink, input);
+                    setEdgeTarget(edge, destinationPin);
+                }
+            }
         }
 
         // now connect everything - we do this by way of examining the inputs for a Processor
@@ -111,15 +138,15 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
                     OutputPin sourcePin = findOutputPinForSource(processorSource);
                     setEdgeSource(edge, sourcePin);
 
-                    InputPin destinationPin = findInputPinForProcessorAndInput(processor, input);
+                    InputPin destinationPin = findInputPinForSinkAndInput(processor, input);
                     setEdgeTarget(edge, destinationPin);
                 }
             }
         }
     }
 
-    private InputPin findInputPinForProcessorAndInput(Processor processor, Input input) {
-        Collection<Pin> processorPins = getNodePins(processor);
+    private InputPin findInputPinForSinkAndInput(Sink sink, Input input) {
+        Collection<Pin> processorPins = getNodePins(sink);
         InputPin inputPin = null;
 
         for (Pin pin : processorPins) {
@@ -135,7 +162,7 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
 
         if (inputPin == null) {
             throw new IllegalStateException(
-                    String.format("Could not find inputPin for processor [%s] and input [%s]", processor, input));
+                    String.format("Could not find inputPin for sink [%s] and input [%s]", sink, input));
         }
 
         return inputPin;
@@ -162,6 +189,8 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
     public void addExternalSource(ExternalSource source) {
         // make sure we have never seen this source before
         if (findStoredObject(source) == null) {
+            model.addExternalEventSource(source);
+
             VMDNodeWidget nodeWidget = (VMDNodeWidget) addNode(source);
 
             nodeWidget.setPreferredLocation(source.getLocation());
@@ -169,14 +198,25 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
             nodeWidget.setToolTipText(source.getDescription());
 
             VMDPinWidget pinWidget = (VMDPinWidget) addPin(source, new OutputPin(source));
-            // TODO think we need the output, not type
-            pinWidget.setPinName(source.getId().toString());
+            pinWidget.setPinName(source.getOutput().getName());
+            pinWidget.setToolTipText(source.getOutput().getDescription());
+        }
+    }
+
+    public void removeExternalSource(ExternalSource externalSource) {
+        // make sure it is a valid source
+        if (findStoredObject(externalSource) != null) {
+            model.removeExternalEventSource(externalSource);
+
+            removeNodeWithEdges(externalSource);
         }
     }
 
     public void addExternalSink(ExternalSink sink) {
         // make sure we have never seen this sink before
         if (findStoredObject(sink) == null) {
+            model.addExternalSink(sink);
+
             VMDNodeWidget nodeWidget = (VMDNodeWidget) addNode(sink);
 
             nodeWidget.setPreferredLocation(sink.getLocation());
@@ -192,10 +232,20 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
         }
     }
 
+    public void removeExternalSink(ExternalSink externalSink) {
+        // make sure it is a valid sink
+        if (findStoredObject(externalSink) != null) {
+            model.removeExternalEventSink(externalSink);
+
+            removeNodeWithEdges(externalSink);
+        }
+    }
 
     public void addProcessor(Processor<?> processor) {
         // make sure we have never seen this processor before
         if (findStoredObject(processor) == null) {
+            model.addProcessor(processor);
+
             VMDNodeWidget nodeWidget = (VMDNodeWidget) addNode(processor);
 
             nodeWidget.setPreferredLocation(processor.getLocation());
@@ -213,9 +263,17 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
 
             VMDPinWidget pinWidget = (VMDPinWidget) addPin(processor, new OutputPin(processor));
 
-            // TODO not sure about output on processor
             pinWidget.setPinName(processor.getOutput().getName());
             pinWidget.setToolTipText(processor.getOutput().getDescription());
+        }
+    }
+
+    public void removeProcessor(Processor<?> processor) {
+        // make sure it is a valid processor
+        if (findStoredObject(processor) != null) {
+            model.removeProcessor(processor);
+
+            removeNodeWithEdges(processor);
         }
     }
 
@@ -229,12 +287,14 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
         setEdgeTarget(connection, destinationPin);
     }
 
-    public void removeConnection(Connection connection) {
-        // todo verify the connection
-        removeEdge(connection);
 
-        // todo not sure if I like this
-        connection.clearSource();
+    public void removeConnection(Connection connection) {
+        // make sure it is a valid connection
+        if (findStoredObject(connection) != null) {
+            removeEdge(connection);
+
+            connection.clearSource();
+        }
     }
 
     @Override
@@ -245,8 +305,21 @@ public class ProcessingScene extends GraphPinScene<Node, Connection, Pin> {
         widget.getHeader().getActions().addAction(createObjectHoverAction());
         widget.getActions().addAction(createSelectAction());
         widget.getActions().addAction(moveAction);
+        widget.getActions().addAction(getRemoveActionForNode(node));
 
         return widget;
+    }
+
+    private WidgetAction getRemoveActionForNode(Node node) {
+        if (node instanceof Processor) {
+            return removeProcessorAction;
+
+        } else if (node instanceof ExternalSink) {
+            return removeExternalSinkAction;
+
+        } else {
+            return removeExternalSourceAction;
+        }
     }
 
     @Override

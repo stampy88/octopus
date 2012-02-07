@@ -7,7 +7,6 @@ import org.lisapark.octopus.core.processor.Processor;
 import org.lisapark.octopus.core.sink.external.ExternalSink;
 import org.lisapark.octopus.core.source.external.ExternalSource;
 import org.lisapark.octopus.designer.OctopusIconsFactory;
-import org.lisapark.octopus.designer.View;
 import org.lisapark.octopus.designer.dnd.ExternalSinkTransferable;
 import org.lisapark.octopus.designer.dnd.ExternalSourceTransferable;
 import org.lisapark.octopus.designer.dnd.ProcessorTransferable;
@@ -23,16 +22,18 @@ import java.util.Locale;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class PaletteView extends JPanel implements View<PaletteModel> {
+public class PalettePanel extends JPanel {
 
-    private PaletteModel model;
+    private NodeListModel<Processor> processorListModel;
+    private NodeListModel<ExternalSink> externalSinkListModel;
+    private NodeListModel<ExternalSource> externalSourceListModel;
 
-    private JList processorList;
-    private JList externalSourceList;
-    private JList externalSinkList;
     private final NodeListCellRenderer cellRenderer = new NodeListCellRenderer();
+    private JList externalSinkList;
+    private JList externalSourceList;
+    private JList processorList;
 
-    public PaletteView() {
+    public PalettePanel() {
         super(new BorderLayout(LayoutConstants.COMPONENT_HORIZONTAL_GAP, LayoutConstants.COMPONENT_VERTICAL_GAP));
         init();
     }
@@ -92,6 +93,9 @@ public class PaletteView extends JPanel implements View<PaletteModel> {
             }
         });
 
+        processorListModel = NodeListModel.newNodeListModel();
+        processorList.setModel(processorListModel);
+
         JPanel processorPanel = new JPanel(new BorderLayout(LayoutConstants.COMPONENT_HORIZONTAL_GAP, LayoutConstants.COMPONENT_VERTICAL_GAP));
         processorPanel.add(new JideScrollPane(processorList), BorderLayout.CENTER);
 
@@ -112,6 +116,8 @@ public class PaletteView extends JPanel implements View<PaletteModel> {
                 return new ExternalSourceTransferable(externalSource);
             }
         });
+        externalSourceListModel = NodeListModel.newNodeListModel();
+        externalSourceList.setModel(externalSourceListModel);
 
         JPanel processorPanel = new JPanel(new BorderLayout(LayoutConstants.COMPONENT_HORIZONTAL_GAP, LayoutConstants.COMPONENT_VERTICAL_GAP));
         processorPanel.add(new JideScrollPane(externalSourceList), BorderLayout.CENTER);
@@ -133,6 +139,8 @@ public class PaletteView extends JPanel implements View<PaletteModel> {
                 return new ExternalSinkTransferable(externalSink);
             }
         });
+        externalSinkListModel = NodeListModel.newNodeListModel();
+        externalSinkList.setModel(externalSinkListModel);
 
         JPanel processorPanel = new JPanel(new BorderLayout(LayoutConstants.COMPONENT_HORIZONTAL_GAP, LayoutConstants.COMPONENT_VERTICAL_GAP));
         processorPanel.add(new JideScrollPane(externalSinkList), BorderLayout.CENTER);
@@ -152,18 +160,16 @@ public class PaletteView extends JPanel implements View<PaletteModel> {
         return list;
     }
 
-    @Override
-    public void modelToView(PaletteModel model) {
-        this.model = model;
-
-        processorList.setModel(model.getProcessorListModel());
-        externalSinkList.setModel(model.getExternalSinkListModel());
-        externalSourceList.setModel(model.getExternalSourceListMode());
+    public void setProcessors(java.util.List<Processor> processors) {
+        processorListModel.setData(processors);
     }
 
-    @Override
-    public PaletteModel viewToModel() {
-        return model;
+    public void setExternalSources(java.util.List<ExternalSource> externalSources) {
+        externalSourceListModel.setData(externalSources);
+    }
+
+    public void setExternalSinks(java.util.List<ExternalSink> sinks) {
+        externalSinkListModel.setData(sinks);
     }
 
     /**

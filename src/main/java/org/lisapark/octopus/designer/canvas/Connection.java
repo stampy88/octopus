@@ -4,6 +4,8 @@ import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.source.Source;
 
 /**
+ * A connection is used in the {@link org.lisapark.octopus.designer.canvas.ProcessingScene} to connect
+ *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class Connection {

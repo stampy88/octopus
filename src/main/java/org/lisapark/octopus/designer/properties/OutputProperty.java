@@ -5,19 +5,16 @@ import com.jidesoft.combobox.PopupPanel;
 import com.jidesoft.grid.ExComboBoxCellEditor;
 import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.event.EventType;
-import org.lisapark.octopus.designer.event.EventTypePresentationModel;
-import org.lisapark.octopus.designer.event.EventTypeView;
+import org.lisapark.octopus.designer.event.EventTypePopupPanel;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 class OutputProperty extends ComponentProperty<Output> {
-    private final EventTypePresentationModel eventTypePresentationModel;
 
-    OutputProperty(Output output, EventTypePresentationModel eventTypePresentationModel) {
+    OutputProperty(Output output, final EventTypePopupPanel eventTypePopupPanel) {
         super(output);
 
-        this.eventTypePresentationModel = eventTypePresentationModel;
         setType(EventType.class);
         setEditable(true);
         setCategory("Output");
@@ -27,7 +24,7 @@ class OutputProperty extends ComponentProperty<Output> {
                 return new ExComboBox(ExComboBox.DIALOG) {
                     @Override
                     public PopupPanel createPopupComponent() {
-                        return new EventTypeView(OutputProperty.this.eventTypePresentationModel);
+                        return eventTypePopupPanel;
                     }
                 };
             }

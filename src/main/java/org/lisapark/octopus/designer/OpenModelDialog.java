@@ -5,7 +5,7 @@ import com.jidesoft.dialog.ButtonPanel;
 import com.jidesoft.dialog.StandardDialog;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import org.lisapark.octopus.core.ProcessingModel;
-import org.lisapark.octopus.dao.OctopusDao;
+import org.lisapark.octopus.repository.OctopusRepository;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -22,13 +22,14 @@ import java.util.List;
 public class OpenModelDialog extends StandardDialog {
 
     private final SearchResultListModel searchResultsModel = new SearchResultListModel();
-    private final OctopusDao dao;
+    private final OctopusRepository repository;
     private ProcessingModel selectedProcessingModel;
     private JButton okButton;
 
-    private OpenModelDialog(JFrame frame, OctopusDao dao) {
+    private OpenModelDialog(JFrame frame, OctopusRepository repository) {
         super(frame, "Octopus");
-        this.dao = dao;
+        setResizable(false);
+        this.repository = repository;
     }
 
     @Override
@@ -51,7 +52,7 @@ public class OpenModelDialog extends StandardDialog {
         modelNameTxt.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                java.util.List<ProcessingModel> models = dao.getProcessingModelsByName(modelNameTxt.getText());
+                java.util.List<ProcessingModel> models = repository.getProcessingModelsByName(modelNameTxt.getText());
 
                 searchResultsModel.setProcessingModels(models);
             }
@@ -178,13 +179,13 @@ public class OpenModelDialog extends StandardDialog {
      * This method will create and display a new {@link org.lisapark.octopus.designer.OpenModelDialog} for opening
      * a {@link ProcessingModel}.
      *
-     * @param parent to center dialog over
-     * @param dao    used for searching for models
+     * @param parent     to center dialog over
+     * @param repository used for searching for models
      * @return selected model, or null if the user canceled
      */
-    public static ProcessingModel openProcessingModel(Component parent, OctopusDao dao) {
+    public static ProcessingModel openProcessingModel(Component parent, OctopusRepository repository) {
         JFrame frame = (JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, parent);
-        OpenModelDialog dialog = new OpenModelDialog(frame, dao);
+        OpenModelDialog dialog = new OpenModelDialog(frame, repository);
         dialog.pack();
         dialog.setLocationRelativeTo(frame);
         dialog.setVisible(true);

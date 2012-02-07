@@ -9,10 +9,8 @@ import com.jidesoft.grid.StringCellEditor;
 import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideScrollPane;
 import com.jidesoft.swing.MultilineLabel;
-import com.jidesoft.validation.ValidationObject;
-import com.jidesoft.validation.ValidationResult;
-import com.jidesoft.validation.Validator;
-import org.lisapark.octopus.core.ValidationException;
+import org.lisapark.octopus.core.ProcessingModel;
+import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.event.EventType;
 import org.lisapark.octopus.swing.Borders;
 import org.lisapark.octopus.swing.DefaultValidationFailedListener;
@@ -22,38 +20,49 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
 /**
- * This is the view for displaying and interacting with the {@link EventTypePresentationModel}. It displays a panel
+ * This is the view for displaying and interacting with an {@link EventType}. It displays a panel
  * which contains buttons for adding/removing {@link org.lisapark.octopus.core.event.Attribute}s and changing
  * said attribute's properties.
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class EventTypeView extends PopupPanel {
-    private static final Logger LOG = LoggerFactory.getLogger(EventTypeView.class);
+public class EventTypePopupPanel extends PopupPanel {
+    private static final Logger LOG = LoggerFactory.getLogger(EventTypePopupPanel.class);
+
+    private static final String TITLE = "Octopus";
+
+    /**
+     * Note that this name doesn't have any spaces in it so that it conforms the naming rules
+     *
+     * @see org.lisapark.octopus.util.Naming#checkValidity(String, String)
+     */
+    private static final String DEFAULT_ATTR_NAME_PREFIX = "attribute_";
+
+    private static final int EMPTY_SELECTION = -1;
 
     private JTable attributeTable;
-    private final EventTypePresentationModel presentationModel;
+    private EventTypeTableModel tableModel;
 
-    public EventTypeView(EventTypePresentationModel presentationModel) {
+    private EventType eventType;
+    private ProcessingModel processingModel;
 
-        this.presentationModel = presentationModel;
+    public EventTypePopupPanel() {
         init();
-        setTitle(presentationModel.getTitle());
+        setTitle(TITLE);
     }
 
     private void init() {
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         setBorder(Borders.PADDING_BORDER);
 
-        MultilineLabel informationLbl = new MultilineLabel(presentationModel.getInformationText());
+        MultilineLabel informationLbl = new MultilineLabel("Enter in the attribute names and types for this " +
+                "event definition. Please note that changing the attribute types or removing attributes may " +
+                "affect already connected processors or sinks.");
 
         attributeTable = createAttributeTable();
         JideScrollPane scrollPane = new JideScrollPane(attributeTable);
@@ -95,45 +104,79 @@ public class EventTypeView extends PopupPanel {
     }
 
     public Object getSelectedObject() {
-        return presentationModel.getEventType();
+        return eventType;
     }
 
     public void setSelectedObject(Object eventType) {
         LOG.debug("Editing event type {}", eventType);
 
         if (eventType != null) {
-            presentationModel.setEventType((EventType) eventType);
+            setEventType((EventType) eventType);
         }
     }
 
     ContextSensitiveTable createAttributeTable() {
-        EnhancedContextSensitiveTable table = new EnhancedContextSensitiveTable(presentationModel.getTableModel());
+        this.tableModel = new EventTypeTableModel();
+        EnhancedContextSensitiveTable table = new EnhancedContextSensitiveTable(tableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
         table.setValidationFailedListener(new DefaultValidationFailedListener(this));
-        table.getSelectionModel().addListSelectionListener(new CurrentAttributeListener());
 
         StringCellEditor stringCellEditor = new StringCellEditor();
         stringCellEditor.addValidationListener(new AttributeNameValidator());
 
-        TableColumn nameColumn = table.getColumnModel().getColumn(EventTypePresentationModel.ATTRIBUTE_NAME_COLUMN);
+        TableColumn nameColumn = table.getColumnModel().getColumn(EventTypeTableModel.ATTRIBUTE_NAME_COLUMN);
         nameColumn.setCellEditor(stringCellEditor);
 
-        TableColumn typeColumn = table.getColumnModel().getColumn(EventTypePresentationModel.ATTRIBUTE_TYPE_COLUMN);
+        TableColumn typeColumn = table.getColumnModel().getColumn(EventTypeTableModel.ATTRIBUTE_TYPE_COLUMN);
         typeColumn.setCellEditor(new AttributeTypeEditor());
-        typeColumn.setCellRenderer(new AttributeTypeRender());
+        typeColumn.setCellRenderer(new AttributeClassRender());
 
         return table;
     }
 
-    private class CurrentAttributeListener implements ListSelectionListener {
+    public void setEventType(EventType eventType) {
+        this.eventType = eventType;
+        tableModel.setEventType(this.eventType);
+    }
 
-        @Override
-        public void valueChanged(ListSelectionEvent e) {
-            if (!e.getValueIsAdjusting()) {
-                presentationModel.setSelectedRow(attributeTable.getSelectedRow());
-            }
+    String getChangeAttributeTypeWarningText() {
+        String text = "<html>The attribute '%s' is currently in use. Changing the type of the attribute <i>may</i> invalidate its usages.<br>" +
+                "<br>Are you sure you want to change the type?</html>";
+
+        int selectedRow = attributeTable.getSelectedRow();
+        if (selectedRow != EMPTY_SELECTION) {
+            Attribute currentAttribute = eventType.getAttributeAt(selectedRow);
+
+            text = String.format(text, currentAttribute.getName());
         }
+        return text;
+    }
+
+    String getRemoveAttributeWarningText() {
+        String text = "<html>The attribute '%s' is currently in use. Removing the the attribute <b>will</b> invalidate its usages.<br>" +
+                "<br>Are you sure you want to remove the attribute?</html>";
+
+        int selectedRow = attributeTable.getSelectedRow();
+        if (selectedRow != EMPTY_SELECTION) {
+            Attribute currentAttribute = eventType.getAttributeAt(selectedRow);
+
+            text = String.format(text, currentAttribute.getName());
+        }
+        return text;
+    }
+
+    boolean isCurrentAttributeInUse() {
+        boolean inUse = false;
+        int selectedRow = attributeTable.getSelectedRow();
+
+        if (selectedRow != EMPTY_SELECTION) {
+            Attribute currentAttribute = eventType.getAttributeAt(selectedRow);
+
+            // todo
+            //inUse = processingModel.isAttributeInUse(currentAttribute);
+        }
+        return inUse;
     }
 
     private class DeleteAction extends AbstractAction {
@@ -145,17 +188,25 @@ public class EventTypeView extends PopupPanel {
         public void actionPerformed(ActionEvent e) {
             int result = JOptionPane.YES_OPTION;
 
-            if (presentationModel.isCurrentAttributeInUse()) {
-                result = JideOptionPane.showConfirmDialog(EventTypeView.this,
-                        presentationModel.getRemoveAttributeWarningText(),
-                        presentationModel.getTitle(),
+            if (isCurrentAttributeInUse()) {
+                result = JideOptionPane.showConfirmDialog(EventTypePopupPanel.this,
+                        getRemoveAttributeWarningText(),
+                        TITLE,
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.WARNING_MESSAGE
                 );
             }
 
             if (result == JOptionPane.YES_OPTION) {
-                presentationModel.removeCurrentAttribute();
+                int selectedRow = attributeTable.getSelectedRow();
+
+                if (selectedRow != EMPTY_SELECTION) {
+                    if (selectedRow < eventType.getNumberOfAttributes()) {
+                        eventType.removeAttributeAt(selectedRow);
+
+                        tableModel.fireTableRowsDeleted(selectedRow, selectedRow);
+                    }
+                }
             }
         }
     }
@@ -167,18 +218,25 @@ public class EventTypeView extends PopupPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            presentationModel.addNewAttribute();
-        }
-    }
+            String name = determineNewAttributeName();
+            Attribute newAttribute = Attribute.stringAttribute(name);
 
-    private class AttributeTypeRender extends DefaultTableCellRenderer {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            if (value != null) {
-                value = ((Class) value).getSimpleName();
-            }
-            return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            eventType.addAttribute(newAttribute);
+            tableModel.fireTableRowsInserted(eventType.getNumberOfAttributes() - 1, eventType.getNumberOfAttributes());
         }
+
+        String determineNewAttributeName() {
+            String newName = DEFAULT_ATTR_NAME_PREFIX + "1";
+
+            int suffix = 2;
+            while (eventType.containsAttributeWithName(newName)) {
+                newName = DEFAULT_ATTR_NAME_PREFIX + suffix;
+                suffix++;
+            }
+
+            return newName;
+        }
+
     }
 
     /**
@@ -188,8 +246,10 @@ public class EventTypeView extends PopupPanel {
      */
     class AttributeTypeEditor extends ListComboBoxCellEditor {
 
+        private Class currentAttributeClass;
+
         public AttributeTypeEditor() {
-            super(presentationModel.getAllowedAttributeClasses());
+            super(Attribute.SUPPORTED_TYPES);
             setAutoStopCellEditing(false);
         }
 
@@ -214,7 +274,7 @@ public class EventTypeView extends PopupPanel {
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            presentationModel.setCurrentAttributeClass((Class) value);
+            currentAttributeClass = ((Class) value);
 
             return super.getTableCellEditorComponent(table, value, isSelected, row, column);
         }
@@ -224,16 +284,16 @@ public class EventTypeView extends PopupPanel {
             int result = JOptionPane.YES_OPTION;
 
             Class newClass = (Class) getCellEditorValue();
-            Class oldClass = presentationModel.getCurrentAttributeClass();
+            Class oldClass = currentAttributeClass;
 
             LOG.debug("Trying to change attribute type from {} to {}", oldClass, newClass);
 
             // warn the user if they try and change an attribute that is in use
-            if (!newClass.equals(oldClass) && presentationModel.isCurrentAttributeInUse()) {
+            if (!newClass.equals(oldClass) && isCurrentAttributeInUse()) {
 
-                result = JideOptionPane.showConfirmDialog(EventTypeView.this,
-                        presentationModel.getChangeAttributeTypeWarningText(),
-                        presentationModel.getTitle(),
+                result = JideOptionPane.showConfirmDialog(EventTypePopupPanel.this,
+                        getChangeAttributeTypeWarningText(),
+                        TITLE,
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.WARNING_MESSAGE
                 );
@@ -246,30 +306,5 @@ public class EventTypeView extends PopupPanel {
         }
     }
 
-    /**
-     * Implementation of a Jide {@link Validator} that delegates to the {@link EventTypeView#presentationModel} to see
-     * if the attribute name is valid.
-     */
-    private class AttributeNameValidator implements Validator {
-
-        @Override
-        public ValidationResult validating(ValidationObject validationObject) {
-            // start off initially as valid, that is what true is here
-            ValidationResult result = new ValidationResult(true);
-            // if it isn't valid we want to have the cell editor stay right where it is
-            result.setFailBehavior(ValidationResult.FAIL_BEHAVIOR_PERSIST);
-
-            Object value = validationObject.getNewValue();
-
-            try {
-                presentationModel.validateAttributeName((String) value);
-            } catch (ValidationException e) {
-                result.setValid(false);
-                result.setMessage(e.getLocalizedMessage());
-            }
-
-            return result;
-        }
-    }
 }
 

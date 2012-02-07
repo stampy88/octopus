@@ -1,5 +1,8 @@
-package org.lisapark.octopus.designer.canvas;
+package org.lisapark.octopus.designer.canvas.providers;
 
+import org.lisapark.octopus.designer.canvas.InputPin;
+import org.lisapark.octopus.designer.canvas.OutputPin;
+import org.lisapark.octopus.designer.canvas.ProcessingScene;
 import org.netbeans.api.visual.action.ConnectProvider;
 import org.netbeans.api.visual.action.ConnectorState;
 import org.netbeans.api.visual.widget.Scene;
@@ -40,18 +43,40 @@ public class ProcessingSceneConnectProvider implements ConnectProvider {
         return inputPin;
     }
 
+    /**
+     * Called for checking whether a specified source widget is a possible source of a connection. Only widgets
+     * that have an {@link OutputPin} are possible sources.
+     *
+     * @param sourceWidget the source widget
+     * @return if true, then it is possible to create a connection for the source widget; if false, then is not allowed
+     */
     public boolean isSourceWidget(Widget sourceWidget) {
 
         return getOutPinForFromWidget(sourceWidget) != null;
     }
 
+    /**
+     * Called for checking whether a connection could be created between a specified source and target widget.
+     * Called only when a hasCustomTargetWidgetResolver returns false.
+     * <p/>
+     * We only allows connections when the targetWidget is an {@link InputPin} and it is <b>not</b> already connected
+     *
+     * @param sourceWidget the source widget
+     * @param targetWidget the target widget
+     * @return the connector state
+     */
     public ConnectorState isTargetWidget(Widget sourceWidget, Widget targetWidget) {
         Object object = scene.findObject(targetWidget);
 
         ConnectorState connectorState = ConnectorState.REJECT;
 
         if (object instanceof InputPin) {
-            connectorState = ConnectorState.ACCEPT;
+            InputPin inputPin = (InputPin) object;
+
+            // make sure the input is NOT already in use
+            if (!inputPin.isConnected()) {
+                connectorState = ConnectorState.ACCEPT;
+            }
 
         } else if (object != null) {
             connectorState = ConnectorState.REJECT_AND_STOP;
@@ -60,15 +85,36 @@ public class ProcessingSceneConnectProvider implements ConnectProvider {
         return connectorState;
     }
 
+    /**
+     * Called to check whether the provider has a custom target widget resolver.
+     *
+     * @param scene the scene where the resolver will be called
+     * @return false, then the isTargetWidget method is called for resolving the target widget
+     */
     public boolean hasCustomTargetWidgetResolver(Scene scene) {
         return false;
     }
 
+    /**
+     * Called to find the target widget of a possible connection.
+     * Called only when a hasCustomTargetWidgetResolver returns true.
+     *
+     * @param scene         the scene
+     * @param sceneLocation the scene location
+     * @return the target widget; null if no target widget found
+     */
     public Widget resolveTargetWidget(Scene scene, Point sceneLocation) {
 
         return null;
     }
 
+    /**
+     * Called for creating a new connection between a specified source and target widget.
+     * This method is called only when the possible connection is available and an user approves its creation.
+     *
+     * @param sourceWidget the source widget
+     * @param targetWidget the target widget
+     */
     public void createConnection(Widget sourceWidget, Widget targetWidget) {
         if (isSourceWidget(sourceWidget) && isTargetWidget(sourceWidget, targetWidget).equals(ConnectorState.ACCEPT)) {
             // we create a connection from the Source's output pin to the target's input pin

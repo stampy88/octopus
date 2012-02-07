@@ -16,6 +16,10 @@ public class InputPin extends Pin {
         this.input = input;
     }
 
+    public boolean isConnected() {
+        return input.isConnected();
+    }
+
     public Input getInput() {
         return input;
     }
