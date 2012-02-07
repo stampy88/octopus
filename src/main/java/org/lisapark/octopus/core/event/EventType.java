@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.lisapark.octopus.core.Copyable;
+import org.lisapark.octopus.core.Persistable;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,6 +19,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class EventType implements Copyable {
 
     private final List<Attribute> attributes = Lists.newArrayList();

@@ -1,6 +1,7 @@
 package org.lisapark.octopus.core.event;
 
 import org.lisapark.octopus.core.Copyable;
+import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
 
 import static org.lisapark.octopus.util.Naming.checkValidity;
@@ -8,6 +9,7 @@ import static org.lisapark.octopus.util.Naming.checkValidity;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class Attribute implements Copyable {
 
     public static final Class[] SUPPORTED_TYPES = {

@@ -1,12 +1,14 @@
 package org.lisapark.octopus.core.event;
 
 import com.google.common.collect.Maps;
+import org.lisapark.octopus.core.Persistable;
 
 import java.util.Map;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class Event {
     private final Map<String, Object> data = Maps.newHashMap();
 
