@@ -1,5 +1,7 @@
 package org.lisapark.octopus.core.parameter;
 
+import org.lisapark.octopus.core.Persistable;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
@@ -12,7 +14,8 @@ public class Constraints {
         return new ClassConstraint(message);
     }
 
-    private static class ClassConstraint implements Constraint<String> {
+    @Persistable
+    static class ClassConstraint implements Constraint<String> {
 
         private final String message;
 

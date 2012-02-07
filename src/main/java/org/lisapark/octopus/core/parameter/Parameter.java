@@ -1,6 +1,7 @@
 package org.lisapark.octopus.core.parameter;
 
 import org.lisapark.octopus.core.AbstractComponent;
+import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
 
 import javax.swing.table.TableCellEditor;
@@ -22,6 +23,7 @@ import javax.swing.table.TableCellRenderer;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public abstract class Parameter<T> extends AbstractComponent {
 
     /**

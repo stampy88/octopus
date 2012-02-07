@@ -1,8 +1,11 @@
 package org.lisapark.octopus.core.parameter;
 
+import org.lisapark.octopus.core.Persistable;
+
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class BooleanParameter extends Parameter<Boolean> {
 
     protected BooleanParameter(Builder<Boolean> builder) {

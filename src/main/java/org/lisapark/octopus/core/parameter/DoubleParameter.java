@@ -1,8 +1,11 @@
 package org.lisapark.octopus.core.parameter;
 
+import org.lisapark.octopus.core.Persistable;
+
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class DoubleParameter extends Parameter<Double> {
 
     protected DoubleParameter(Builder<Double> builder) {
