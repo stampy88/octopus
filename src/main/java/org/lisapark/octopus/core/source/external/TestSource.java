@@ -1,14 +1,17 @@
 package org.lisapark.octopus.core.source.external;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
+import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.event.Event;
 import org.lisapark.octopus.core.event.EventType;
+import org.lisapark.octopus.core.parameter.Parameter;
 import org.lisapark.octopus.core.runtime.ProcessingRuntime;
 
-import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -20,7 +23,7 @@ public class TestSource extends ExternalSource {
     private static final String DEFAULT_NAME = "Test Source";
     private static final String DEFAULT_DESCRIPTION = "Source for generating predefined events";
 
-    private final LinkedList<Event> events = Lists.newLinkedList();
+    private static final int NUMBER_OF_EVENTS_PARAMETER_ID = 1;
 
     public TestSource(UUID id, String name, String description) {
         super(id, name, description);
@@ -28,20 +31,14 @@ public class TestSource extends ExternalSource {
 
     private TestSource(UUID id, TestSource copyFromSource) {
         super(id, copyFromSource);
-        this.events.addAll(copyFromSource.events);
     }
 
     public TestSource(TestSource copyFromSource) {
         super(copyFromSource);
-        this.events.addAll(copyFromSource.events);
     }
 
-    public void setEventType(EventType eventType) {
-        getOutput().setEventType(eventType);
-    }
-
-    public void addEvent(Event event) {
-        this.events.add(event);
+    public Integer getNumberOfEvents() {
+        return getParameter(NUMBER_OF_EVENTS_PARAMETER_ID).getValueAsInteger();
     }
 
     @Override
@@ -60,6 +57,9 @@ public class TestSource extends ExternalSource {
 
         TestSource testSource = new TestSource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         testSource.setOutput(Output.outputWithId(1).setName("Output"));
+        testSource.addParameter(
+                Parameter.integerParameterWithIdAndName(NUMBER_OF_EVENTS_PARAMETER_ID, "Number of Events").
+                        description("Number of test events to generate.").defaultValue(10));
 
         return testSource;
     }
@@ -87,11 +87,25 @@ public class TestSource extends ExternalSource {
             Thread thread = Thread.currentThread();
             running = true;
 
-            while (!thread.isInterrupted() && running && source.events.size() > 0) {
-                Event e = source.events.pop();
+            EventType eventType = source.getOutput().getEventType();
+            List<Attribute> attributes = eventType.getAttributes();
+            int numberEventsCreated = 0;
+
+            while (!thread.isInterrupted() && running && numberEventsCreated < source.getNumberOfEvents()) {
+                Event e = createEvent(attributes, numberEventsCreated++);
 
                 runtime.sendEventFromSource(e, source);
             }
+        }
+
+        private Event createEvent(List<Attribute> attributes, int eventNumber) {
+            Map<String, Object> attributeData = Maps.newHashMap();
+
+            for (Attribute attribute : attributes) {
+                attributeData.put(attribute.getName(), attribute.createSampleData(eventNumber));
+            }
+
+            return new Event(attributeData);
         }
 
         @Override

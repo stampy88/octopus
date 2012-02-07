@@ -8,6 +8,7 @@ import org.lisapark.octopus.core.sink.external.ConsoleSink;
 import org.lisapark.octopus.core.sink.external.ExternalSink;
 import org.lisapark.octopus.core.source.external.ExternalSource;
 import org.lisapark.octopus.core.source.external.SqlQuerySource;
+import org.lisapark.octopus.core.source.external.TestSource;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public abstract class AbstractOctopusRepository implements OctopusRepository {
 
     @Override
     public List<ExternalSource> getAllExternalSourceTemplates() {
-        return Lists.<ExternalSource>newArrayList(SqlQuerySource.newTemplate());
+        return Lists.<ExternalSource>newArrayList(SqlQuerySource.newTemplate(), TestSource.newTemplate());
     }
 
     @Override
