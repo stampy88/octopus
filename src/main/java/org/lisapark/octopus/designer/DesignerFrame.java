@@ -33,6 +33,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 
 /**
@@ -43,6 +45,12 @@ import java.util.List;
 public class DesignerFrame extends DefaultDockableBarDockableHolder {
 
     private static final Logger LOG = LoggerFactory.getLogger(DesignerFrame.class);
+
+    /**
+     * This is the profile used for Jide's {@link DockingManager}. It allows it to store layout information
+     * that will be persisted from one session of the application to the next
+     */
+    private static final String PROFILE_KEY = "octopus";
 
     /**
      * This is the current {@link ProcessingModel} we are working on
@@ -71,11 +79,14 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
     }
 
     private void init() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         initializeDockableBarManager();
         initializeDockingManager();
         initializeStatusBar();
+
+        addWindowListener(new WindowClosingListener());
+
         pack();
     }
 
@@ -93,6 +104,8 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
      */
     private void initializeDockingManager() {
         DockingManager dockingManager = getDockingManager();
+        dockingManager.setProfileKey(PROFILE_KEY);
+
         dockingManager.getWorkspace().add(createCanvas());
         dockingManager.beginLoadLayoutData();
         dockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_WEST_SOUTH_NORTH);
@@ -101,6 +114,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         dockingManager.addFrame(createOutput());
         dockingManager.addFrame(createPalette());
 
+        // load layout information from previous session. This indicates the end of beginLoadLayoutData() method above.
         dockingManager.loadLayoutData();
     }
 
@@ -315,5 +329,22 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         newItem.setAccelerator(accelerator);
 
         return newItem;
+    }
+
+    /**
+     * This listener will respond to the user closing the frame. It will save the layout data for the
+     * {@link com.jidesoft.docking.DockingManager} and dispose of the frame.
+     */
+    private class WindowClosingListener extends WindowAdapter {
+        @Override
+        public void windowClosing(WindowEvent e) {
+            DockingManager dockingManager = getDockingManager();
+
+            if (dockingManager != null) {
+                dockingManager.saveLayoutData();
+            }
+
+            dispose();
+        }
     }
 }

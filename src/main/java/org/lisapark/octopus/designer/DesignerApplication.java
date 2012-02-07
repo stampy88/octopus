@@ -38,7 +38,6 @@ public class DesignerApplication {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                designerFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
                 designerFrame.setVisible(true);
             }
         });
