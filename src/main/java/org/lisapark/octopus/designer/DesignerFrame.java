@@ -95,6 +95,8 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
      */
     private void initializeDockableBarManager() {
         DockableBarManager dockableBarManager = getDockableBarManager();
+        dockableBarManager.setShowInitial(false);
+        // loadLayoutData() will make the main JFrame visible, so we disable this feature with the next call
         dockableBarManager.addDockableBar(createMenuBar());
         dockableBarManager.loadLayoutData();
     }
@@ -104,6 +106,8 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
      */
     private void initializeDockingManager() {
         DockingManager dockingManager = getDockingManager();
+        // loadLayoutData() will make the main JFrame visible, so we disable this feature with the next call
+        dockingManager.setShowInitial(false);
         dockingManager.setProfileKey(PROFILE_KEY);
 
         dockingManager.getWorkspace().add(createCanvas());
@@ -268,6 +272,12 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
 
         JMenuItem exitMi = new JMenuItem("Exit");
         exitMi.setMnemonic(KeyEvent.VK_X);
+        exitMi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                shutdown();
+            }
+        });
 
         JMenu fileMnu = new JideMenu("File");
         fileMnu.setMnemonic('F');
@@ -324,6 +334,25 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         setCurrentProcessingModel(new ProcessingModel("model"));
     }
 
+    private void shutdown() {
+        DockingManager dockingManager = getDockingManager();
+
+        if (dockingManager != null) {
+            LOG.debug("Saving docking layout");
+            dockingManager.saveLayoutData();
+        }
+
+        DockableBarManager dockableBarManager = getDockableBarManager();
+
+        if (dockableBarManager != null) {
+            LOG.debug("Saving docking bar layout");
+            dockableBarManager.saveLayoutData();
+        }
+
+        setVisible(false);
+        dispose();
+    }
+
     private JMenuItem createMenuItemWithMnemonicAndAccelerator(String name, int mnemonic, KeyStroke accelerator) {
         JMenuItem newItem = new JMenuItem(name, mnemonic);
         newItem.setAccelerator(accelerator);
@@ -333,18 +362,27 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
 
     /**
      * This listener will respond to the user closing the frame. It will save the layout data for the
-     * {@link com.jidesoft.docking.DockingManager} and dispose of the frame.
+     * {@link com.jidesoft.docking.DockingManager}, {@link DockableBarManager} and dispose of the frame.
      */
     private class WindowClosingListener extends WindowAdapter {
         @Override
         public void windowClosing(WindowEvent e) {
+            shutdown();
+        }
+
+        @Override
+        public void windowOpened(WindowEvent e) {
             DockingManager dockingManager = getDockingManager();
 
             if (dockingManager != null) {
-                dockingManager.saveLayoutData();
+                dockingManager.showInitial();
             }
 
-            dispose();
+            DockableBarManager dockableBarManager = getDockableBarManager();
+
+            if (dockableBarManager != null) {
+                dockableBarManager.showInitial();
+            }
         }
     }
 }
