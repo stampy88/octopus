@@ -53,6 +53,14 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
     private static final String PROFILE_KEY = "octopus";
 
     /**
+     * These are the keys associated with the different {@link DockableFrame}s. They are used by the
+     * {@link DockingManager} to show a frame
+     */
+    private static final String PROPERTIES_KEY = "Properties";
+    private static final String OUTPUT_KEY = "Output";
+    private static final String PALETTE_KEY = "Palette";
+
+    /**
      * This is the current {@link ProcessingModel} we are working on
      */
     private ProcessingModel currentProcessingModel;
@@ -162,7 +170,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
     private DockableFrame createPalette() {
         this.palettePanel = new PalettePanel();
 
-        DockableFrame propertiesFrame = createDockableFrameWithName("Palette");
+        DockableFrame propertiesFrame = createDockableFrameWithName(PALETTE_KEY);
         propertiesFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         propertiesFrame.getContext().setInitSide(DockContext.DOCK_SIDE_WEST);
         propertiesFrame.getContext().setInitIndex(1);
@@ -192,7 +200,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         };
         canvasPanel.setNodeSelectionListener(nodeSelectionListener);
 
-        DockableFrame propertiesFrame = createDockableFrameWithName("Properties");
+        DockableFrame propertiesFrame = createDockableFrameWithName(PROPERTIES_KEY);
         propertiesFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         propertiesFrame.getContext().setInitSide(DockContext.DOCK_SIDE_WEST);
         propertiesFrame.getContext().setInitIndex(0);
@@ -203,7 +211,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
 
     private DockableFrame createOutput() {
         // todo real output and can we hook it up with some meaningful messages?
-        DockableFrame logFrame = createDockableFrameWithName("Output");
+        DockableFrame logFrame = createDockableFrameWithName(OUTPUT_KEY);
         logFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         logFrame.getContext().setInitSide(DockContext.DOCK_SIDE_SOUTH);
         // todo
@@ -226,11 +234,11 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         commandBar.setPaintBackground(false);
 
         JMenu fileMenu = createFileMenu();
-
+        JMenu viewMenu = createViewMenu();
 
         commandBar.add(fileMenu);
-        // todo
-//        commandBar.add(viewMenu);
+        commandBar.add(viewMenu);
+        // todo 
 //        commandBar.add(windowMenu);
 //        commandBar.add(helpMenu);
 
@@ -283,15 +291,80 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         fileMnu.setMnemonic('F');
         fileMnu.add(newMi);
         fileMnu.add(openMi);
-        fileMnu.add(new JSeparator());
+        fileMnu.addSeparator();
         fileMnu.add(saveMi);
 
         // todo save as
         //fileMnu.add(saveAsMi);
-        fileMnu.add(new JSeparator());
+        fileMnu.addSeparator();
         fileMnu.add(exitMi);
 
         return fileMnu;
+    }
+
+    private JMenu createViewMenu() {
+        JMenuItem nextViewMi = new JMenuItem("Select Next View");
+        nextViewMi.setMnemonic('N');
+        nextViewMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
+        nextViewMi.addActionListener(new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                String frameKey = getDockingManager().getNextFrame(getDockingManager().getActiveFrameKey());
+                if (frameKey != null) {
+                    getDockingManager().showFrame(frameKey);
+                }
+            }
+        });
+
+        JMenuItem previousMi = new JMenuItem("Select Previous View");
+        previousMi.setMnemonic('P');
+        previousMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, InputEvent.SHIFT_MASK));
+        previousMi.addActionListener(new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                String frameKey = getDockingManager().getPreviousFrame(getDockingManager().getActiveFrameKey());
+                if (frameKey != null) {
+                    getDockingManager().showFrame(frameKey);
+                }
+            }
+        });
+
+        JMenuItem paletteMi = new JMenuItem(PALETTE_KEY);
+        paletteMi.setMnemonic('P');
+        paletteMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
+        paletteMi.addActionListener(new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                getDockingManager().showFrame(PALETTE_KEY);
+            }
+        });
+
+        JMenuItem propertiesMi = new JMenuItem(PROPERTIES_KEY);
+        propertiesMi.setMnemonic('W');
+        propertiesMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0));
+        propertiesMi.addActionListener(new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                getDockingManager().showFrame(PROPERTIES_KEY);
+            }
+        });
+
+        JMenuItem outputMi = new JMenuItem(OUTPUT_KEY);
+        outputMi.setMnemonic('U');
+        outputMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
+        outputMi.addActionListener(new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                getDockingManager().showFrame(OUTPUT_KEY);
+            }
+        });
+
+        JMenu viewMenu = new JideMenu("View");
+        viewMenu.setMnemonic('V');
+        viewMenu.add(nextViewMi);
+        viewMenu.add(previousMi);
+        viewMenu.addSeparator();
+        viewMenu.add(paletteMi);
+        viewMenu.add(propertiesMi);
+        viewMenu.addSeparator();
+        viewMenu.add(outputMi);
+
+        return viewMenu;
     }
 
     void loadInitialDataFromRepository() {
@@ -334,6 +407,9 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         setCurrentProcessingModel(new ProcessingModel("model"));
     }
 
+    /**
+     * Shuts down the application by saving the layout state and dispose the frame
+     */
     private void shutdown() {
         DockingManager dockingManager = getDockingManager();
 
