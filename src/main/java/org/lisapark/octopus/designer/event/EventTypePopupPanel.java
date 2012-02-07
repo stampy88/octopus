@@ -12,6 +12,7 @@ import com.jidesoft.swing.MultilineLabel;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.event.EventType;
+import org.lisapark.octopus.core.source.external.ExternalSource;
 import org.lisapark.octopus.swing.Borders;
 import org.lisapark.octopus.swing.DefaultValidationFailedListener;
 import org.lisapark.octopus.swing.EnhancedContextSensitiveTable;
@@ -49,7 +50,9 @@ public class EventTypePopupPanel extends PopupPanel {
     private EventTypeTableModel tableModel;
 
     private EventType eventType;
+
     private ProcessingModel processingModel;
+    private ExternalSource externalSource;
 
     public EventTypePopupPanel() {
         init();
@@ -135,7 +138,16 @@ public class EventTypePopupPanel extends PopupPanel {
         return table;
     }
 
-    public void setEventType(EventType eventType) {
+    public void setProcessingModel(ProcessingModel processingModel) {
+        this.processingModel = processingModel;
+    }
+
+    public void setExternalSource(ExternalSource externalSource) {
+        this.externalSource = externalSource;
+        setEventType(externalSource.getOutput().getEventType());
+    }
+
+    private void setEventType(EventType eventType) {
         this.eventType = eventType;
         tableModel.setEventType(this.eventType);
     }
@@ -173,8 +185,7 @@ public class EventTypePopupPanel extends PopupPanel {
         if (selectedRow != EMPTY_SELECTION) {
             Attribute currentAttribute = eventType.getAttributeAt(selectedRow);
 
-            // todo
-            //inUse = processingModel.isAttributeInUse(currentAttribute);
+            inUse = processingModel.isExternalSourceAttributeInUse(externalSource, currentAttribute);
         }
         return inUse;
     }

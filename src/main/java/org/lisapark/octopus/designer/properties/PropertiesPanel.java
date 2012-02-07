@@ -92,6 +92,7 @@ public class PropertiesPanel extends JPanel {
     public void setSelectedProcessor(Processor processor) {
         if (isChangeOfSelection(processor)) {
             selectedNode = processor;
+
             tableModel.loadPropertiesForProcessor(processor);
             propertyTable.expandFirstLevel();
         }
@@ -100,6 +101,11 @@ public class PropertiesPanel extends JPanel {
     public void setSelectedExternalSource(ExternalSource externalSource) {
         if (isChangeOfSelection(externalSource)) {
             selectedNode = externalSource;
+
+            // update the external source and processing model on the event type panel
+            eventTypePopupPanel.setProcessingModel(processingModel);
+            eventTypePopupPanel.setExternalSource(externalSource);
+
             tableModel.loadPropertiesForExternalSource(externalSource);
             propertyTable.expandFirstLevel();
         }
@@ -108,6 +114,7 @@ public class PropertiesPanel extends JPanel {
     public void setSelectedExternalSink(ExternalSink externalSink) {
         if (isChangeOfSelection(externalSink)) {
             selectedNode = externalSink;
+
             tableModel.loadPropertiesForExternalSink(externalSink);
             propertyTable.expandFirstLevel();
         }
@@ -171,9 +178,6 @@ public class PropertiesPanel extends JPanel {
                 for (Parameter parameter : parameters) {
                     newProperties.add(new ParameterProperty(parameter));
                 }
-
-                // update the current event type on the presentation model
-                eventTypePopupPanel.setEventType(externalSource.getOutput().getEventType());
 
                 newProperties.add(new OutputProperty(externalSource.getOutput(), eventTypePopupPanel));
             }
