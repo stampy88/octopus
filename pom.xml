@@ -28,6 +28,12 @@
         <repository>
             <id>source.db4o</id>
             <url>http://source.db4o.com/maven</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
         <!-- Local repository where we install jide artifacts -->
         <repository>
