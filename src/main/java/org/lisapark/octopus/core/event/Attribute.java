@@ -1,5 +1,6 @@
 package org.lisapark.octopus.core.event;
 
+import org.lisapark.octopus.ProgrammerException;
 import org.lisapark.octopus.core.Copyable;
 import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
@@ -60,6 +61,42 @@ public class Attribute implements Copyable {
         }
 
         return compatible;
+    }
+
+    public Object createSampleData(int randomNumber) {
+        if (type == String.class) {
+            return String.valueOf(randomNumber);
+        }
+
+        if (type == Integer.class) {
+            return randomNumber;
+        }
+
+        if (type == Long.class) {
+            return (long) randomNumber;
+        }
+
+        if (type == Float.class) {
+            return (float) randomNumber;
+        }
+
+        if (type == Double.class) {
+            return (double) randomNumber;
+        }
+
+        if (type == Short.class) {
+            return (short) randomNumber;
+        }
+
+        if (type == Boolean.class) {
+            return randomNumber % 2;
+        }
+
+        try {
+            return type.newInstance();
+        } catch (Exception e) {
+            throw new ProgrammerException(e);
+        }
     }
 
     private boolean isNumeric(Class<?> type) {
