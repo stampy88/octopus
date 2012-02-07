@@ -1,6 +1,7 @@
 package org.lisapark.octopus.core.processor;
 
 import org.lisapark.octopus.core.Input;
+import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.source.Source;
@@ -10,6 +11,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class ProcessorInput<T> extends Input<T> {
 
     private Attribute sourceAttribute;

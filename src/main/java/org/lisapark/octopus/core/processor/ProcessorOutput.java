@@ -1,6 +1,7 @@
 package org.lisapark.octopus.core.processor;
 
 import org.lisapark.octopus.core.Output;
+import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.event.Attribute;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -8,6 +9,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class ProcessorOutput extends Output {
 
     private final Attribute attribute;

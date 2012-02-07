@@ -3,9 +3,11 @@ package org.lisapark.octopus.core.sink.external;
 import com.google.common.collect.ImmutableList;
 import org.lisapark.octopus.core.AbstractNode;
 import org.lisapark.octopus.core.Input;
+import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Event;
 import org.lisapark.octopus.core.sink.Sink;
+import org.lisapark.octopus.core.source.Source;
 
 import java.util.List;
 import java.util.Map;
@@ -14,20 +16,24 @@ import java.util.UUID;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class ConsoleSink extends AbstractNode implements ExternalSink {
     private static final String DEFAULT_NAME = "Console";
     private static final String DEFAULT_DESCRIPTION = "Console Output";
+    private static final String DEFAULT_INPUT = "Input";
 
     private Input<Event> input;
 
     private ConsoleSink(UUID id, String name, String description) {
         super(id, name, description);
         input = Input.eventInputWithId(1);
+        input.setName(DEFAULT_INPUT);
+        input.setDescription(DEFAULT_INPUT);
     }
 
     private ConsoleSink(UUID id, ConsoleSink copyFromNode) {
         super(id, copyFromNode);
-        input = Input.eventInputWithId(1);
+        input = copyFromNode.getInput().copyOf();
     }
 
     private ConsoleSink(ConsoleSink copyFromNode) {
@@ -35,13 +41,26 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
         this.input = copyFromNode.input.copyOf();
     }
 
-    public Input getInput() {
+    public Input<Event> getInput() {
         return input;
     }
 
     @Override
     public List<Input<Event>> getInputs() {
         return ImmutableList.of(input);
+    }
+
+    @Override
+    public boolean isConnectedTo(Source source) {
+
+        return input.isConnectedTo(source);
+    }
+
+    @Override
+    public void disconnect(Source source) {
+        if (input.isConnectedTo(source)) {
+            input.clearSource();
+        }
     }
 
     @Override

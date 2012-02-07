@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import org.lisapark.octopus.core.AbstractNode;
 import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.Output;
+import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.memory.Memory;
 import org.lisapark.octopus.core.memory.MemoryProvider;
@@ -25,6 +26,7 @@ import java.util.UUID;
  * @see org.lisapark.octopus.core.Output
  * @see org.lisapark.octopus.core.parameter.Parameter
  */
+@Persistable
 public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Source, Sink {
 
     /**
@@ -115,6 +117,29 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
 
     public List<ProcessorInput> getInputs() {
         return ImmutableList.copyOf(inputs);
+    }
+
+    @Override
+    public boolean isConnectedTo(Source source) {
+        boolean connected = false;
+
+        for (Input input : inputs) {
+            if (input.isConnectedTo(source)) {
+                connected = true;
+                break;
+            }
+        }
+
+        return connected;
+    }
+
+    @Override
+    public void disconnect(Source source) {
+        for (Input input : inputs) {
+            if (input.isConnectedTo(source)) {
+                input.clearSource();
+            }
+        }
     }
 
     /**

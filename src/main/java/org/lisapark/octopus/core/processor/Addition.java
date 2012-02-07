@@ -1,5 +1,6 @@
 package org.lisapark.octopus.core.processor;
 
+import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Event;
 import org.lisapark.octopus.core.memory.Memory;
@@ -15,6 +16,7 @@ import java.util.UUID;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class Addition extends Processor<Void> {
     private static final String DEFAULT_NAME = "Addition";
     private static final String DEFAULT_DESCRIPTION = "Add 2 operands";
