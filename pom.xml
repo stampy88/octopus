@@ -72,6 +72,12 @@
         </dependency>
 
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>2.0</version>
@@ -139,6 +145,13 @@
             <artifactId>db4o-full-java5</artifactId>
             <version>8.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.db4o</groupId>
+            <artifactId>db4o-tools-java5</artifactId>
+            <version>8.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>org.mockito</groupId>
@@ -159,6 +172,68 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>dist-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/assembly/dist.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <dependencies>
+                    <!-- We need the db4o tooling for enhancing stuff -->
+                    <dependency>
+                        <groupId>com.db4o</groupId>
+                        <artifactId>db4o-tools-java5</artifactId>
+                        <version>8.1-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <configuration>
+                            <target>
+                                <!-- We enhance with an additional Ant-run step. You can put this also in an extra file -->
+                                <typedef resource="instrumentation-def.properties"
+                                         classpathref="maven.compile.classpath"/>
+
+                                <!-- We filter by our annotation -->
+                                <typedef name="annotation-filter"
+                                         classname="org.lisapark.octopus.repository.db4o.PersistableFilter"
+                                         classpathref="maven.compile.classpath"/>
+
+                                <db4o-instrument classTargetDir="target/classes"
+                                                 verbose="true">
+                                    <classpath refid="maven.compile.classpath"/>
+                                    <sources dir="target/classes">
+                                        <include name="**/*.class"/>
+                                    </sources>
+
+                                    <transparent-activation-step>
+                                        <annotation-filter/>
+                                    </transparent-activation-step>
+                                </db4o-instrument>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+
     </build>
 </project>
