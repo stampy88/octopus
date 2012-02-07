@@ -2,6 +2,7 @@ package org.lisapark.octopus.core.source.external;
 
 import com.google.common.collect.Lists;
 import org.lisapark.octopus.core.Output;
+import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Event;
 import org.lisapark.octopus.core.event.EventType;
@@ -13,6 +14,7 @@ import java.util.UUID;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class TestSource extends ExternalSource {
 
     private static final String DEFAULT_NAME = "Test Source";

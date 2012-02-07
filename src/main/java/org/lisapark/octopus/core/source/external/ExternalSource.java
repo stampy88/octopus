@@ -2,6 +2,7 @@ package org.lisapark.octopus.core.source.external;
 
 import org.lisapark.octopus.core.AbstractNode;
 import org.lisapark.octopus.core.Output;
+import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.source.Source;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public abstract class ExternalSource extends AbstractNode implements Source {
 
     private Output output;

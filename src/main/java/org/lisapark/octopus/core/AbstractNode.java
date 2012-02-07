@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public abstract class AbstractNode implements Node {
 
     private final UUID id;

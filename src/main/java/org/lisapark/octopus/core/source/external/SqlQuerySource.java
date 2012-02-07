@@ -2,6 +2,7 @@ package org.lisapark.octopus.core.source.external;
 
 import com.google.common.collect.Maps;
 import org.lisapark.octopus.core.Output;
+import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ProcessingException;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Attribute;
@@ -35,6 +36,7 @@ import static com.google.common.base.Preconditions.checkState;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class SqlQuerySource extends ExternalSource {
     private static final String DEFAULT_NAME = "Sql Query";
     private static final String DEFAULT_DESCRIPTION = "Database query source for events";
@@ -103,7 +105,6 @@ public class SqlQuerySource extends ExternalSource {
     }
 
     public EventType getEventType() {
-        // todo?? mutable
         return getOutput().getEventType();
     }
 

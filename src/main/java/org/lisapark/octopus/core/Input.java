@@ -8,6 +8,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class Input<T> extends AbstractComponent {
 
     private final Class<T> type;
@@ -39,6 +40,14 @@ public class Input<T> extends AbstractComponent {
 
     public Source getSource() {
         return source;
+    }
+
+    public boolean isConnected() {
+        return source != null;
+    }
+
+    public boolean isConnectedTo(Source source) {
+        return this.source != null && this.source.equals(source);
     }
 
     public Input<T> clearSource() {

@@ -10,6 +10,7 @@ import java.util.UUID;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public interface Node extends Reproducible, Validatable, Copyable {
 
     UUID getId();

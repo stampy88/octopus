@@ -10,6 +10,7 @@ import java.util.Map;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public class Output extends AbstractComponent {
 
     private EventType eventType;
@@ -39,7 +40,7 @@ public class Output extends AbstractComponent {
     }
 
     public EventType getEventType() {
-        return eventType.copyOf();
+        return eventType;
     }
 
     @Override

@@ -13,6 +13,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
+@Persistable
 public abstract class AbstractComponent implements Copyable, Validatable {
     /**
      * The id is used internally by a {@link org.lisapark.octopus.core.processor.Processor} to have something to identity an individual component by. This is
