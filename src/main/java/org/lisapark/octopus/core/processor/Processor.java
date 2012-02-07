@@ -7,6 +7,7 @@ import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
+import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.memory.Memory;
 import org.lisapark.octopus.core.memory.MemoryProvider;
 import org.lisapark.octopus.core.parameter.Parameter;
@@ -117,6 +118,19 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
 
     public List<ProcessorInput> getInputs() {
         return ImmutableList.copyOf(inputs);
+    }
+
+    public boolean isConnectedTo(Source source, Attribute attribute) {
+        boolean connected = false;
+
+        for (ProcessorInput input : inputs) {
+            if (input.isConnectedTo(source, attribute)) {
+                connected = true;
+                break;
+            }
+        }
+
+        return connected;
     }
 
     @Override

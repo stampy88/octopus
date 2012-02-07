@@ -42,6 +42,16 @@ public class ProcessorInput<T> extends Input<T> {
         return name;
     }
 
+    public boolean isConnectedTo(Source source, Attribute attribute) {
+        boolean isConnected = super.isConnectedTo(source);
+
+        if (isConnected) {
+            isConnected = (sourceAttribute != null && sourceAttribute.equals(attribute));
+        }
+
+        return isConnected;
+    }
+
     public ProcessorInput<T> clearSource() {
         super.clearSource();
         this.sourceAttribute = null;

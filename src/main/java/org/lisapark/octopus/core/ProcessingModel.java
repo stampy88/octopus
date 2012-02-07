@@ -3,6 +3,7 @@ package org.lisapark.octopus.core;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
+import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.processor.Processor;
 import org.lisapark.octopus.core.sink.external.ExternalSink;
 import org.lisapark.octopus.core.source.external.ExternalSource;
@@ -25,10 +26,12 @@ public class ProcessingModel implements Validatable {
     private final Set<ExternalSink> externalSinks = Sets.newHashSet();
 
     public ProcessingModel(String modelName) {
+        checkArgument(modelName != null, "modelName cannot be null");
         this.modelName = modelName;
     }
 
     public void setModelName(String modelName) {
+        checkArgument(modelName != null, "modelName cannot be null");
         this.modelName = modelName;
     }
 
@@ -37,10 +40,12 @@ public class ProcessingModel implements Validatable {
     }
 
     public void setLastSaved(DateTime lastSaved) {
+        checkArgument(lastSaved != null, "lastSaved cannot be null");
         this.lastSaved = lastSaved;
     }
 
     public void addExternalEventSource(ExternalSource source) {
+        checkArgument(source != null, "source cannot be null");
         externalSources.add(source);
     }
 
@@ -71,6 +76,7 @@ public class ProcessingModel implements Validatable {
     }
 
     public void addExternalSink(ExternalSink sink) {
+        checkArgument(sink != null, "sink cannot be null");
         externalSinks.add(sink);
     }
 
@@ -86,6 +92,7 @@ public class ProcessingModel implements Validatable {
     }
 
     public void addProcessor(Processor processor) {
+        checkArgument(processor != null, "processor cannot be null");
         processors.add(processor);
     }
 
@@ -113,6 +120,60 @@ public class ProcessingModel implements Validatable {
         }
 
         processors.remove(processor);
+    }
+
+    /**
+     * Returns true if the specified source's {@link Attribute} is in use anywhere in the current model.
+     *
+     * @param source    of attribute
+     * @param attribute to check usage of
+     * @return true if the attribute of the specified source is in use
+     */
+    public boolean isExternalSourceAttributeInUse(ExternalSource source, Attribute attribute) {
+        checkArgument(source != null, "source cannot be null");
+        checkArgument(attribute != null, "attribute cannot be null");
+        boolean inUse = false;
+
+        for (ExternalSink candidateSink : externalSinks) {
+            if (candidateSink.isConnectedTo(source)) {
+                inUse = true;
+            }
+        }
+
+        for (Processor candidateProcessor : processors) {
+            if (candidateProcessor.isConnectedTo(source, attribute)) {
+
+                inUse = true;
+            }
+        }
+
+        return inUse;
+    }
+
+    /**
+     * Returns true if the specified {@link ExternalSource} is in use anywhere in the current model.
+     *
+     * @param source to check
+     * @return true if the specified source is in use
+     */
+    public boolean isExternalSourceInUse(ExternalSource source) {
+        checkArgument(source != null, "source cannot be null");
+        boolean inUse = false;
+
+        for (ExternalSink candidateSink : externalSinks) {
+            if (candidateSink.isConnectedTo(source)) {
+                inUse = true;
+            }
+        }
+
+        for (Processor candidateProcessor : processors) {
+            if (candidateProcessor.isConnectedTo(source)) {
+
+                inUse = true;
+            }
+        }
+
+        return inUse;
     }
 
     public Set<ExternalSource> getExternalSources() {
