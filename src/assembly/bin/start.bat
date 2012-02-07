@@ -16,8 +16,6 @@ goto end
 :okHome
 
 
-for %%F in (%OCTOPUS_HOME%\lib\*.jar) do SET CLASSPATH=%CLASSPATH%;"%%F"
-
-java -cp %CLASSPATH% org.lisapark.octopus.designer.DesignerApplication "%OCTOPUS_HOME%\conf\octopus.properties"
+java -classpath "%OCTOPUS_HOME%\lib\*" org.lisapark.octopus.designer.DesignerApplication "%OCTOPUS_HOME%\conf\octopus.properties"
 
 :end
