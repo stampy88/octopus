@@ -59,9 +59,9 @@ public class PalettePanel extends JPanel {
 
         // todo real icons
         final ImageIcon[] icons = new ImageIcon[]{
-                OctopusIconsFactory.getImageIcon("/function-icon.png"),
-                OctopusIconsFactory.getImageIcon("/node-insert-icon.png"),
-                OctopusIconsFactory.getImageIcon("/node-delete-child-icon.png"),
+                PaletteIconsFactory.getImageIcon(PaletteIconsFactory.PROCESSOR),
+                PaletteIconsFactory.getImageIcon(PaletteIconsFactory.EXTERNAL_SOURCE),
+                PaletteIconsFactory.getImageIcon(PaletteIconsFactory.EXTERNAL_SINK),
         };
 
         final JComponent[] components = new JComponent[]{

@@ -9,6 +9,10 @@ import javax.swing.*;
  */
 public class PaletteIconsFactory {
 
+    public static final String PROCESSOR = "icons/function-icon.png";
+    public static final String EXTERNAL_SOURCE = "icons/node-insert-icon.png";
+    public static final String EXTERNAL_SINK = "icons/node-delete-child-icon.png";
+
     public static ImageIcon getImageIcon(String name) {
         if (name != null) {
             return IconsFactory.getImageIcon(PaletteIconsFactory.class, name);
