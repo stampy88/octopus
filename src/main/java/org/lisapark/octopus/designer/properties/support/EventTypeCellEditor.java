@@ -43,9 +43,7 @@ public class EventTypeCellEditor extends ContextSensitiveCellEditor implements A
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // we take a copy of the event type so we don't affect the original 
-        EventType copyOfType = eventType.copyOf();
-        EventType editedType = EventTypeDialog.editEventType(button, copyOfType, externalSource, processingModel);
+        EventType editedType = EventTypeDialog.editEventType(button, eventType, externalSource, processingModel);
 
         if (editedType != null) {
             this.eventType = editedType;

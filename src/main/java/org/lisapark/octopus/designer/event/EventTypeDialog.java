@@ -1,5 +1,6 @@
 package org.lisapark.octopus.designer.event;
 
+import com.google.common.collect.Maps;
 import com.jidesoft.combobox.ListExComboBox;
 import com.jidesoft.dialog.BannerPanel;
 import com.jidesoft.dialog.ButtonPanel;
@@ -25,6 +26,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Map;
 
 /**
  * This is the dialog for displaying and interacting with an {@link EventType}. It displays a panel
@@ -51,14 +53,33 @@ public class EventTypeDialog extends StandardDialog {
     private JTable attributeTable;
     private EventTypeTableModel tableModel;
 
+    /**
+     * This is the type we are editing in the dialog
+     */
     private EventType eventType;
+
+    /**
+     * This is a copy of {@link #eventType} {@link Attribute}s before editing has taken place. We need this in order
+     * to roll back changes if the user cancels. We need to store the original reference and values because
+     * {@link org.lisapark.octopus.core.processor.Processor}s and other {@link org.lisapark.octopus.core.sink.Sink}s
+     * store attribute by reference, so we need to restore not only the values, but the reference as well.
+     */
+    private Map<Attribute, Attribute> originalAttributes;
 
     private ProcessingModel processingModel;
     private ExternalSource externalSource;
 
-    public EventTypeDialog(Frame frame, EventType eventType, ExternalSource externalSource, ProcessingModel processingModel) {
+    private EventTypeDialog(Frame frame, EventType eventType, ExternalSource externalSource, ProcessingModel processingModel) {
         super(frame);
         this.eventType = eventType;
+        // get copies of the original attributes
+        this.originalAttributes = Maps.newLinkedHashMap();
+        for (Attribute attribute : eventType.getAttributes()) {
+            // we store a reference to the original - and make a copy of the attributes at this time - we need BOTH
+            // to roll back
+            this.originalAttributes.put(attribute, attribute.copyOf());
+        }
+
         this.externalSource = externalSource;
         this.processingModel = processingModel;
     }
@@ -134,9 +155,7 @@ public class EventTypeDialog extends StandardDialog {
         okButton.setName(OK);
         okButton.setAction(new AbstractAction(UIDefaultsLookup.getString("OptionPane.okButtonText")) {
             public void actionPerformed(ActionEvent e) {
-                setDialogResult(RESULT_AFFIRMED);
-                setVisible(false);
-                dispose();
+                onOk();
             }
         });
 
@@ -144,9 +163,7 @@ public class EventTypeDialog extends StandardDialog {
         cancelButton.setName(CANCEL);
         cancelButton.setAction(new AbstractAction(UIDefaultsLookup.getString("OptionPane.cancelButtonText")) {
             public void actionPerformed(ActionEvent e) {
-                setDialogResult(RESULT_CANCELLED);
-                setVisible(false);
-                dispose();
+                onCancel();
             }
         });
         // we don't need to verify input because canceling the dialog reverts changes 
@@ -160,6 +177,37 @@ public class EventTypeDialog extends StandardDialog {
         getRootPane().setDefaultButton(okButton);
 
         return buttonPanel;
+    }
+
+    /**
+     * Invoked when the user presses the cancel button. We need to rollback changes to the {@link #eventType} and
+     * dismiss the dialog
+     */
+    private void onCancel() {
+        eventType.removeAllAttributes();
+
+        for (Attribute originalReference : originalAttributes.keySet()) {
+            Attribute originalValues = originalAttributes.get(originalReference);
+
+            // need to put the original reference back to the state it was 
+            originalReference.setName(originalValues.getName());
+            originalReference.setType(originalValues.getType());
+
+            eventType.addAttribute(originalReference);
+        }
+
+        setDialogResult(RESULT_CANCELLED);
+        setVisible(false);
+        dispose();
+    }
+
+    /**
+     * Invokes when the user presses the ok button. We set the {@link #setDialogResult(int)} and dismiss the dialog
+     */
+    private void onOk() {
+        setDialogResult(RESULT_AFFIRMED);
+        setVisible(false);
+        dispose();
     }
 
     String getChangeAttributeTypeWarningText() {

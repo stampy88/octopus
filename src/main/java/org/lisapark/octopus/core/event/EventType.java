@@ -72,6 +72,12 @@ public class EventType implements Copyable {
         return this;
     }
 
+    public EventType removeAllAttributes() {
+        attributes.clear();
+
+        return this;
+    }
+
     public EventType removeAttribute(Attribute attribute) {
         attributes.remove(attribute);
 
