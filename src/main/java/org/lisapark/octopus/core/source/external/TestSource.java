@@ -7,6 +7,7 @@ import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.event.Event;
 import org.lisapark.octopus.core.event.EventType;
+import org.lisapark.octopus.core.parameter.Constraints;
 import org.lisapark.octopus.core.parameter.Parameter;
 import org.lisapark.octopus.core.runtime.ProcessingRuntime;
 
@@ -59,8 +60,10 @@ public class TestSource extends ExternalSource {
         testSource.setOutput(Output.outputWithId(1).setName("Output"));
         testSource.addParameter(
                 Parameter.integerParameterWithIdAndName(NUMBER_OF_EVENTS_PARAMETER_ID, "Number of Events").
-                        description("Number of test events to generate.").defaultValue(10));
-
+                        description("Number of test events to generate.").
+                        defaultValue(10).
+                        constraint(Constraints.integerConstraintWithMinimumAndMessage(1,
+                        "Number of events has to be greater than zero.")));
         return testSource;
     }
 
