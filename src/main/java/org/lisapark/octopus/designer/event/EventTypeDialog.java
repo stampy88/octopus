@@ -1,39 +1,42 @@
 package org.lisapark.octopus.designer.event;
 
 import com.jidesoft.combobox.ListExComboBox;
-import com.jidesoft.combobox.PopupPanel;
+import com.jidesoft.dialog.BannerPanel;
+import com.jidesoft.dialog.ButtonPanel;
 import com.jidesoft.dialog.JideOptionPane;
-import com.jidesoft.grid.ContextSensitiveTable;
+import com.jidesoft.dialog.StandardDialog;
 import com.jidesoft.grid.ListComboBoxCellEditor;
-import com.jidesoft.grid.StringCellEditor;
-import com.jidesoft.swing.JideButton;
-import com.jidesoft.swing.JideScrollPane;
-import com.jidesoft.swing.MultilineLabel;
+import com.jidesoft.plaf.UIDefaultsLookup;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.event.EventType;
 import org.lisapark.octopus.core.source.external.ExternalSource;
+import org.lisapark.octopus.designer.OctopusIconsFactory;
+import org.lisapark.octopus.swing.BaseTable;
 import org.lisapark.octopus.swing.Borders;
+import org.lisapark.octopus.swing.ComponentFactory;
 import org.lisapark.octopus.swing.DefaultValidationFailedListener;
-import org.lisapark.octopus.swing.EnhancedContextSensitiveTable;
 import org.lisapark.octopus.swing.LayoutConstants;
+import org.lisapark.octopus.swing.table.StringCellEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
 /**
- * This is the view for displaying and interacting with an {@link EventType}. It displays a panel
+ * This is the dialog for displaying and interacting with an {@link EventType}. It displays a panel
  * which contains buttons for adding/removing {@link org.lisapark.octopus.core.event.Attribute}s and changing
  * said attribute's properties.
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class EventTypePopupPanel extends PopupPanel {
-    private static final Logger LOG = LoggerFactory.getLogger(EventTypePopupPanel.class);
+public class EventTypeDialog extends StandardDialog {
+
+    private static final Logger LOG = LoggerFactory.getLogger(EventTypeDialog.class);
 
     private static final String TITLE = "Octopus";
 
@@ -54,39 +57,40 @@ public class EventTypePopupPanel extends PopupPanel {
     private ProcessingModel processingModel;
     private ExternalSource externalSource;
 
-    public EventTypePopupPanel() {
-        init();
-        setTitle(TITLE);
+    public EventTypeDialog(Frame frame, EventType eventType, ExternalSource externalSource, ProcessingModel processingModel) {
+        super(frame);
+        this.eventType = eventType;
+        this.externalSource = externalSource;
+        this.processingModel = processingModel;
     }
 
-    private void init() {
-        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        setBorder(Borders.PADDING_BORDER);
+    @Override
+    public JComponent createBannerPanel() {
+        BannerPanel bannerPanel = new BannerPanel("Event Definition",
+                "Enter in the attribute names and types for this event definition. Please note that changing the " +
+                        "attribute types or removing attributes may affect already connected processors or sinks.",
+                OctopusIconsFactory.getImageIcon(OctopusIconsFactory.OCTOPUS_LARGE));
+        bannerPanel.setBackground(Color.WHITE);
+        bannerPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        return bannerPanel;
+    }
 
-        MultilineLabel informationLbl = new MultilineLabel("Enter in the attribute names and types for this " +
-                "event definition. Please note that changing the attribute types or removing attributes may " +
-                "affect already connected processors or sinks.");
+    @Override
+    public JComponent createContentPanel() {
+        JPanel contentPanel = ComponentFactory.createPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.PAGE_AXIS));
+        contentPanel.setBorder(Borders.PADDING_BORDER);
 
         attributeTable = createAttributeTable();
-        JideScrollPane scrollPane = new JideScrollPane(attributeTable);
-        scrollPane.setPreferredSize(new Dimension(350, 200));
+        JScrollPane scrollPane = ComponentFactory.createScrollPaneWithComponent(attributeTable);
+        scrollPane.setPreferredSize(new Dimension(400, 200));
 
-        add(informationLbl);
-        add(Box.createVerticalStrut(LayoutConstants.LABEL_COMPONENT_SPACE));
-        add(createButtonPanel());
-        add(Box.createVerticalStrut(LayoutConstants.LABEL_COMPONENT_SPACE));
-        add(scrollPane);
-
-        setDefaultFocusComponent(attributeTable);
-    }
-
-    private JComponent createButtonPanel() {
         Box buttonPanel = Box.createHorizontalBox();
 
-        JideButton addBtn = new JideButton(new AddAction());
+        JButton addBtn = ComponentFactory.createStyledButtonWithAction(new AddAction());
         addBtn.setFocusable(false);
 
-        JideButton deleteBtn = new JideButton(new DeleteAction());
+        JButton deleteBtn = ComponentFactory.createStyledButtonWithAction(new DeleteAction());
         deleteBtn.setFocusable(false);
 
         buttonPanel.add(Box.createHorizontalGlue());
@@ -94,33 +98,16 @@ public class EventTypePopupPanel extends PopupPanel {
         buttonPanel.add(Box.createHorizontalStrut(LayoutConstants.COMMAND_BUTTON_SPACE));
         buttonPanel.add(deleteBtn);
 
-        return buttonPanel;
+        contentPanel.add(buttonPanel);
+        contentPanel.add(Box.createVerticalStrut(LayoutConstants.LABEL_COMPONENT_SPACE));
+        contentPanel.add(scrollPane);
+
+        return contentPanel;
     }
 
-    /**
-     * We don't support the reset button on the event definition panel
-     *
-     * @return false
-     */
-    public boolean isResetButtonVisible() {
-        return false;
-    }
-
-    public Object getSelectedObject() {
-        return eventType;
-    }
-
-    public void setSelectedObject(Object eventType) {
-        LOG.debug("Editing event type {}", eventType);
-
-        if (eventType != null) {
-            setEventType((EventType) eventType);
-        }
-    }
-
-    ContextSensitiveTable createAttributeTable() {
-        this.tableModel = new EventTypeTableModel();
-        EnhancedContextSensitiveTable table = new EnhancedContextSensitiveTable(tableModel);
+    JTable createAttributeTable() {
+        this.tableModel = new EventTypeTableModel(eventType);
+        BaseTable table = ComponentFactory.createTableWithModel(tableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
         table.setValidationFailedListener(new DefaultValidationFailedListener(this));
@@ -138,18 +125,42 @@ public class EventTypePopupPanel extends PopupPanel {
         return table;
     }
 
-    public void setProcessingModel(ProcessingModel processingModel) {
-        this.processingModel = processingModel;
-    }
+    @Override
+    public ButtonPanel createButtonPanel() {
+        ButtonPanel buttonPanel = new ButtonPanel();
+        // note that these padding numbers coincide with what Jide recommends for StandardDialog button panels
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-    public void setExternalSource(ExternalSource externalSource) {
-        this.externalSource = externalSource;
-        setEventType(externalSource.getOutput().getEventType());
-    }
+        JButton okButton = ComponentFactory.createButton();
+        okButton.setName(OK);
+        okButton.setAction(new AbstractAction(UIDefaultsLookup.getString("OptionPane.okButtonText")) {
+            public void actionPerformed(ActionEvent e) {
+                setDialogResult(RESULT_AFFIRMED);
+                setVisible(false);
+                dispose();
+            }
+        });
 
-    private void setEventType(EventType eventType) {
-        this.eventType = eventType;
-        tableModel.setEventType(this.eventType);
+        JButton cancelButton = ComponentFactory.createButton();
+        cancelButton.setName(CANCEL);
+        cancelButton.setAction(new AbstractAction(UIDefaultsLookup.getString("OptionPane.cancelButtonText")) {
+            public void actionPerformed(ActionEvent e) {
+                setDialogResult(RESULT_CANCELLED);
+                setVisible(false);
+                dispose();
+            }
+        });
+        // we don't need to verify input because canceling the dialog reverts changes 
+        cancelButton.setVerifyInputWhenFocusTarget(false);
+
+        buttonPanel.addButton(okButton, ButtonPanel.AFFIRMATIVE_BUTTON);
+        buttonPanel.addButton(cancelButton, ButtonPanel.CANCEL_BUTTON);
+
+        setDefaultCancelAction(cancelButton.getAction());
+        setDefaultAction(okButton.getAction());
+        getRootPane().setDefaultButton(okButton);
+
+        return buttonPanel;
     }
 
     String getChangeAttributeTypeWarningText() {
@@ -200,7 +211,7 @@ public class EventTypePopupPanel extends PopupPanel {
             int result = JOptionPane.YES_OPTION;
 
             if (isCurrentAttributeInUse()) {
-                result = JideOptionPane.showConfirmDialog(EventTypePopupPanel.this,
+                result = JideOptionPane.showConfirmDialog(EventTypeDialog.this,
                         getRemoveAttributeWarningText(),
                         TITLE,
                         JOptionPane.YES_NO_OPTION,
@@ -302,7 +313,7 @@ public class EventTypePopupPanel extends PopupPanel {
             // warn the user if they try and change an attribute that is in use
             if (!newClass.equals(oldClass) && isCurrentAttributeInUse()) {
 
-                result = JideOptionPane.showConfirmDialog(EventTypePopupPanel.this,
+                result = JideOptionPane.showConfirmDialog(EventTypeDialog.this,
                         getChangeAttributeTypeWarningText(),
                         TITLE,
                         JOptionPane.YES_NO_OPTION,
@@ -317,5 +328,19 @@ public class EventTypePopupPanel extends PopupPanel {
         }
     }
 
-}
+    public static EventType editEventType(Component parent, EventType eventType, ExternalSource externalSource,
+                                          ProcessingModel processingModel) {
+        JFrame frame = (JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, parent);
+        EventTypeDialog dialog = new EventTypeDialog(frame, eventType, externalSource, processingModel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(frame);
+        dialog.setVisible(true);
 
+        if (dialog.getDialogResult() == StandardDialog.RESULT_AFFIRMED) {
+            return dialog.eventType;
+
+        } else {
+            return null;
+        }
+    }
+}

@@ -10,6 +10,7 @@ import org.lisapark.octopus.designer.OctopusIconsFactory;
 import org.lisapark.octopus.designer.dnd.ExternalSinkTransferable;
 import org.lisapark.octopus.designer.dnd.ExternalSourceTransferable;
 import org.lisapark.octopus.designer.dnd.ProcessorTransferable;
+import org.lisapark.octopus.swing.ComponentFactory;
 import org.lisapark.octopus.swing.LayoutConstants;
 
 import javax.swing.*;
@@ -39,10 +40,10 @@ public class PalettePanel extends JPanel {
     }
 
     private void init() {
-        JideTabbedPane tabbedPane = new JideTabbedPane(JideTabbedPane.BOTTOM);
+        JideTabbedPane tabbedPane = ComponentFactory.createTabbedPaneWithTabPlacement(JideTabbedPane.BOTTOM);
         tabbedPane.setOpaque(true);
 
-        Component leadingComponent = new JLabel(OctopusIconsFactory.getImageIcon(OctopusIconsFactory.OCTOPUS_LARGE));
+        Component leadingComponent = ComponentFactory.createLabelWithIcon(OctopusIconsFactory.getImageIcon(OctopusIconsFactory.OCTOPUS_LARGE));
         tabbedPane.setTabLeadingComponent(leadingComponent);
 
         final String[] titles = new String[]{

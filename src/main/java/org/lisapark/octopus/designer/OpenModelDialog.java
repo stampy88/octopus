@@ -6,6 +6,7 @@ import com.jidesoft.dialog.StandardDialog;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.repository.OctopusRepository;
+import org.lisapark.octopus.swing.ComponentFactory;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -14,6 +15,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 /**
@@ -44,11 +46,10 @@ public class OpenModelDialog extends StandardDialog {
 
     @Override
     public JComponent createContentPanel() {
-        JLabel modelNameLbl = new JLabel("Model Name: ");
-        modelNameLbl.setDisplayedMnemonic('N');
+        JLabel modelNameLbl = ComponentFactory.createLabelWithTextAndMnemonic("Model Name: ", KeyEvent.VK_N);
         modelNameLbl.setHorizontalAlignment(SwingConstants.CENTER);
 
-        final JTextField modelNameTxt = new JTextField();
+        final JTextField modelNameTxt = ComponentFactory.createTextField();
         modelNameTxt.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -60,18 +61,18 @@ public class OpenModelDialog extends StandardDialog {
         modelNameLbl.setLabelFor(modelNameTxt);
 
         // note that this padding numbers are Jide recommendations
-        JPanel topPanel = new JPanel(new BorderLayout(6, 6));
+        JPanel topPanel = ComponentFactory.createPanelWithLayout(new BorderLayout(6, 6));
         topPanel.add(modelNameLbl, BorderLayout.BEFORE_LINE_BEGINS);
         topPanel.add(modelNameTxt, BorderLayout.CENTER);
 
         // note that this padding numbers are Jide recommendations
-        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        JPanel contentPanel = ComponentFactory.createPanelWithLayout(new BorderLayout(10, 10));
         // note that this padding numbers are Jide recommendations
         contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
 
         contentPanel.add(topPanel, BorderLayout.BEFORE_FIRST_LINE);
 
-        final JList searchList = new JList(searchResultsModel);
+        final JList searchList = ComponentFactory.createListWithModel(searchResultsModel);
         searchList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         searchList.setCellRenderer(new SearchResultListCellRenderer());
         searchList.addListSelectionListener(new ListSelectionListener() {
@@ -91,7 +92,7 @@ public class OpenModelDialog extends StandardDialog {
             }
         });
 
-        JScrollPane scrollPane = new JScrollPane(searchList);
+        JScrollPane scrollPane = ComponentFactory.createScrollPaneWithComponent(searchList);
         scrollPane.setPreferredSize(new Dimension(400, 250));
 
         contentPanel.add(scrollPane, BorderLayout.CENTER);
@@ -108,7 +109,7 @@ public class OpenModelDialog extends StandardDialog {
         // note that these padding numbers coincide with what Jide recommends for StandardDialog button panels
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        okButton = new JButton();
+        okButton = ComponentFactory.createButton();
         okButton.setName(OK);
         okButton.setAction(new AbstractAction(UIDefaultsLookup.getString("OptionPane.okButtonText")) {
             public void actionPerformed(ActionEvent e) {
@@ -120,7 +121,7 @@ public class OpenModelDialog extends StandardDialog {
         // we need to disable the button AFTER setting the action
         okButton.setEnabled(false);
 
-        JButton cancelButton = new JButton();
+        JButton cancelButton = ComponentFactory.createButton();
         cancelButton.setName(CANCEL);
         cancelButton.setAction(new AbstractAction(UIDefaultsLookup.getString("OptionPane.cancelButtonText")) {
             public void actionPerformed(ActionEvent e) {

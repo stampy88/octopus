@@ -16,15 +16,10 @@ class EventTypeTableModel extends AbstractTableModel implements ContextSensitive
     static final int ATTRIBUTE_NAME_COLUMN = 0;
     static final int ATTRIBUTE_TYPE_COLUMN = 1;
 
-    private EventType eventType;
+    private final EventType eventType;
 
-    public EventType getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(EventType eventType) {
+    EventTypeTableModel(EventType eventType) {
         this.eventType = eventType;
-        fireTableDataChanged();
     }
 
     @Override

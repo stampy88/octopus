@@ -1,7 +1,6 @@
 package org.lisapark.octopus.designer;
 
 import com.jidesoft.action.CommandBar;
-import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.action.DefaultDockableBarDockableHolder;
 import com.jidesoft.action.DockableBarManager;
 import com.jidesoft.docking.DockContext;
@@ -12,7 +11,6 @@ import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.status.StatusBar;
 import com.jidesoft.status.TimeStatusBarItem;
 import com.jidesoft.swing.JideBoxLayout;
-import com.jidesoft.swing.JideMenu;
 import com.jidesoft.swing.JideScrollPane;
 import org.lisapark.octopus.core.Node;
 import org.lisapark.octopus.core.ProcessingModel;
@@ -24,6 +22,7 @@ import org.lisapark.octopus.designer.canvas.NodeSelectionListener;
 import org.lisapark.octopus.designer.palette.PalettePanel;
 import org.lisapark.octopus.designer.properties.PropertiesPanel;
 import org.lisapark.octopus.repository.OctopusRepository;
+import org.lisapark.octopus.swing.ComponentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,32 +133,17 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
      * Initializes and adds the {@link StatusBar}
      */
     private void initializeStatusBar() {
-        StatusBar statusBar = new StatusBar();
+        StatusBar statusBar = ComponentFactory.createStatusBar();
 
-        TimeStatusBarItem time = new TimeStatusBarItem();
-        MemoryStatusBarItem gc = new MemoryStatusBarItem();
-        modelNameStatusItem = new LabelStatusBarItem();
+        TimeStatusBarItem time = ComponentFactory.createTimeStatusBarItem();
+        MemoryStatusBarItem gc = ComponentFactory.createMemoryStatusBarItem();
+        modelNameStatusItem = ComponentFactory.createLabelStatusBarItem();
 
         statusBar.add(time, JideBoxLayout.FLEXIBLE);
         statusBar.add(modelNameStatusItem, JideBoxLayout.VARY);
         statusBar.add(gc, JideBoxLayout.FIX);
 
         getContentPane().add(statusBar, BorderLayout.AFTER_LAST_LINE);
-    }
-
-    /**
-     * Creates and returns a new {@link DockableFrame} with all relavent names set to the specified name.
-     *
-     * @param name of title
-     * @return new frame
-     */
-    private DockableFrame createDockableFrameWithName(String name) {
-        DockableFrame dockableFrame = new DockableFrame(name);
-        dockableFrame.setTitle(name);
-        dockableFrame.setSideTitle(name);
-        dockableFrame.setTabTitle(name);
-
-        return dockableFrame;
     }
 
     private JComponent createCanvas() {
@@ -170,7 +154,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
     private DockableFrame createPalette() {
         this.palettePanel = new PalettePanel();
 
-        DockableFrame propertiesFrame = createDockableFrameWithName(PALETTE_KEY);
+        DockableFrame propertiesFrame = ComponentFactory.createDockableFrameWithName(PALETTE_KEY);
         propertiesFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         propertiesFrame.getContext().setInitSide(DockContext.DOCK_SIDE_WEST);
         propertiesFrame.getContext().setInitIndex(1);
@@ -200,7 +184,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         };
         canvasPanel.setNodeSelectionListener(nodeSelectionListener);
 
-        DockableFrame propertiesFrame = createDockableFrameWithName(PROPERTIES_KEY);
+        DockableFrame propertiesFrame = ComponentFactory.createDockableFrameWithName(PROPERTIES_KEY);
         propertiesFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         propertiesFrame.getContext().setInitSide(DockContext.DOCK_SIDE_WEST);
         propertiesFrame.getContext().setInitIndex(0);
@@ -211,7 +195,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
 
     private DockableFrame createOutput() {
         // todo real output and can we hook it up with some meaningful messages?
-        DockableFrame logFrame = createDockableFrameWithName(OUTPUT_KEY);
+        DockableFrame logFrame = ComponentFactory.createDockableFrameWithName(OUTPUT_KEY);
         logFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         logFrame.getContext().setInitSide(DockContext.DOCK_SIDE_SOUTH);
         // todo
@@ -221,7 +205,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
     }
 
     private JScrollPane createScrollPaneForComponent(JComponent component) {
-        JScrollPane pane = new JideScrollPane(component);
+        JScrollPane pane = ComponentFactory.createScrollPaneWithComponent(component);
         pane.setVerticalScrollBarPolicy(JideScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         return pane;
@@ -229,9 +213,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
 
     protected CommandBar createMenuBar() {
         // todo real menus and toolbar
-        CommandBar commandBar = new CommandMenuBar("Menu Bar");
-        commandBar.setStretch(true);
-        commandBar.setPaintBackground(false);
+        CommandBar commandBar = ComponentFactory.createCommandMenuBarWithName("Menu Bar");
 
         JMenu fileMenu = createFileMenu();
         JMenu viewMenu = createViewMenu();
@@ -246,7 +228,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
     }
 
     private JMenu createFileMenu() {
-        JMenuItem newMi = createMenuItemWithMnemonicAndAccelerator("New", KeyEvent.VK_N, KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
+        JMenuItem newMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator("New", KeyEvent.VK_N, KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
         newMi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -254,7 +236,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
             }
         });
 
-        JMenuItem openMi = createMenuItemWithMnemonicAndAccelerator("Open...", KeyEvent.VK_O, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+        JMenuItem openMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator("Open...", KeyEvent.VK_O, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
         openMi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -262,7 +244,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
             }
         });
 
-        JMenuItem saveMi = createMenuItemWithMnemonicAndAccelerator("Save", KeyEvent.VK_S, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+        JMenuItem saveMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator("Save", KeyEvent.VK_S, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
         saveMi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -270,7 +252,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
             }
         });
 
-        JMenuItem saveAsMi = createMenuItemWithMnemonicAndAccelerator("Save As", KeyEvent.VK_A, KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0));
+        JMenuItem saveAsMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator("Save As", KeyEvent.VK_A, KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0));
         saveAsMi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -278,8 +260,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
             }
         });
 
-        JMenuItem exitMi = new JMenuItem("Exit");
-        exitMi.setMnemonic(KeyEvent.VK_X);
+        JMenuItem exitMi = ComponentFactory.createMenuItemWithNameAndMnemonic("Exit", KeyEvent.VK_X);
         exitMi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -287,8 +268,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
             }
         });
 
-        JMenu fileMnu = new JideMenu("File");
-        fileMnu.setMnemonic('F');
+        JMenu fileMnu = ComponentFactory.createMenuWithNameAndMnemonic("File", KeyEvent.VK_F);
         fileMnu.add(newMi);
         fileMnu.add(openMi);
         fileMnu.addSeparator();
@@ -303,9 +283,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
     }
 
     private JMenu createViewMenu() {
-        JMenuItem nextViewMi = new JMenuItem("Select Next View");
-        nextViewMi.setMnemonic('N');
-        nextViewMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
+        JMenuItem nextViewMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator("Select Next View", KeyEvent.VK_N, KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
         nextViewMi.addActionListener(new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 String frameKey = getDockingManager().getNextFrame(getDockingManager().getActiveFrameKey());
@@ -315,9 +293,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
             }
         });
 
-        JMenuItem previousMi = new JMenuItem("Select Previous View");
-        previousMi.setMnemonic('P');
-        previousMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, InputEvent.SHIFT_MASK));
+        JMenuItem previousMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator("Select Previous View", KeyEvent.VK_P, KeyStroke.getKeyStroke(KeyEvent.VK_F6, InputEvent.SHIFT_MASK));
         previousMi.addActionListener(new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 String frameKey = getDockingManager().getPreviousFrame(getDockingManager().getActiveFrameKey());
@@ -327,35 +303,28 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
             }
         });
 
-        JMenuItem paletteMi = new JMenuItem(PALETTE_KEY);
-        paletteMi.setMnemonic('P');
-        paletteMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
+        JMenuItem paletteMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator(PALETTE_KEY, KeyEvent.VK_P, KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
         paletteMi.addActionListener(new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 getDockingManager().showFrame(PALETTE_KEY);
             }
         });
 
-        JMenuItem propertiesMi = new JMenuItem(PROPERTIES_KEY);
-        propertiesMi.setMnemonic('W');
-        propertiesMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0));
+        JMenuItem propertiesMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator(PROPERTIES_KEY, KeyEvent.VK_W, KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0));
         propertiesMi.addActionListener(new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 getDockingManager().showFrame(PROPERTIES_KEY);
             }
         });
 
-        JMenuItem outputMi = new JMenuItem(OUTPUT_KEY);
-        outputMi.setMnemonic('U');
-        outputMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
+        JMenuItem outputMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator(OUTPUT_KEY, KeyEvent.VK_U, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
         outputMi.addActionListener(new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 getDockingManager().showFrame(OUTPUT_KEY);
             }
         });
 
-        JMenu viewMenu = new JideMenu("View");
-        viewMenu.setMnemonic('V');
+        JMenu viewMenu = ComponentFactory.createMenuWithNameAndMnemonic("View", KeyEvent.VK_V);
         viewMenu.add(nextViewMi);
         viewMenu.add(previousMi);
         viewMenu.addSeparator();
@@ -427,13 +396,6 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
 
         setVisible(false);
         dispose();
-    }
-
-    private JMenuItem createMenuItemWithMnemonicAndAccelerator(String name, int mnemonic, KeyStroke accelerator) {
-        JMenuItem newItem = new JMenuItem(name, mnemonic);
-        newItem.setAccelerator(accelerator);
-
-        return newItem;
     }
 
     /**

@@ -6,6 +6,7 @@ import com.jidesoft.dialog.StandardDialog;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.repository.OctopusRepository;
+import org.lisapark.octopus.swing.ComponentFactory;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -13,6 +14,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -43,11 +45,10 @@ public class SaveModelDialog extends StandardDialog {
 
     @Override
     public JComponent createContentPanel() {
-        JLabel modelNameLbl = new JLabel("Model Name: ");
-        modelNameLbl.setDisplayedMnemonic('N');
+        JLabel modelNameLbl = ComponentFactory.createLabelWithTextAndMnemonic("Model Name: ", KeyEvent.VK_N);
         modelNameLbl.setHorizontalAlignment(SwingConstants.CENTER);
 
-        modelNameTxt = new JTextField();
+        modelNameTxt = ComponentFactory.createTextField();
         modelNameTxt.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -69,12 +70,12 @@ public class SaveModelDialog extends StandardDialog {
         modelNameLbl.setLabelFor(modelNameTxt);
 
         // note that this padding numbers are Jide recommendations
-        JPanel topPanel = new JPanel(new BorderLayout(6, 6));
+        JPanel topPanel = ComponentFactory.createPanelWithLayout(new BorderLayout(6, 6));
         topPanel.add(modelNameLbl, BorderLayout.BEFORE_LINE_BEGINS);
         topPanel.add(modelNameTxt, BorderLayout.CENTER);
 
         // note that this padding numbers are Jide recommendations
-        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        JPanel contentPanel = ComponentFactory.createPanelWithLayout(new BorderLayout(10, 10));
         // note that this padding numbers are Jide recommendations
         contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
 
@@ -93,7 +94,7 @@ public class SaveModelDialog extends StandardDialog {
         // note that these padding numbers coincide with what Jide recommends for StandardDialog button panels
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        okButton = new JButton();
+        okButton = ComponentFactory.createButton();
         okButton.setName(OK);
         okButton.setAction(new AbstractAction("Save") {
             public void actionPerformed(ActionEvent e) {
@@ -109,7 +110,7 @@ public class SaveModelDialog extends StandardDialog {
         // we need to disable the button AFTER setting the action
         okButton.setEnabled(false);
 
-        JButton cancelButton = new JButton();
+        JButton cancelButton = ComponentFactory.createButton();
         cancelButton.setName(CANCEL);
         cancelButton.setAction(new AbstractAction(UIDefaultsLookup.getString("OptionPane.cancelButtonText")) {
             public void actionPerformed(ActionEvent e) {

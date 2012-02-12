@@ -1,34 +1,21 @@
 package org.lisapark.octopus.designer.properties;
 
-import com.jidesoft.combobox.ExComboBox;
-import com.jidesoft.combobox.PopupPanel;
-import com.jidesoft.grid.ExComboBoxCellEditor;
 import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.event.EventType;
-import org.lisapark.octopus.designer.event.EventTypePopupPanel;
+import org.lisapark.octopus.designer.properties.support.EventTypeCellEditor;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 class OutputProperty extends ComponentProperty<Output> {
 
-    OutputProperty(Output output, final EventTypePopupPanel eventTypePopupPanel) {
+    OutputProperty(Output output, final EventTypeCellEditor eventTypeCellEditor) {
         super(output);
 
         setType(EventType.class);
         setEditable(true);
         setCategory("Output");
-        setCellEditor(new ExComboBoxCellEditor() {
-            @Override
-            public ExComboBox createExComboBox() {
-                return new ExComboBox(ExComboBox.DIALOG) {
-                    @Override
-                    public PopupPanel createPopupComponent() {
-                        return eventTypePopupPanel;
-                    }
-                };
-            }
-        });
+        setCellEditor(eventTypeCellEditor);
     }
 
     @Override

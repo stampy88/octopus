@@ -1,12 +1,12 @@
 package org.lisapark.octopus.designer.properties;
 
 import org.lisapark.octopus.core.AbstractComponent;
-import org.lisapark.octopus.swing.EnhancedProperty;
+import org.lisapark.octopus.swing.table.BaseProperty;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-abstract class ComponentProperty<T extends AbstractComponent> extends EnhancedProperty {
+abstract class ComponentProperty<T extends AbstractComponent> extends BaseProperty {
 
     private T component;
 

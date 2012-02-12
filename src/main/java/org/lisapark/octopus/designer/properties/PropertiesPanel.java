@@ -1,10 +1,7 @@
 package org.lisapark.octopus.designer.properties;
 
 import com.google.common.collect.Lists;
-import com.jidesoft.action.CommandBar;
-import com.jidesoft.converter.ObjectConverterManager;
 import com.jidesoft.grid.AbstractPropertyTableModel;
-import com.jidesoft.grid.CellEditorManager;
 import com.jidesoft.grid.Property;
 import com.jidesoft.grid.PropertyPane;
 import org.lisapark.octopus.core.Input;
@@ -15,10 +12,10 @@ import org.lisapark.octopus.core.processor.Processor;
 import org.lisapark.octopus.core.processor.ProcessorInput;
 import org.lisapark.octopus.core.sink.external.ExternalSink;
 import org.lisapark.octopus.core.source.external.ExternalSource;
-import org.lisapark.octopus.designer.event.EventTypePopupPanel;
-import org.lisapark.octopus.swing.DefaultValidationFailedListener;
-import org.lisapark.octopus.swing.EnhancedProperty;
-import org.lisapark.octopus.swing.EnhancedPropertyTable;
+import org.lisapark.octopus.designer.properties.support.EventTypeCellEditor;
+import org.lisapark.octopus.swing.BasePropertyTable;
+import org.lisapark.octopus.swing.ComponentFactory;
+import org.lisapark.octopus.swing.table.BaseProperty;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,8 +29,8 @@ public class PropertiesPanel extends JPanel {
     private ProcessingModel processingModel;
     private Node selectedNode;
 
-    private EnhancedPropertyTable propertyTable;
-    private EventTypePopupPanel eventTypePopupPanel;
+    private BasePropertyTable propertyTable;
+    private EventTypeCellEditor eventTypeCellEditor;
     private PropertyTableModel tableModel;
 
     public PropertiesPanel() {
@@ -44,32 +41,20 @@ public class PropertiesPanel extends JPanel {
     private void init() {
         propertyTable = createPropertyTable();
 
-        PropertyPane propertyPane = new PropertyPane(propertyTable) {
-            @Override
-            protected JComponent createToolBarComponent() {
-                CommandBar toolBar = new CommandBar();
-                toolBar.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
-                toolBar.setFloatable(false);
-                toolBar.setStretch(true);
-                toolBar.setPaintBackground(false);
-                toolBar.setChevronAlwaysVisible(false);
-                return toolBar;
-            }
-        };
+        PropertyPane propertyPane = ComponentFactory.createPropertyPaneWithTable(propertyTable);
         propertyPane.setPreferredSize(new Dimension(330, 300));
         add(propertyPane, BorderLayout.CENTER);
     }
 
-    private EnhancedPropertyTable createPropertyTable() {
-        ObjectConverterManager.initDefaultConverter();
-        CellEditorManager.initDefaultEditor();
+    private BasePropertyTable createPropertyTable() {
+        //ObjectConverterManager.initDefaultConverter();
+        //CellEditorManager.initDefaultEditor();
 
-        eventTypePopupPanel = new EventTypePopupPanel();
+        eventTypeCellEditor = new EventTypeCellEditor();
         tableModel = new PropertyTableModel();
 
-        propertyTable = new EnhancedPropertyTable();
+        propertyTable = new BasePropertyTable();
         propertyTable.setModel(tableModel);
-        propertyTable.setValidationFailedListener(new DefaultValidationFailedListener(this));
 
         return propertyTable;
     }
@@ -103,8 +88,8 @@ public class PropertiesPanel extends JPanel {
             selectedNode = externalSource;
 
             // update the external source and processing model on the event type panel
-            eventTypePopupPanel.setProcessingModel(processingModel);
-            eventTypePopupPanel.setExternalSource(externalSource);
+            eventTypeCellEditor.setProcessingModel(processingModel);
+            eventTypeCellEditor.setExternalSource(externalSource);
 
             tableModel.loadPropertiesForExternalSource(externalSource);
             propertyTable.expandFirstLevel();
@@ -125,15 +110,15 @@ public class PropertiesPanel extends JPanel {
      */
     class PropertyTableModel extends AbstractPropertyTableModel<Property> {
 
-        private java.util.List<EnhancedProperty> properties = Lists.newArrayList();
+        private java.util.List<BaseProperty> properties = Lists.newArrayList();
 
         private void clearProperties() {
-            java.util.List<EnhancedProperty> newProperties = Lists.newLinkedList();
+            java.util.List<BaseProperty> newProperties = Lists.newLinkedList();
             setProperties(newProperties);
         }
 
         private void loadPropertiesForProcessor(Processor<?> processor) {
-            java.util.List<EnhancedProperty> newProperties = Lists.newArrayList();
+            java.util.List<BaseProperty> newProperties = Lists.newArrayList();
 
             if (processor != null) {
                 Collection<Parameter> parameters = processor.getParameters();
@@ -153,7 +138,7 @@ public class PropertiesPanel extends JPanel {
         }
 
         private void loadPropertiesForExternalSink(ExternalSink externalSink) {
-            java.util.List<EnhancedProperty> newProperties = Lists.newArrayList();
+            java.util.List<BaseProperty> newProperties = Lists.newArrayList();
 
             if (externalSink != null) {
                 Collection<Parameter> parameters = externalSink.getParameters();
@@ -171,7 +156,7 @@ public class PropertiesPanel extends JPanel {
         }
 
         private void loadPropertiesForExternalSource(ExternalSource externalSource) {
-            java.util.List<EnhancedProperty> newProperties = Lists.newArrayList();
+            java.util.List<BaseProperty> newProperties = Lists.newArrayList();
 
             if (externalSource != null) {
                 Collection<Parameter> parameters = externalSource.getParameters();
@@ -179,14 +164,14 @@ public class PropertiesPanel extends JPanel {
                     newProperties.add(new ParameterProperty(parameter));
                 }
 
-                newProperties.add(new OutputProperty(externalSource.getOutput(), eventTypePopupPanel));
+                newProperties.add(new OutputProperty(externalSource.getOutput(), eventTypeCellEditor));
             }
 
             setProperties(newProperties);
         }
 
 
-        private void setProperties(java.util.List<EnhancedProperty> newProperties) {
+        private void setProperties(java.util.List<BaseProperty> newProperties) {
             java.util.List<Property> originalProperties = getOriginalProperties();
 
             // we need to remove property change listeners from the old properties because PropertyTableModel listens for
