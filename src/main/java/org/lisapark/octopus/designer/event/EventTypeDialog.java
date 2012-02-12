@@ -5,7 +5,6 @@ import com.jidesoft.dialog.BannerPanel;
 import com.jidesoft.dialog.ButtonPanel;
 import com.jidesoft.dialog.JideOptionPane;
 import com.jidesoft.dialog.StandardDialog;
-import com.jidesoft.grid.ListComboBoxCellEditor;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.core.event.Attribute;
@@ -15,8 +14,8 @@ import org.lisapark.octopus.designer.OctopusIconsFactory;
 import org.lisapark.octopus.swing.BaseTable;
 import org.lisapark.octopus.swing.Borders;
 import org.lisapark.octopus.swing.ComponentFactory;
-import org.lisapark.octopus.swing.DefaultValidationFailedListener;
 import org.lisapark.octopus.swing.LayoutConstants;
+import org.lisapark.octopus.swing.table.ComboBoxCellEditor;
 import org.lisapark.octopus.swing.table.StringCellEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +109,7 @@ public class EventTypeDialog extends StandardDialog {
         BaseTable table = ComponentFactory.createTableWithModel(tableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
-        table.setValidationFailedListener(new DefaultValidationFailedListener(this));
+        //table.setValidationFailedListener(new DefaultValidationFailedListener(this));
 
         StringCellEditor stringCellEditor = new StringCellEditor();
         stringCellEditor.addValidationListener(new AttributeNameValidator());
@@ -266,13 +265,12 @@ public class EventTypeDialog extends StandardDialog {
      * {@link org.lisapark.octopus.core.event.Attribute}. It also will check to warn the user when changing the type
      * of an attriubte that is in use.
      */
-    class AttributeTypeEditor extends ListComboBoxCellEditor {
+    class AttributeTypeEditor extends ComboBoxCellEditor {
 
         private Class currentAttributeClass;
 
         public AttributeTypeEditor() {
             super(Attribute.SUPPORTED_TYPES);
-            setAutoStopCellEditing(false);
         }
 
         @Override
@@ -302,7 +300,7 @@ public class EventTypeDialog extends StandardDialog {
         }
 
         @Override
-        public void actionPerformed(ActionEvent actionEvent) {
+        public boolean isEditorDoneEditing() {
             int result = JOptionPane.YES_OPTION;
 
             Class newClass = (Class) getCellEditorValue();
@@ -323,8 +321,9 @@ public class EventTypeDialog extends StandardDialog {
 
             if (result == JOptionPane.OK_OPTION) {
                 LOG.debug("Changing attribute type to {}", newClass);
-                super.stopCellEditing();
             }
+
+            return result == JOptionPane.OK_OPTION;
         }
     }
 
