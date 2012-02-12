@@ -1,6 +1,11 @@
 package org.lisapark.octopus.core.compiler.esper;
 
-import com.espertech.esper.client.*;
+import com.espertech.esper.client.Configuration;
+import com.espertech.esper.client.EPAdministrator;
+import com.espertech.esper.client.EPRuntime;
+import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.client.EPStatement;
 import com.google.common.collect.Lists;
 import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.ProcessingModel;
@@ -93,7 +98,6 @@ public class EsperCompiler implements org.lisapark.octopus.core.compiler.Compile
         Collection<CompiledProcessor<?>> compiledProcessors = Lists.newLinkedList();
 
         for (Processor processor : processors) {
-            // todo - check for output?
             Memory<?> processorMemory = processor.createMemoryForProcessor(new HeapMemoryProvider());
             CompiledProcessor<?> compiledProcessor = processor.compile();
             String statement = getStatementForCompiledProcessor(compiledProcessor);
