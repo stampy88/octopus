@@ -69,6 +69,9 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
      */
     private final OctopusRepository repository;
 
+    /**
+     * These are the main views for the designer application
+     */
     private CanvasPanel canvasPanel;
     private PropertiesPanel propertiesPanel;
     private PalettePanel palettePanel;
@@ -93,8 +96,6 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         initializeStatusBar();
 
         addWindowListener(new WindowClosingListener());
-
-        pack();
     }
 
     /**
@@ -336,6 +337,11 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         return viewMenu;
     }
 
+    /**
+     * This method will load all the initial data from the {@link #repository}. This includes all the template
+     * {@link Processor}s, {@link ExternalSource}s and {@link ExternalSink}s. The method will then give this
+     * data to the appropriate views.
+     */
     void loadInitialDataFromRepository() {
         List<ExternalSink> sinkTemplates = repository.getAllExternalSinkTemplates();
         palettePanel.setExternalSinks(sinkTemplates);
@@ -359,7 +365,6 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         SaveModelDialog.saveProcessingModel(this, currentProcessingModel, repository);
 
         modelNameStatusItem.setText(currentProcessingModel.getModelName());
-
     }
 
     private void openProcessingModel() {
