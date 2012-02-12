@@ -49,7 +49,7 @@ public class FormattedCellEditor extends ContextSensitiveCellEditor implements F
     public FormattedCellEditor(Class<?> type) {
         setType(type);
         field = ComponentFactory.createFormattedTextField();
-        field.setBorder(BorderFactory.createEmptyBorder());
+        field.setBorder(ContextSensitiveCellEditor.DEFAULT_CELL_EDITOR_BORDER);
 
         field.setFocusLostBehavior(JFormattedTextField.REVERT);
         // React when the user presses Enter while the editor is active.
@@ -64,7 +64,7 @@ public class FormattedCellEditor extends ContextSensitiveCellEditor implements F
                 }
             }
         });
-        field.setInputVerifier(new FormatEditorInputVerifier());
+        field.setInputVerifier(new EditorInputVerifier());
         field.addFocusListener(this);
 
         validationFailedListener = new DefaultValidationFailedListener(field);
@@ -185,7 +185,6 @@ public class FormattedCellEditor extends ContextSensitiveCellEditor implements F
         return doneEditing;
     }
 
-
     public void focusGained(FocusEvent e) {
     }
 
@@ -222,7 +221,7 @@ public class FormattedCellEditor extends ContextSensitiveCellEditor implements F
         return field;
     }
 
-    private class FormatEditorInputVerifier extends InputVerifier {
+    private class EditorInputVerifier extends InputVerifier {
         /**
          * Checks whether the JComponent's input is valid. This method should
          * have no side effects. It returns a boolean indicating the status
