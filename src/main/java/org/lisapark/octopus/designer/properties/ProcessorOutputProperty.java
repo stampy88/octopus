@@ -1,11 +1,11 @@
 package org.lisapark.octopus.designer.properties;
 
-import com.jidesoft.grid.StringCellEditor;
 import com.jidesoft.validation.ValidationObject;
 import com.jidesoft.validation.ValidationResult;
 import com.jidesoft.validation.Validator;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.processor.ProcessorOutput;
+import org.lisapark.octopus.swing.table.StringCellEditor;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
