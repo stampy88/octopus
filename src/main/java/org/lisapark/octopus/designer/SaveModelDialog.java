@@ -37,7 +37,7 @@ public class SaveModelDialog extends StandardDialog {
     public JComponent createBannerPanel() {
         BannerPanel bannerPanel = new BannerPanel("Save Model",
                 "Please type in the name for the processing model you are saving.",
-                OctopusIconsFactory.getImageIcon(OctopusIconsFactory.OCTOPUS_LARGE));
+                DesignerIconsFactory.getImageIcon(DesignerIconsFactory.OCTOPUS_LARGE));
         bannerPanel.setBackground(Color.WHITE);
         bannerPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         return bannerPanel;

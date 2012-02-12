@@ -6,7 +6,7 @@ import org.lisapark.octopus.core.Node;
 import org.lisapark.octopus.core.processor.Processor;
 import org.lisapark.octopus.core.sink.external.ExternalSink;
 import org.lisapark.octopus.core.source.external.ExternalSource;
-import org.lisapark.octopus.designer.OctopusIconsFactory;
+import org.lisapark.octopus.designer.DesignerIconsFactory;
 import org.lisapark.octopus.designer.dnd.ExternalSinkTransferable;
 import org.lisapark.octopus.designer.dnd.ExternalSourceTransferable;
 import org.lisapark.octopus.designer.dnd.ProcessorTransferable;
@@ -43,7 +43,7 @@ public class PalettePanel extends JPanel {
         JideTabbedPane tabbedPane = ComponentFactory.createTabbedPaneWithTabPlacement(JideTabbedPane.BOTTOM);
         tabbedPane.setOpaque(true);
 
-        Component leadingComponent = ComponentFactory.createLabelWithIcon(OctopusIconsFactory.getImageIcon(OctopusIconsFactory.OCTOPUS_LARGE));
+        Component leadingComponent = ComponentFactory.createLabelWithIcon(DesignerIconsFactory.getImageIcon(DesignerIconsFactory.OCTOPUS_LARGE));
         tabbedPane.setTabLeadingComponent(leadingComponent);
 
         final String[] titles = new String[]{

@@ -38,7 +38,7 @@ public class OpenModelDialog extends StandardDialog {
     public JComponent createBannerPanel() {
         BannerPanel bannerPanel = new BannerPanel("Open Model",
                 "Please type in the name of the processing model you wish to open. Note that wildcards are permitted.",
-                OctopusIconsFactory.getImageIcon(OctopusIconsFactory.OCTOPUS_LARGE));
+                DesignerIconsFactory.getImageIcon(DesignerIconsFactory.OCTOPUS_LARGE));
         bannerPanel.setBackground(Color.WHITE);
         bannerPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         return bannerPanel;

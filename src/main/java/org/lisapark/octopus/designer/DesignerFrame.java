@@ -22,6 +22,7 @@ import org.lisapark.octopus.designer.canvas.NodeSelectionListener;
 import org.lisapark.octopus.designer.palette.PalettePanel;
 import org.lisapark.octopus.designer.properties.PropertiesPanel;
 import org.lisapark.octopus.repository.OctopusRepository;
+import org.lisapark.octopus.swing.BaseStyledButton;
 import org.lisapark.octopus.swing.ComponentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -50,6 +50,9 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
      * that will be persisted from one session of the application to the next
      */
     private static final String PROFILE_KEY = "octopus";
+
+    private static final String MENU_BAR_KEY = "Menu Bar";
+    private static final String TOOL_BAR_KEY = "Tool Bar";
 
     /**
      * These are the keys associated with the different {@link DockableFrame}s. They are used by the
@@ -75,6 +78,22 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
     private CanvasPanel canvasPanel;
     private PropertiesPanel propertiesPanel;
     private PalettePanel palettePanel;
+
+    /**
+     * These are the menu and tool bar actions
+     */
+    private OpenAction openAction = new OpenAction(
+            "Open...", DesignerIconsFactory.getImageIcon(DesignerIconsFactory.OPEN), "Open an existing model", KeyEvent.VK_O
+    );
+    private NewAction newAction = new NewAction(
+            "New", DesignerIconsFactory.getImageIcon(DesignerIconsFactory.NEW), "Create a new model", KeyEvent.VK_N
+    );
+    private SaveAction saveAction = new SaveAction(
+            "Save", DesignerIconsFactory.getImageIcon(DesignerIconsFactory.SAVE), "Save current model", KeyEvent.VK_S
+    );
+    private ExitAction exitAction = new ExitAction(
+            "Exit", "Quit the Designer", KeyEvent.VK_X
+    );
 
     /**
      * This status bar label will contain the name of the {@link #currentProcessingModel}
@@ -106,6 +125,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         dockableBarManager.setShowInitial(false);
         // loadLayoutData() will make the main JFrame visible, so we disable this feature with the next call
         dockableBarManager.addDockableBar(createMenuBar());
+        dockableBarManager.addDockableBar(createToolBar());
         dockableBarManager.loadLayoutData();
     }
 
@@ -212,62 +232,55 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         return pane;
     }
 
-    protected CommandBar createMenuBar() {
-        // todo real menus and toolbar
-        CommandBar commandBar = ComponentFactory.createCommandMenuBarWithName("Menu Bar");
+    private CommandBar createMenuBar() {
+        CommandBar menuBar = ComponentFactory.createMenuBarWithName(MENU_BAR_KEY);
+        menuBar.setInitIndex(0);
 
         JMenu fileMenu = createFileMenu();
         JMenu viewMenu = createViewMenu();
 
-        commandBar.add(fileMenu);
-        commandBar.add(viewMenu);
+        menuBar.add(fileMenu);
+        menuBar.add(viewMenu);
         // todo 
-//        commandBar.add(windowMenu);
-//        commandBar.add(helpMenu);
+//        menuBar.add(windowMenu);
+//        menuBar.add(helpMenu);
 
-        return commandBar;
+        return menuBar;
+    }
+
+    private CommandBar createToolBar() {
+        CommandBar toolBar = ComponentFactory.createToolBarWithName(TOOL_BAR_KEY);
+        toolBar.setInitIndex(1);
+
+        BaseStyledButton newBtn = ComponentFactory.createToolbarButtonWithAction(newAction);
+        // need to null out the text since they are gotten from the action
+        newBtn.setText(null);
+        toolBar.add(newBtn);
+
+        BaseStyledButton openBtn = ComponentFactory.createToolbarButtonWithAction(openAction);
+        openBtn.setText(null);
+        toolBar.add(openBtn);
+
+        BaseStyledButton saveBtn = ComponentFactory.createToolbarButtonWithAction(saveAction);
+        saveBtn.setText(null);
+        toolBar.add(saveBtn);
+
+        return toolBar;
     }
 
     private JMenu createFileMenu() {
-        JMenuItem newMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator("New", KeyEvent.VK_N, KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
-        newMi.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                newProcessingModel();
-            }
-        });
+        JMenuItem newMi = ComponentFactory.createMenuItemWithAction(newAction);
+        newMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
 
-        JMenuItem openMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator("Open...", KeyEvent.VK_O, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-        openMi.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openProcessingModel();
-            }
-        });
+        JMenuItem openMi = ComponentFactory.createMenuItemWithAction(openAction);
+        openMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
 
-        JMenuItem saveMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator("Save", KeyEvent.VK_S, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
-        saveMi.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveProcessingModel();
-            }
-        });
+        JMenuItem saveMi = ComponentFactory.createMenuItemWithAction(saveAction);
+        saveMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
 
         JMenuItem saveAsMi = ComponentFactory.createMenuItemWithNameMnemonicAndAccelerator("Save As", KeyEvent.VK_A, KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0));
-        saveAsMi.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //getController().saveAsProcessingModel();
-            }
-        });
 
-        JMenuItem exitMi = ComponentFactory.createMenuItemWithNameAndMnemonic("Exit", KeyEvent.VK_X);
-        exitMi.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                shutdown();
-            }
-        });
+        JMenuItem exitMi = ComponentFactory.createMenuItemWithAction(exitAction);
 
         JMenu fileMnu = ComponentFactory.createMenuWithNameAndMnemonic("File", KeyEvent.VK_F);
         fileMnu.add(newMi);
@@ -361,26 +374,6 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         propertiesPanel.setProcessingModel(currentProcessingModel);
     }
 
-    private void saveProcessingModel() {
-        SaveModelDialog.saveProcessingModel(this, currentProcessingModel, repository);
-
-        modelNameStatusItem.setText(currentProcessingModel.getModelName());
-    }
-
-    private void openProcessingModel() {
-        ProcessingModel modelToOpen = OpenModelDialog.openProcessingModel(this, repository);
-
-        if (modelToOpen != null) {
-            LOG.debug("Opening processing model {}", modelToOpen.getModelName());
-
-            setCurrentProcessingModel(modelToOpen);
-        }
-    }
-
-    private void newProcessingModel() {
-        setCurrentProcessingModel(new ProcessingModel("model"));
-    }
-
     /**
      * Shuts down the application by saving the layout state and dispose the frame
      */
@@ -401,6 +394,67 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
 
         setVisible(false);
         dispose();
+    }
+
+    private class OpenAction extends AbstractAction {
+        private OpenAction(String text, ImageIcon icon, String description, int mnemonic) {
+            super(text, icon);
+            putValue(SHORT_DESCRIPTION, description);
+            putValue(MNEMONIC_KEY, mnemonic);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            ProcessingModel modelToOpen = OpenModelDialog.openProcessingModel(DesignerFrame.this, repository);
+
+            if (modelToOpen != null) {
+                LOG.debug("Opening processing model {}", modelToOpen.getModelName());
+
+                setCurrentProcessingModel(modelToOpen);
+            }
+        }
+    }
+
+    private class NewAction extends AbstractAction {
+        private NewAction(String text, ImageIcon icon, String description, int mnemonic) {
+            super(text, icon);
+            putValue(SHORT_DESCRIPTION, description);
+            putValue(MNEMONIC_KEY, mnemonic);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // todo better way to come up with initial name
+            setCurrentProcessingModel(new ProcessingModel("model"));
+        }
+    }
+
+    private class SaveAction extends AbstractAction {
+        private SaveAction(String text, ImageIcon icon, String description, int mnemonic) {
+            super(text, icon);
+            putValue(SHORT_DESCRIPTION, description);
+            putValue(MNEMONIC_KEY, mnemonic);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            SaveModelDialog.saveProcessingModel(DesignerFrame.this, currentProcessingModel, repository);
+
+            modelNameStatusItem.setText(currentProcessingModel.getModelName());
+        }
+    }
+
+    private class ExitAction extends AbstractAction {
+        private ExitAction(String text, String description, int mnemonic) {
+            super(text);
+            putValue(SHORT_DESCRIPTION, description);
+            putValue(MNEMONIC_KEY, mnemonic);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            shutdown();
+        }
     }
 
     /**

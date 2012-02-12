@@ -1,5 +1,6 @@
 package org.lisapark.octopus.swing;
 
+import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.grid.ContextSensitiveTableModel;
@@ -78,6 +79,12 @@ public abstract class ComponentFactory {
         return new BaseStyledButton(action);
     }
 
+    public static BaseStyledButton createToolbarButtonWithAction(Action action) {
+        BaseStyledButton btn = new BaseStyledButton(action);
+        btn.setFocusable(false);
+        return btn;
+    }
+
     public static MultilineLabel createMultilineLabelWithText(String text) {
         return new MultilineLabel(text);
     }
@@ -143,26 +150,37 @@ public abstract class ComponentFactory {
         return dockableFrame;
     }
 
-    public static CommandMenuBar createCommandMenuBar() {
-        CommandMenuBar commandBar = new CommandMenuBar();
-        commandBar.setStretch(true);
-        commandBar.setPaintBackground(false);
-
-        return commandBar;
+    public static CommandBar createToolBarWithName(String name) {
+        CommandBar toolBar = new CommandBar(name);
+        toolBar.setStretch(true);
+        toolBar.setPaintBackground(false);
+        return toolBar;
     }
 
-    public static CommandMenuBar createCommandMenuBarWithName(String name) {
-        CommandMenuBar commandBar = new CommandMenuBar(name);
-        commandBar.setStretch(true);
-        commandBar.setPaintBackground(false);
+    public static CommandMenuBar createMenuBar() {
+        CommandMenuBar menuBar = new CommandMenuBar();
+        menuBar.setStretch(true);
+        menuBar.setPaintBackground(false);
 
-        return commandBar;
+        return menuBar;
+    }
+
+    public static CommandMenuBar createMenuBarWithName(String name) {
+        CommandMenuBar menuBar = new CommandMenuBar(name);
+        menuBar.setStretch(true);
+        menuBar.setPaintBackground(false);
+
+        return menuBar;
     }
 
     public static JMenu createMenuWithNameAndMnemonic(String name, int mnemonic) {
         JideMenu menu = new JideMenu(name);
         menu.setMnemonic(mnemonic);
         return menu;
+    }
+
+    public static JMenuItem createMenuItemWithAction(Action action) {
+        return new JMenuItem(action);
     }
 
     public static JMenuItem createMenuItemWithNameAndMnemonic(String name, int mnemonic) {

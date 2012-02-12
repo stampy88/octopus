@@ -21,7 +21,7 @@ public class BasePropertyPane extends PropertyPane {
 
     @Override
     protected JComponent createToolBarComponent() {
-        CommandBar toolBar = ComponentFactory.createCommandMenuBar();
+        CommandBar toolBar = ComponentFactory.createMenuBar();
 
         toolBar.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
         toolBar.setFloatable(false);

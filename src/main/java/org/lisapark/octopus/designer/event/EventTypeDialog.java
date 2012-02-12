@@ -11,7 +11,7 @@ import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.event.EventType;
 import org.lisapark.octopus.core.source.external.ExternalSource;
-import org.lisapark.octopus.designer.OctopusIconsFactory;
+import org.lisapark.octopus.designer.DesignerIconsFactory;
 import org.lisapark.octopus.swing.BaseTable;
 import org.lisapark.octopus.swing.Borders;
 import org.lisapark.octopus.swing.ComponentFactory;
@@ -89,7 +89,7 @@ public class EventTypeDialog extends StandardDialog {
         BannerPanel bannerPanel = new BannerPanel("Event Definition",
                 "Enter in the attribute names and types for this event definition. Please note that changing the " +
                         "attribute types or removing attributes may affect already connected processors or sinks.",
-                OctopusIconsFactory.getImageIcon(OctopusIconsFactory.OCTOPUS_LARGE));
+                DesignerIconsFactory.getImageIcon(DesignerIconsFactory.OCTOPUS_LARGE));
         bannerPanel.setBackground(Color.WHITE);
         bannerPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         return bannerPanel;
