@@ -9,6 +9,7 @@ import com.jidesoft.grid.PropertyTableModel;
 import com.jidesoft.grid.TableModelWrapperUtils;
 import com.jidesoft.plaf.basic.BasicTreeTableUI;
 import com.jidesoft.validation.ValidationResult;
+import org.lisapark.octopus.swing.table.BaseProperty;
 import org.lisapark.octopus.swing.table.DoubleCellEditor;
 import org.lisapark.octopus.swing.table.FloatCellEditor;
 import org.lisapark.octopus.swing.table.IntegerCellEditor;
@@ -23,6 +24,7 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -113,33 +115,37 @@ public class BasePropertyTable extends PropertyTable {
 
     /**
      * We override {@link PropertyTable#getToolTipText(java.awt.event.MouseEvent)} because we are going to use the
+     * {@link org.lisapark.octopus.swing.table.BaseProperty#getToolTipText()} for the value column and the
+     * {@link Property@getDisplayName} for the name column.
      *
-     * @param mouseEvent
-     * @return
+     * @param mouseEvent for table
+     * @return tool tip text
      */
-//    public String getToolTipText(MouseEvent mouseEvent) {
-//
-//        Point point = getCellAt(mouseEvent.getPoint());
-//        Property property = getPropertyAtPoint(point);
-//        String toolTip = null;
-//
-//        if (property != null) {
-//            if (point.x == 1) {
-//                if(property instanceof EnhancedProperty) {
-//                    toolTip = ((EnhancedProperty)property).getToolTipText();
-//                } else {
-//                    toolTip = property.getDescription() == null ? property.getName() : property.getDescription();
-//                    toolTip = "<HTML>" + HtmlUtils.formatHtmlSubString(toolTip) + "</HTML>";
-//                }
-//
-//            } else {
-//                toolTip = property.getDisplayName();
-//            }
-//        }
-//
-//        return toolTip;
-//    }
+    public String getToolTipText(MouseEvent mouseEvent) {
 
+        Point point = getCellAt(mouseEvent.getPoint());
+        Property property = getPropertyAtPoint(point);
+        String toolTip = null;
+
+        if (property != null) {
+            if (point.x == 1) {
+                if (property instanceof BaseProperty) {
+                    toolTip = ((BaseProperty) property).getToolTipText();
+                }
+            } else {
+                toolTip = property.getDisplayName();
+            }
+        }
+
+        return toolTip;
+    }
+
+    /**
+     * Returns the property at the specified point.
+     *
+     * @param point in table
+     * @return property for point
+     */
     Property getPropertyAtPoint(Point point) {
         int rowIndex = point.y;
         TableModel tableModel = getModel();
@@ -164,6 +170,12 @@ public class BasePropertyTable extends PropertyTable {
      */
     public static class BasePropertyTableUI extends BasicTreeTableUI {
 
+        /**
+         * UI Delegates need this static method to create a new UI for the specified component
+         *
+         * @param c component
+         * @return UI Delegate
+         */
         public static ComponentUI createUI(JComponent c) {
             return new BasePropertyTableUI();
         }
