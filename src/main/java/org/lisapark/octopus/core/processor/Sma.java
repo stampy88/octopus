@@ -7,6 +7,7 @@ import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Event;
 import org.lisapark.octopus.core.memory.Memory;
 import org.lisapark.octopus.core.memory.MemoryProvider;
+import org.lisapark.octopus.core.parameter.Constraints;
 import org.lisapark.octopus.core.parameter.Parameter;
 
 import java.util.Collection;
@@ -122,7 +123,8 @@ public class Sma extends Processor<Double> {
         sma.addParameter(
                 Parameter.integerParameterWithIdAndName(WINDOW_LENGTH_PARAMETER_ID, "Window Length").
                         description(DEFAULT_WINDOW_LENGTH_DESCRIPTION).
-                        defaultValue(10).required(true)
+                        defaultValue(10).required(true).
+                        constraint(Constraints.integerConstraintWithMinimumAndMessage(1, "Window length has to be greater than zero."))
         );
 
         // only a single double input
