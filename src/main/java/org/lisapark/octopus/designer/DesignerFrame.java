@@ -447,9 +447,11 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            SaveModelDialog.saveProcessingModel(DesignerFrame.this, currentProcessingModel, repository);
+            if (currentProcessingModel != null) {
+                SaveModelDialog.saveProcessingModel(DesignerFrame.this, currentProcessingModel, repository);
 
-            modelNameStatusItem.setText(currentProcessingModel.getModelName());
+                modelNameStatusItem.setText(currentProcessingModel.getModelName());
+            }
         }
     }
 
