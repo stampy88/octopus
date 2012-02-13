@@ -48,6 +48,6 @@ class EsperExternalSinkAdaptor {
     }
 
     public void update(Event eventFromInput_1, Event eventFromInput_2) {
-
+        // todo multiple inputs for sinks?
     }
 }
