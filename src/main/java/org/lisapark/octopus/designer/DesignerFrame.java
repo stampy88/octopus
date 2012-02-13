@@ -14,6 +14,7 @@ import com.jidesoft.swing.JideBoxLayout;
 import com.jidesoft.swing.JideScrollPane;
 import org.lisapark.octopus.core.Node;
 import org.lisapark.octopus.core.ProcessingModel;
+import org.lisapark.octopus.core.compiler.esper.EsperCompiler;
 import org.lisapark.octopus.core.processor.Processor;
 import org.lisapark.octopus.core.sink.external.ExternalSink;
 import org.lisapark.octopus.core.source.external.ExternalSource;
@@ -93,6 +94,9 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
     );
     private ExitAction exitAction = new ExitAction(
             "Exit", "Quit the Designer", KeyEvent.VK_X
+    );
+    private CompileAction compileAction = new CompileAction(
+            "Compile", DesignerIconsFactory.getImageIcon(DesignerIconsFactory.COMPILE), "Compile current model"
     );
 
     /**
@@ -264,6 +268,11 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         BaseStyledButton saveBtn = ComponentFactory.createToolbarButtonWithAction(saveAction);
         saveBtn.setText(null);
         toolBar.add(saveBtn);
+
+        toolBar.addSeparator();
+        BaseStyledButton compileBtn = ComponentFactory.createToolbarButtonWithAction(compileAction);
+        compileBtn.setText(null);
+        toolBar.add(compileBtn);
 
         return toolBar;
     }
@@ -454,6 +463,22 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         @Override
         public void actionPerformed(ActionEvent e) {
             shutdown();
+        }
+    }
+
+    private class CompileAction extends AbstractAction {
+        public CompileAction(String text, ImageIcon icon, String description) {
+            super(text, icon);
+            putValue(SHORT_DESCRIPTION, description);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (currentProcessingModel != null) {
+                // todo do we validate first and we need output
+                org.lisapark.octopus.core.compiler.Compiler compiler = new EsperCompiler();
+                compiler.compile(currentProcessingModel);
+            }
         }
     }
 

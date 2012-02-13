@@ -13,6 +13,7 @@ public class DesignerIconsFactory {
     public static final String NEW = "icons/new.gif";
     public static final String SAVE = "icons/save.gif";
     public static final String OPEN = "icons/open.gif";
+    public static final String COMPILE = "icons/compile.gif";
 
     public static ImageIcon getImageIcon(String name) {
         if (name != null) {
