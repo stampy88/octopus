@@ -41,7 +41,6 @@ public class BasePropertyTable extends PropertyTable {
         init();
     }
 
-
     private void init() {
         CellEditorManager.registerEditor(Short.class, new CellEditorFactory() {
             @Override
