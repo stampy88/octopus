@@ -5,7 +5,7 @@ import org.lisapark.octopus.core.runtime.ProcessorContext;
 
 import java.io.PrintStream;
 
-import static com.jgoodies.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * @author dave sinclair(dsinclair@chariotsolutions.com)

@@ -104,6 +104,10 @@ public abstract class ComponentFactory {
         return new JList(model);
     }
 
+    public static JideScrollPane createScrollPane() {
+        return new JideScrollPane();
+    }
+
     public static JideScrollPane createScrollPaneWithComponent(Component component) {
         return new JideScrollPane(component);
     }

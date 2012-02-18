@@ -41,7 +41,7 @@ public class Attribute implements Copyable {
     }
 
     public void setName(String name) throws ValidationException {
-        checkValidity(name, "Attribute name");
+        validateAttributeName(name);
         this.name = name;
     }
 
@@ -114,6 +114,10 @@ public class Attribute implements Copyable {
                 "name='" + name + '\'' +
                 ", type=" + type +
                 '}';
+    }
+
+    public static void validateAttributeName(String name) throws ValidationException {
+        checkValidity(name, "Attribute name");
     }
 
     public static Attribute newAttribute(Class clazz, String name) throws ValidationException {

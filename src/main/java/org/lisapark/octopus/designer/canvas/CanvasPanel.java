@@ -1,5 +1,6 @@
 package org.lisapark.octopus.designer.canvas;
 
+import com.google.common.collect.Sets;
 import org.lisapark.octopus.core.Node;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.swing.LayoutConstants;
@@ -63,7 +64,10 @@ public class CanvasPanel extends JPanel {
 
         @Override
         public void objectAdded(ObjectSceneEvent event, Object addedObject) {
-
+            // if a new node is added to the scene, we want to select it
+            if (addedObject instanceof Node) {
+                scene.setSelectedObjects(Sets.newHashSet(addedObject));
+            }
         }
 
         @Override
@@ -84,12 +88,15 @@ public class CanvasPanel extends JPanel {
                 if (newSelection != null && newSelection.size() == 1) {
                     Object selectedObject = newSelection.iterator().next();
 
+                    // we want to get the parent node of the ping
                     if (selectedObject instanceof Pin) {
                         selectedNode = scene.getPinNode((Pin) selectedObject);
 
                     } else if (selectedObject instanceof Node) {
                         selectedNode = (Node) selectedObject;
                     }
+
+                    sceneView.requestFocusInWindow();
                 }
 
                 nodeSelectionListener.selectedChanged(selectedNode);

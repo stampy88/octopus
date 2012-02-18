@@ -4,6 +4,7 @@ import com.jidesoft.validation.ValidationObject;
 import com.jidesoft.validation.ValidationResult;
 import com.jidesoft.validation.Validator;
 import org.lisapark.octopus.core.ValidationException;
+import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.processor.ProcessorOutput;
 import org.lisapark.octopus.swing.table.StringCellEditor;
 
@@ -18,7 +19,7 @@ class ProcessorOutputProperty extends ComponentProperty<ProcessorOutput> {
         setCategory("Output");
 
         StringCellEditor cellEditor = new StringCellEditor();
-        cellEditor.addValidationListener(new ProcessorOutputValidator(output));
+        cellEditor.addValidationListener(new ProcessorOutputValidator());
         setCellEditor(cellEditor);
     }
 
@@ -45,12 +46,6 @@ class ProcessorOutputProperty extends ComponentProperty<ProcessorOutput> {
      */
     private static class ProcessorOutputValidator implements Validator {
 
-        private final ProcessorOutput processorOutput;
-
-        private ProcessorOutputValidator(ProcessorOutput processorOutput) {
-            this.processorOutput = processorOutput;
-        }
-
         @SuppressWarnings("unchecked")
         @Override
         public ValidationResult validating(ValidationObject validationObject) {
@@ -62,7 +57,7 @@ class ProcessorOutputProperty extends ComponentProperty<ProcessorOutput> {
             Object value = validationObject.getNewValue();
 
             try {
-                processorOutput.setAttributeName((String) value);
+                Attribute.validateAttributeName((String) value);
             } catch (ValidationException e) {
                 result.setValid(false);
                 result.setMessage(e.getLocalizedMessage());

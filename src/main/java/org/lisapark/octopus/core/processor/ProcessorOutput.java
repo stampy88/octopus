@@ -17,7 +17,10 @@ public class ProcessorOutput extends Output {
     protected ProcessorOutput(ProcessorOutput existingOutput) {
         super(existingOutput);
 
-        this.attribute = existingOutput.attribute.copyOf();
+        // todo - getting a little hairy with the copying
+        // when we call the super class copy constructor, it makes a deep copy of the event type which
+        // also holds the attribute we are interested in. Need to get this NEW copy, now create one ourselves
+        this.attribute = getEventType().getAttributeByName(existingOutput.attribute.getName());
     }
 
     public ProcessorOutput(Builder builder) {
@@ -110,7 +113,7 @@ public class ProcessorOutput extends Output {
         @SuppressWarnings("unchecked")
         public ProcessorOutput build() {
             checkState(attributeName != null, "attributeName is required");
-            attribute = (Attribute) Attribute.newAttribute(type, attributeName);
+            attribute = Attribute.newAttribute(type, attributeName);
             return new ProcessorOutput(this);
         }
     }
