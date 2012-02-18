@@ -6,6 +6,7 @@ import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Event;
+import org.lisapark.octopus.core.runtime.SinkContext;
 import org.lisapark.octopus.core.sink.Sink;
 import org.lisapark.octopus.core.source.Source;
 
@@ -90,10 +91,10 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
         }
 
         @Override
-        public void processEvent(Map<Integer, Event> eventsByInputId) {
+        public void processEvent(SinkContext ctx, Map<Integer, Event> eventsByInputId) {
             Event event = eventsByInputId.get(1);
             if (event != null) {
-                System.out.println(event);
+                ctx.getStandardOut().println(event);
             }
         }
     }

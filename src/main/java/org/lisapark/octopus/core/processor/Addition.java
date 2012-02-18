@@ -3,7 +3,7 @@ package org.lisapark.octopus.core.processor;
 import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Event;
-import org.lisapark.octopus.core.memory.Memory;
+import org.lisapark.octopus.core.runtime.ProcessorContext;
 
 import java.util.Map;
 import java.util.UUID;
@@ -104,7 +104,7 @@ public class Addition extends Processor<Void> {
         }
 
         @Override
-        public Object processEvent(Memory<Void> memory, Map<Integer, Event> eventsByInputId) {
+        public Object processEvent(ProcessorContext<Void> ctx, Map<Integer, Event> eventsByInputId) {
             Event firstEvent = eventsByInputId.get(FIRST_INPUT_ID);
             Event secondEvent = eventsByInputId.get(SECOND_INPUT_ID);
 

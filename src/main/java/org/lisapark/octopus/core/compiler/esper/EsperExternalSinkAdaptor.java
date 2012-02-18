@@ -4,6 +4,7 @@ import com.espertech.esper.client.EPRuntime;
 import com.google.common.collect.Maps;
 import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.event.Event;
+import org.lisapark.octopus.core.runtime.SinkContext;
 import org.lisapark.octopus.core.sink.external.CompiledExternalSink;
 import org.lisapark.octopus.util.Pair;
 import org.lisapark.octopus.util.esper.EsperUtils;
@@ -18,11 +19,13 @@ class EsperExternalSinkAdaptor {
     private final CompiledExternalSink externalSink;
     private final Pair<String, Integer>[] sourceIdToInputId;
 
+    private final SinkContext ctx;
     private final EPRuntime runtime;
 
     @SuppressWarnings("unchecked")
-    EsperExternalSinkAdaptor(CompiledExternalSink externalSink, EPRuntime runtime) {
+    EsperExternalSinkAdaptor(CompiledExternalSink externalSink, SinkContext ctx, EPRuntime runtime) {
         this.externalSink = externalSink;
+        this.ctx = ctx;
         this.runtime = runtime;
 
         this.sourceIdToInputId = (Pair<String, Integer>[]) new Pair[externalSink.getInputs().size()];
@@ -44,7 +47,7 @@ class EsperExternalSinkAdaptor {
         Map<Integer, Event> eventsByInputId = Maps.newHashMapWithExpectedSize(1);
         eventsByInputId.put(sourceIdToInputId[0].getSecond(), event);
 
-        externalSink.processEvent(eventsByInputId);
+        externalSink.processEvent(ctx, eventsByInputId);
     }
 
     public void update(Event eventFromInput_1, Event eventFromInput_2) {

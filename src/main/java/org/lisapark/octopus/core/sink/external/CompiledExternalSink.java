@@ -3,6 +3,7 @@ package org.lisapark.octopus.core.sink.external;
 import com.google.common.collect.ImmutableList;
 import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.event.Event;
+import org.lisapark.octopus.core.runtime.SinkContext;
 import org.lisapark.octopus.core.sink.Sink;
 
 import java.util.List;
@@ -29,5 +30,5 @@ public abstract class CompiledExternalSink {
         return ImmutableList.copyOf(inputs);
     }
 
-    public abstract void processEvent(Map<Integer, Event> eventsByInputId);
+    public abstract void processEvent(SinkContext ctx, Map<Integer, Event> eventsByInputId);
 }

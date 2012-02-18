@@ -4,8 +4,8 @@ import com.espertech.esper.client.EPRuntime;
 import com.google.common.collect.Maps;
 import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.event.Event;
-import org.lisapark.octopus.core.memory.Memory;
 import org.lisapark.octopus.core.processor.CompiledProcessor;
+import org.lisapark.octopus.core.runtime.ProcessorContext;
 import org.lisapark.octopus.util.Pair;
 import org.lisapark.octopus.util.esper.EsperUtils;
 
@@ -21,13 +21,13 @@ class EsperProcessorAdaptor {
     private final String outputAttributeName;
     private final String outputEventId;
 
-    private final Memory memory;
+    private final ProcessorContext ctx;
     private final EPRuntime runtime;
 
     @SuppressWarnings("unchecked")
-    EsperProcessorAdaptor(CompiledProcessor<?> processor, Memory memory, EPRuntime runtime) {
+    EsperProcessorAdaptor(CompiledProcessor<?> processor, ProcessorContext<?> ctx, EPRuntime runtime) {
         this.processor = processor;
-        this.memory = memory;
+        this.ctx = ctx;
         this.runtime = runtime;
 
         this.sourceIdToInputId = (Pair<String, Integer>[]) new Pair[processor.getInputs().size()];
@@ -61,7 +61,7 @@ class EsperProcessorAdaptor {
         eventsByInputId.put(sourceIdToInputId[0].getSecond(), event);
 
         @SuppressWarnings("unchecked")
-        Object output = processor.processEvent(memory, eventsByInputId);
+        Object output = processor.processEvent(ctx, eventsByInputId);
 
         if (output != null && outputAttributeName != null) {
             // todo create new event based on old event - what about name collisions??
@@ -72,6 +72,8 @@ class EsperProcessorAdaptor {
             runtime.sendEvent(outputEvent.getData(), outputEventId);
         }
     }
+
+    // todo multiple inputs?
 
     public void update(Event eventFromInput_1, Event eventFromInput_2) {
 

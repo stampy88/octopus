@@ -14,8 +14,10 @@ import com.jidesoft.swing.JideBoxLayout;
 import com.jidesoft.swing.JideScrollPane;
 import org.lisapark.octopus.core.Node;
 import org.lisapark.octopus.core.ProcessingModel;
+import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.compiler.esper.EsperCompiler;
 import org.lisapark.octopus.core.processor.Processor;
+import org.lisapark.octopus.core.runtime.ProcessingRuntime;
 import org.lisapark.octopus.core.sink.external.ExternalSink;
 import org.lisapark.octopus.core.source.external.ExternalSource;
 import org.lisapark.octopus.designer.canvas.CanvasPanel;
@@ -35,6 +37,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.PrintStream;
 import java.util.List;
 
 /**
@@ -98,11 +101,15 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
     private CompileAction compileAction = new CompileAction(
             "Compile", DesignerIconsFactory.getImageIcon(DesignerIconsFactory.COMPILE), "Compile current model"
     );
+    private RunAction runAction = new RunAction(
+            "Run", DesignerIconsFactory.getImageIcon(DesignerIconsFactory.RUN), "Run current model"
+    );
 
     /**
      * This status bar label will contain the name of the {@link #currentProcessingModel}
      */
     private LabelStatusBarItem modelNameStatusItem;
+    private JTextArea outputTxt;
 
     public DesignerFrame(OctopusRepository repository) {
         super("Octopus");
@@ -224,7 +231,8 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         logFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         logFrame.getContext().setInitSide(DockContext.DOCK_SIDE_SOUTH);
         // todo
-        logFrame.add(createScrollPaneForComponent(new JTextArea()));
+        outputTxt = new JTextArea();
+        logFrame.add(createScrollPaneForComponent(outputTxt));
 
         return logFrame;
     }
@@ -273,6 +281,10 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         BaseStyledButton compileBtn = ComponentFactory.createToolbarButtonWithAction(compileAction);
         compileBtn.setText(null);
         toolBar.add(compileBtn);
+
+        BaseStyledButton runBtn = ComponentFactory.createToolbarButtonWithAction(runAction);
+        runBtn.setText(null);
+        toolBar.add(runBtn);
 
         return toolBar;
     }
@@ -417,7 +429,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
             ProcessingModel modelToOpen = OpenModelDialog.openProcessingModel(DesignerFrame.this, repository);
 
             if (modelToOpen != null) {
-                LOG.debug("Opening processing model {}", modelToOpen.getModelName());
+                LOG.debug("Opening processing model '{}'", modelToOpen.getModelName());
 
                 setCurrentProcessingModel(modelToOpen);
             }
@@ -479,7 +491,37 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
             if (currentProcessingModel != null) {
                 // todo do we validate first and we need output
                 org.lisapark.octopus.core.compiler.Compiler compiler = new EsperCompiler();
-                compiler.compile(currentProcessingModel);
+                try {
+                    compiler.compile(currentProcessingModel);
+                } catch (ValidationException e1) {
+                    outputTxt.append(e1.getLocalizedMessage());
+                }
+            }
+        }
+    }
+
+    private class RunAction extends AbstractAction {
+        public RunAction(String text, ImageIcon icon, String description) {
+            super(text, icon);
+            putValue(SHORT_DESCRIPTION, description);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (currentProcessingModel != null) {
+                // todo do we validate first and we need output
+                TextAreaOutStreamAdaptor writer = new TextAreaOutStreamAdaptor(outputTxt);
+                org.lisapark.octopus.core.compiler.Compiler compiler = new EsperCompiler();
+                compiler.setStandardOut(new PrintStream(writer));
+                try {
+                    ProcessingRuntime runtime = compiler.compile(currentProcessingModel);
+
+                    // todo how do we stop??
+                    runtime.start();
+
+                } catch (ValidationException e1) {
+                    outputTxt.append(e1.getLocalizedMessage());
+                }
             }
         }
     }

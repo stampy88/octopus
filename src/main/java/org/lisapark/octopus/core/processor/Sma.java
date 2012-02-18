@@ -9,6 +9,7 @@ import org.lisapark.octopus.core.memory.Memory;
 import org.lisapark.octopus.core.memory.MemoryProvider;
 import org.lisapark.octopus.core.parameter.Constraints;
 import org.lisapark.octopus.core.parameter.Parameter;
+import org.lisapark.octopus.core.runtime.ProcessorContext;
 
 import java.util.Collection;
 import java.util.Map;
@@ -151,7 +152,7 @@ public class Sma extends Processor<Double> {
         }
 
         @Override
-        public Object processEvent(Memory<Double> memory, Map<Integer, Event> eventsByInputId) {
+        public Object processEvent(ProcessorContext<Double> ctx, Map<Integer, Event> eventsByInputId) {
             // sma only has a single event
             Event event = eventsByInputId.get(INPUT_ID);
 
@@ -160,11 +161,12 @@ public class Sma extends Processor<Double> {
             if (newItem == null) {
                 newItem = 0D;
             }
-            memory.add(newItem);
+            Memory<Double> processorMemory = ctx.getProcessorMemory();
+            processorMemory.add(newItem);
 
             double total = 0;
             long numberItems = 0;
-            final Collection<Double> memoryItems = memory.values();
+            final Collection<Double> memoryItems = processorMemory.values();
 
             for (Double memoryItem : memoryItems) {
                 total += memoryItem;

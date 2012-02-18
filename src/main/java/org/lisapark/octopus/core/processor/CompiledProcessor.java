@@ -1,7 +1,7 @@
 package org.lisapark.octopus.core.processor;
 
 import org.lisapark.octopus.core.event.Event;
-import org.lisapark.octopus.core.memory.Memory;
+import org.lisapark.octopus.core.runtime.ProcessorContext;
 
 import java.util.List;
 import java.util.Map;
@@ -33,5 +33,5 @@ public abstract class CompiledProcessor<MEMORY_TYPE> {
         return output;
     }
 
-    public abstract Object processEvent(Memory<MEMORY_TYPE> memory, Map<Integer, Event> eventsByInputId);
+    public abstract Object processEvent(ProcessorContext<MEMORY_TYPE> ctx, Map<Integer, Event> eventsByInputId);
 }

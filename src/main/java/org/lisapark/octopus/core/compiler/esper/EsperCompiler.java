@@ -2,20 +2,26 @@ package org.lisapark.octopus.core.compiler.esper;
 
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPAdministrator;
+import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.memory.Memory;
+import org.lisapark.octopus.core.memory.MemoryProvider;
 import org.lisapark.octopus.core.memory.heap.HeapMemoryProvider;
 import org.lisapark.octopus.core.processor.CompiledProcessor;
 import org.lisapark.octopus.core.processor.Processor;
 import org.lisapark.octopus.core.processor.ProcessorInput;
 import org.lisapark.octopus.core.runtime.ProcessingRuntime;
+import org.lisapark.octopus.core.runtime.ProcessorContext;
+import org.lisapark.octopus.core.runtime.basic.BasicProcessorContext;
+import org.lisapark.octopus.core.runtime.basic.BasicSinkContext;
 import org.lisapark.octopus.core.runtime.esper.EsperRuntime;
 import org.lisapark.octopus.core.sink.external.CompiledExternalSink;
 import org.lisapark.octopus.core.sink.external.ExternalSink;
@@ -23,6 +29,7 @@ import org.lisapark.octopus.core.source.external.CompiledExternalSource;
 import org.lisapark.octopus.core.source.external.ExternalSource;
 import org.lisapark.octopus.util.esper.EsperUtils;
 
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +40,22 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class EsperCompiler implements org.lisapark.octopus.core.compiler.Compiler {
+public class EsperCompiler extends org.lisapark.octopus.core.compiler.Compiler {
+
+    private MemoryProvider memoryProvider = new HeapMemoryProvider();
+    private PrintStream standardOut = System.out;
+
+    @Override
+    public synchronized void setMemoryProvider(MemoryProvider memoryProvider) {
+        checkArgument(memoryProvider != null, "memoryProvider cannot be null");
+        this.memoryProvider = memoryProvider;
+    }
+
+    @Override
+    public synchronized void setStandardOut(PrintStream standardOut) {
+        checkArgument(standardOut != null, "standardOut cannot be null");
+        this.standardOut = standardOut;
+    }
 
     void registerEventTypesForModel(Configuration configuration, ProcessingModel model) {
         // register all of the model source event types
@@ -58,66 +80,103 @@ public class EsperCompiler implements org.lisapark.octopus.core.compiler.Compile
     }
 
     @Override
-    public ProcessingRuntime compile(ProcessingModel model) {
+    public synchronized ProcessingRuntime compile(ProcessingModel model) throws ValidationException {
         checkArgument(model != null, "model cannot be null");
 
+        if (model.getExternalSources().size() == 0) {
+            throw new ValidationException("Model must have at least one source configured");
+        }
+
+        // create a new Esper Configuration
         Configuration configuration = new Configuration();
 
         registerEventTypesForModel(configuration, model);
 
-
         EPServiceProvider epService = EPServiceProviderManager.getProvider(model.getModelName(), configuration);
         epService.initialize();
 
-        Collection<CompiledExternalSource> compiledSources = compileExternalSources(model.getExternalSources());
-        compileProcessors(epService, model.getProcessors());
-        compileSinks(epService, model.getExternalSinks());
+        List<String> errors = Lists.newLinkedList();
+
+        Collection<CompiledExternalSource> compiledSources = compileExternalSources(model.getExternalSources(), errors);
+        compileProcessors(epService, model.getProcessors(), errors);
+        compileSinks(epService, model.getExternalSinks(), errors);
+
+        if (errors.size() > 0) {
+            throw new ValidationException(Joiner.on('\n').join(errors));
+        }
 
         return new EsperRuntime(epService, compiledSources);
     }
 
-    private void compileSinks(EPServiceProvider epService, Set<ExternalSink> externalSinks) {
+    private void compileSinks(EPServiceProvider epService, Set<ExternalSink> externalSinks, List<String> errors) {
         EPAdministrator admin = epService.getEPAdministrator();
         EPRuntime runtime = epService.getEPRuntime();
 
         for (ExternalSink externalSink : externalSinks) {
-            CompiledExternalSink compiledExternalSink = externalSink.compile();
+            try {
+                CompiledExternalSink compiledExternalSink = externalSink.compile();
 
-            String statement = getStatementForCompiledSink(compiledExternalSink);
-            EPStatement stmt = admin.createEPL(statement);
+                String statement = getStatementForCompiledSink(compiledExternalSink);
+                EPStatement stmt = admin.createEPL(statement);
 
-            EsperExternalSinkAdaptor runner = new EsperExternalSinkAdaptor(compiledExternalSink, runtime);
-            stmt.setSubscriber(runner);
+                EsperExternalSinkAdaptor runner = new EsperExternalSinkAdaptor(
+                        compiledExternalSink, new BasicSinkContext(standardOut), runtime
+                );
+                stmt.setSubscriber(runner);
+            } catch (ValidationException e) {
+                errors.add(e.getLocalizedMessage());
+            } catch (EPException e) {
+                errors.add(e.getLocalizedMessage());
+            }
         }
     }
 
-    private Collection<CompiledProcessor<?>> compileProcessors(EPServiceProvider epService, Collection<Processor> processors) {
+    private Collection<CompiledProcessor<?>> compileProcessors(EPServiceProvider epService, Collection<Processor> processors, List<String> errors) {
         EPAdministrator admin = epService.getEPAdministrator();
         EPRuntime runtime = epService.getEPRuntime();
 
         Collection<CompiledProcessor<?>> compiledProcessors = Lists.newLinkedList();
 
         for (Processor processor : processors) {
-            Memory<?> processorMemory = processor.createMemoryForProcessor(new HeapMemoryProvider());
-            CompiledProcessor<?> compiledProcessor = processor.compile();
-            String statement = getStatementForCompiledProcessor(compiledProcessor);
+            Memory processorMemory = processor.createMemoryForProcessor(memoryProvider);
 
-            EPStatement stmt = admin.createEPL(statement);
-            EsperProcessorAdaptor runner = new EsperProcessorAdaptor(compiledProcessor, processorMemory, runtime);
+            try {
+                CompiledProcessor<?> compiledProcessor = processor.compile();
+                String statement = getStatementForCompiledProcessor(compiledProcessor);
 
-            stmt.setSubscriber(runner);
+                EPStatement stmt = admin.createEPL(statement);
 
-            compiledProcessors.add(compiledProcessor);
+                ProcessorContext ctx;
+                if (processorMemory != null) {
+                    ctx = new BasicProcessorContext(standardOut, processorMemory);
+                } else {
+                    ctx = new BasicProcessorContext(standardOut);
+                }
+
+                EsperProcessorAdaptor runner = new EsperProcessorAdaptor(compiledProcessor, ctx, runtime);
+
+                stmt.setSubscriber(runner);
+
+                compiledProcessors.add(compiledProcessor);
+            } catch (ValidationException e) {
+                errors.add(e.getLocalizedMessage());
+            } catch (EPException e) {
+                errors.add(e.getLocalizedMessage());
+            }
         }
 
         return compiledProcessors;
     }
 
-    private Collection<CompiledExternalSource> compileExternalSources(Set<ExternalSource> externalSources) throws ValidationException {
+    private Collection<CompiledExternalSource> compileExternalSources(Set<ExternalSource> externalSources, List<String> errors) {
         Collection<CompiledExternalSource> compiledSources = Lists.newLinkedList();
 
         for (ExternalSource externalSource : externalSources) {
-            compiledSources.add(externalSource.compile());
+            try {
+                compiledSources.add(externalSource.compile());
+            } catch (ValidationException e) {
+                errors.add(e.getLocalizedMessage());
+            }
         }
 
         return compiledSources;
