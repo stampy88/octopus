@@ -96,7 +96,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
         this.inputs.add(input);
     }
 
-    protected void setOutput(ProcessorOutput.Builder output) {
+    protected void setOutput(ProcessorOutput.Builder output) throws ValidationException {
         setOutput(output.build());
     }
 
@@ -108,7 +108,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
         return output;
     }
 
-    public void setOutputAttributeName(String name) {
+    public void setOutputAttributeName(String name) throws ValidationException {
         output.setAttributeName(name);
     }
 
@@ -187,7 +187,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
 
     public abstract Processor<MEMORY_TYPE> copyOf();
 
-    public abstract CompiledProcessor<MEMORY_TYPE> compile();
+    public abstract CompiledProcessor<MEMORY_TYPE> compile() throws ValidationException;
 
     public Memory<MEMORY_TYPE> createMemoryForProcessor(MemoryProvider memoryProvider) {
         return null;

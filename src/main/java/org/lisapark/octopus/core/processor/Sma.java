@@ -1,5 +1,6 @@
 package org.lisapark.octopus.core.processor;
 
+import org.lisapark.octopus.ProgrammerException;
 import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.Persistable;
@@ -65,7 +66,7 @@ public class Sma extends Processor<Double> {
     }
 
     @SuppressWarnings("unchecked")
-    public void setWindowLength(int windowLength) {
+    public void setWindowLength(int windowLength) throws ValidationException {
         getParameter(WINDOW_LENGTH_PARAMETER_ID).setValue(windowLength);
     }
 
@@ -133,9 +134,14 @@ public class Sma extends Processor<Double> {
                 ProcessorInput.doubleInputWithId(INPUT_ID).name("Input").description(DEFAULT_INPUT_DESCRIPTION)
         );
         // double output
-        sma.setOutput(
-                ProcessorOutput.doubleOutputWithId(OUTPUT_ID).name("Moving Average").description(DEFAULT_OUTPUT_DESCRIPTION).attributeName("average")
-        );
+        try {
+            sma.setOutput(
+                    ProcessorOutput.doubleOutputWithId(OUTPUT_ID).name("Moving Average").description(DEFAULT_OUTPUT_DESCRIPTION).attributeName("average")
+            );
+        } catch (ValidationException ex) {
+            // this should NOT happen. It means we created the SMA with an invalid attriubte name
+            throw new ProgrammerException(ex);
+        }
 
         return sma;
     }

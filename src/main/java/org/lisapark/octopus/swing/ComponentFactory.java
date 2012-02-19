@@ -67,6 +67,10 @@ public abstract class ComponentFactory {
         return new BaseButton();
     }
 
+    public static BaseButton createButtonWithText(String text) {
+        return new BaseButton(text);
+    }
+
     public static BaseButton createButtonWithAction(Action action) {
         return new BaseButton(action);
     }

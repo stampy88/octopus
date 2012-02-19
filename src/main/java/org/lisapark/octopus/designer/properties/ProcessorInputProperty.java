@@ -2,6 +2,8 @@ package org.lisapark.octopus.designer.properties;
 
 import com.jidesoft.combobox.ListExComboBox;
 import com.jidesoft.grid.ListComboBoxCellEditor;
+import org.lisapark.octopus.ProgrammerException;
+import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.processor.ProcessorInput;
 import org.lisapark.octopus.core.source.Source;
@@ -68,7 +70,12 @@ class ProcessorInputProperty extends ComponentProperty<ProcessorInput> {
         if (value == null) {
             getComponent().clearSourceAttribute();
         } else {
-            getComponent().setSourceAttribute((Attribute) value);
+            try {
+                getComponent().setSourceAttribute((Attribute) value);
+            } catch (ValidationException ex) {
+                // this should never happen because we are constraining the value in the editor
+                throw new ProgrammerException(ex);
+            }
         }
     }
 

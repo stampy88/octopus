@@ -11,13 +11,13 @@ import java.util.List;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public interface OctopusRepository {
-    void saveProcessingModel(ProcessingModel model);
+    void saveProcessingModel(ProcessingModel model) throws RepositoryException;
 
-    List<ProcessingModel> getProcessingModelsByName(String name);
+    List<ProcessingModel> getProcessingModelsByName(String name) throws RepositoryException;
 
-    List<ExternalSink> getAllExternalSinkTemplates();
+    List<ExternalSink> getAllExternalSinkTemplates() throws RepositoryException;
 
-    List<ExternalSource> getAllExternalSourceTemplates();
+    List<ExternalSource> getAllExternalSourceTemplates() throws RepositoryException;
 
-    List<Processor> getAllProcessorTemplates();
+    List<Processor> getAllProcessorTemplates() throws RepositoryException;
 }

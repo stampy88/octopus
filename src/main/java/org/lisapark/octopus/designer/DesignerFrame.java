@@ -11,6 +11,7 @@ import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.status.StatusBar;
 import com.jidesoft.status.TimeStatusBarItem;
 import com.jidesoft.swing.JideBoxLayout;
+import com.jidesoft.swing.JidePopupMenu;
 import com.jidesoft.swing.JideScrollPane;
 import org.lisapark.octopus.core.Node;
 import org.lisapark.octopus.core.ProcessingModel;
@@ -25,16 +26,23 @@ import org.lisapark.octopus.designer.canvas.NodeSelectionListener;
 import org.lisapark.octopus.designer.palette.PalettePanel;
 import org.lisapark.octopus.designer.properties.PropertiesPanel;
 import org.lisapark.octopus.repository.OctopusRepository;
+import org.lisapark.octopus.repository.RepositoryException;
 import org.lisapark.octopus.swing.BaseStyledButton;
 import org.lisapark.octopus.swing.ComponentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.PrintStream;
@@ -104,6 +112,9 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
     private RunAction runAction = new RunAction(
             "Run", DesignerIconsFactory.getImageIcon(DesignerIconsFactory.RUN), "Run current model"
     );
+
+    private ClearOutputAction clearOutputAction = new ClearOutputAction("Clear All");
+    private CopyAllAction copyAllAction = new CopyAllAction("Copy Content");
 
     /**
      * This status bar label will contain the name of the {@link #currentProcessingModel}
@@ -230,8 +241,23 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         DockableFrame logFrame = ComponentFactory.createDockableFrameWithName(OUTPUT_KEY);
         logFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         logFrame.getContext().setInitSide(DockContext.DOCK_SIDE_SOUTH);
-        // todo
+
         outputTxt = new JTextArea();
+        outputTxt.setEditable(false);
+
+        final JidePopupMenu popupMenu = new JidePopupMenu();
+        popupMenu.add(clearOutputAction);
+        popupMenu.add(copyAllAction);
+
+        outputTxt.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    popupMenu.show(outputTxt, e.getX(), e.getY());
+                }
+            }
+        });
+
         logFrame.add(createScrollPaneForComponent(outputTxt));
 
         return logFrame;
@@ -376,7 +402,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
      * {@link Processor}s, {@link ExternalSource}s and {@link ExternalSink}s. The method will then give this
      * data to the appropriate views.
      */
-    void loadInitialDataFromRepository() {
+    void loadInitialDataFromRepository() throws RepositoryException {
         List<ExternalSink> sinkTemplates = repository.getAllExternalSinkTemplates();
         palettePanel.setExternalSinks(sinkTemplates);
 
@@ -462,6 +488,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
             if (currentProcessingModel != null) {
                 SaveModelDialog.saveProcessingModel(DesignerFrame.this, currentProcessingModel, repository);
 
+                // update the status bar with the updated name
                 modelNameStatusItem.setText(currentProcessingModel.getModelName());
             }
         }
@@ -501,7 +528,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
     }
 
     private class RunAction extends AbstractAction {
-        public RunAction(String text, ImageIcon icon, String description) {
+        private RunAction(String text, ImageIcon icon, String description) {
             super(text, icon);
             putValue(SHORT_DESCRIPTION, description);
         }
@@ -511,8 +538,9 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
             if (currentProcessingModel != null) {
                 // todo do we validate first and we need output
                 TextAreaOutStreamAdaptor writer = new TextAreaOutStreamAdaptor(outputTxt);
+                System.setOut(new PrintStream(writer));
                 org.lisapark.octopus.core.compiler.Compiler compiler = new EsperCompiler();
-                compiler.setStandardOut(new PrintStream(writer));
+                //  compiler.setStandardOut(new PrintStream(writer));
                 try {
                     ProcessingRuntime runtime = compiler.compile(currentProcessingModel);
 
@@ -522,6 +550,36 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
                 } catch (ValidationException e1) {
                     outputTxt.append(e1.getLocalizedMessage());
                 }
+            }
+        }
+    }
+
+    private class ClearOutputAction extends AbstractAction {
+        private ClearOutputAction(String text) {
+            super(text, null);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            outputTxt.setText(null);
+        }
+    }
+
+    private class CopyAllAction extends AbstractAction {
+        private CopyAllAction(String text) {
+            super(text, null);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Document document = outputTxt.getDocument();
+            try {
+                String srcData = document.getText(0, document.getLength());
+                StringSelection contents = new StringSelection(srcData);
+                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                clipboard.setContents(contents, null);
+            } catch (BadLocationException ex) {
+                // should never happen
             }
         }
     }

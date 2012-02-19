@@ -2,6 +2,7 @@ package org.lisapark.octopus.core.processor;
 
 import org.lisapark.octopus.core.Output;
 import org.lisapark.octopus.core.Persistable;
+import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Attribute;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -35,7 +36,7 @@ public class ProcessorOutput extends Output {
         return attribute.getType();
     }
 
-    public void setAttributeName(String name) {
+    public void setAttributeName(String name) throws ValidationException {
         attribute.setName(name);
     }
 
@@ -111,7 +112,7 @@ public class ProcessorOutput extends Output {
         }
 
         @SuppressWarnings("unchecked")
-        public ProcessorOutput build() {
+        public ProcessorOutput build() throws ValidationException {
             checkState(attributeName != null, "attributeName is required");
             attribute = Attribute.newAttribute(type, attributeName);
             return new ProcessorOutput(this);

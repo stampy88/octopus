@@ -3,6 +3,8 @@ package org.lisapark.octopus.designer.event;
 import com.jidesoft.converter.ConverterContext;
 import com.jidesoft.grid.ContextSensitiveTableModel;
 import com.jidesoft.grid.EditorContext;
+import org.lisapark.octopus.ProgrammerException;
+import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.event.EventType;
 
@@ -46,7 +48,12 @@ class EventTypeTableModel extends AbstractTableModel implements ContextSensitive
         Attribute attribute = eventType.getAttributeAt(rowIndex);
 
         if (columnIndex == ATTRIBUTE_NAME_COLUMN) {
-            attribute.setName((String) value);
+            try {
+                attribute.setName((String) value);
+            } catch (ValidationException e) {
+                // this should never happen because we are constraining in the editor
+                throw new ProgrammerException(e);
+            }
         } else {
             attribute.setType((Class) value);
         }

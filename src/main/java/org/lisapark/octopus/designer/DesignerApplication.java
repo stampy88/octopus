@@ -3,6 +3,7 @@ package org.lisapark.octopus.designer;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import org.apache.commons.io.IOUtils;
 import org.lisapark.octopus.repository.OctopusRepository;
+import org.lisapark.octopus.repository.RepositoryException;
 import org.lisapark.octopus.repository.db4o.OctopusDb4oRepository;
 
 import javax.swing.*;
@@ -33,14 +34,18 @@ public class DesignerApplication {
         OctopusRepository repository = new OctopusDb4oRepository(repositoryFile);
         LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
         final DesignerFrame designerFrame = new DesignerFrame(repository);
-        designerFrame.loadInitialDataFromRepository();
+        try {
+            designerFrame.loadInitialDataFromRepository();
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                designerFrame.setVisible(true);
-            }
-        });
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    designerFrame.setVisible(true);
+                }
+            });
+        } catch (RepositoryException e) {
+            ErrorDialog.showErrorDialog(null, e, "Problem loading initial data from repository");
+        }
     }
 
     private static Properties parseProperties(String propertyFileName) throws IOException {

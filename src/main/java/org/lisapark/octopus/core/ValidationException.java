@@ -1,9 +1,11 @@
 package org.lisapark.octopus.core;
 
+import org.lisapark.octopus.OctopusException;
+
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public class ValidationException extends RuntimeException {
+public class ValidationException extends OctopusException {
 
     public ValidationException(String message) {
         super(message);

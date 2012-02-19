@@ -116,7 +116,12 @@ class ParameterProperty extends ComponentProperty<Parameter> {
     @SuppressWarnings("unchecked,raw")
     @Override
     public void setValue(Object value) {
-        getComponent().setValue(value);
+        try {
+            getComponent().setValue(value);
+        } catch (ValidationException ex) {
+            // this should never happen because we are constraining the value in the editor and validator
+            throw new ProgrammerException(ex);
+        }
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.lisapark.octopus.designer.properties;
 import com.jidesoft.validation.ValidationObject;
 import com.jidesoft.validation.ValidationResult;
 import com.jidesoft.validation.Validator;
+import org.lisapark.octopus.ProgrammerException;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.processor.ProcessorOutput;
@@ -33,7 +34,12 @@ class ProcessorOutputProperty extends ComponentProperty<ProcessorOutput> {
     public void setValue(Object value) {
         // update the value on the input
         if (value instanceof String) {
-            getComponent().setAttributeName((String) value);
+            try {
+                getComponent().setAttributeName((String) value);
+            } catch (ValidationException ex) {
+                // this should never happen because we are constraining the value in the editor and validator
+                throw new ProgrammerException(ex);
+            }
 
         } else {
             throw new IllegalArgumentException(String.format("Unknown type for input %s", getName()));

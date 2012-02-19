@@ -60,7 +60,7 @@ public class SqlQuerySource extends ExternalSource {
     }
 
     @SuppressWarnings("unchecked")
-    public void setUrl(String url) {
+    public void setUrl(String url) throws ValidationException {
         getParameter(URL_PARAMETER_ID).setValue(url);
     }
 
@@ -69,7 +69,7 @@ public class SqlQuerySource extends ExternalSource {
     }
 
     @SuppressWarnings("unchecked")
-    public void setUsername(String username) {
+    public void setUsername(String username) throws ValidationException {
         getParameter(USER_NAME_PARAMETER_ID).setValue(username);
     }
 
@@ -78,7 +78,7 @@ public class SqlQuerySource extends ExternalSource {
     }
 
     @SuppressWarnings("unchecked")
-    public void setPassword(String password) {
+    public void setPassword(String password) throws ValidationException {
         getParameter(PASSWORD_PARAMETER_ID).setValue(password);
     }
 
@@ -87,7 +87,7 @@ public class SqlQuerySource extends ExternalSource {
     }
 
     @SuppressWarnings("unchecked")
-    public void setDriverClass(String driverClass) {
+    public void setDriverClass(String driverClass) throws ValidationException {
         getParameter(DRIVER_PARAMETER_ID).setValue(driverClass);
     }
 
@@ -96,7 +96,7 @@ public class SqlQuerySource extends ExternalSource {
     }
 
     @SuppressWarnings("unchecked")
-    public void setQuery(String query) {
+    public void setQuery(String query) throws ValidationException {
         getParameter(QUERY_PARAMETER_ID).setValue(query);
     }
 
@@ -152,7 +152,7 @@ public class SqlQuerySource extends ExternalSource {
         }
 
         @Override
-        public void startProcessingEvents(ProcessingRuntime runtime) {
+        public void startProcessingEvents(ProcessingRuntime runtime) throws ProcessingException {
             // this needs to be atomic, both the check and set
             synchronized (this) {
                 checkState(!running, "Source is already processing events. Cannot call processEvents again");
@@ -193,7 +193,7 @@ public class SqlQuerySource extends ExternalSource {
             this.running = false;
         }
 
-        Connection getConnection(String className, String url, String userName, String password) {
+        Connection getConnection(String className, String url, String userName, String password) throws ProcessingException {
 
             try {
                 Class.forName(className);

@@ -1,5 +1,6 @@
 package org.lisapark.octopus.core.source.external;
 
+import org.lisapark.octopus.core.ProcessingException;
 import org.lisapark.octopus.core.runtime.ProcessingRuntime;
 
 /**
@@ -7,7 +8,7 @@ import org.lisapark.octopus.core.runtime.ProcessingRuntime;
  */
 public interface CompiledExternalSource {
 
-    void startProcessingEvents(ProcessingRuntime runtime);
+    void startProcessingEvents(ProcessingRuntime runtime) throws ProcessingException;
 
     void stopProcessingEvents();
 }

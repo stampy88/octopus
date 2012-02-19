@@ -7,7 +7,9 @@ import com.jidesoft.dialog.ButtonPanel;
 import com.jidesoft.dialog.JideOptionPane;
 import com.jidesoft.dialog.StandardDialog;
 import com.jidesoft.plaf.UIDefaultsLookup;
+import org.lisapark.octopus.ProgrammerException;
 import org.lisapark.octopus.core.ProcessingModel;
+import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Attribute;
 import org.lisapark.octopus.core.event.EventType;
 import org.lisapark.octopus.core.source.external.ExternalSource;
@@ -190,10 +192,14 @@ public class EventTypeDialog extends StandardDialog {
             Attribute originalValues = originalAttributes.get(originalReference);
 
             // need to put the original reference back to the state it was 
-            originalReference.setName(originalValues.getName());
-            originalReference.setType(originalValues.getType());
-
-            eventType.addAttribute(originalReference);
+            try {
+                originalReference.setName(originalValues.getName());
+                originalReference.setType(originalValues.getType());
+                eventType.addAttribute(originalReference);
+            } catch (ValidationException e) {
+                // this should never happen because we are reverting to the original names
+                throw new ProgrammerException(e);
+            }
         }
 
         setDialogResult(RESULT_CANCELLED);
@@ -288,10 +294,15 @@ public class EventTypeDialog extends StandardDialog {
         @Override
         public void actionPerformed(ActionEvent e) {
             String name = determineNewAttributeName();
-            Attribute newAttribute = Attribute.stringAttribute(name);
-
-            eventType.addAttribute(newAttribute);
-            tableModel.fireTableRowsInserted(eventType.getNumberOfAttributes() - 1, eventType.getNumberOfAttributes());
+            Attribute newAttribute;
+            try {
+                newAttribute = Attribute.stringAttribute(name);
+                eventType.addAttribute(newAttribute);
+                tableModel.fireTableRowsInserted(eventType.getNumberOfAttributes() - 1, eventType.getNumberOfAttributes());
+            } catch (ValidationException ex) {
+                // this should never happen because we are programmatically creating a valid name
+                throw new ProgrammerException(ex);
+            }
         }
 
         String determineNewAttributeName() {

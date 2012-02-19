@@ -6,6 +6,7 @@ import com.jidesoft.dialog.StandardDialog;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.repository.OctopusRepository;
+import org.lisapark.octopus.repository.RepositoryException;
 import org.lisapark.octopus.swing.ComponentFactory;
 
 import javax.swing.*;
@@ -53,17 +54,23 @@ public class OpenModelDialog extends StandardDialog {
         modelNameTxt.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                java.util.List<ProcessingModel> models = repository.getProcessingModelsByName(modelNameTxt.getText());
-
-                searchResultsModel.setProcessingModels(models);
+                searchForModels(modelNameTxt.getText());
             }
         });
         modelNameLbl.setLabelFor(modelNameTxt);
+
+        JButton searchBtn = ComponentFactory.createButtonWithAction(new AbstractAction("Search") {
+            public void actionPerformed(ActionEvent e) {
+                searchForModels(modelNameTxt.getText());
+            }
+        });
+        searchBtn.setMnemonic(KeyEvent.VK_S);
 
         // note that this padding numbers are Jide recommendations
         JPanel topPanel = ComponentFactory.createPanelWithLayout(new BorderLayout(6, 6));
         topPanel.add(modelNameLbl, BorderLayout.BEFORE_LINE_BEGINS);
         topPanel.add(modelNameTxt, BorderLayout.CENTER);
+        topPanel.add(searchBtn, BorderLayout.AFTER_LINE_ENDS);
 
         // note that this padding numbers are Jide recommendations
         JPanel contentPanel = ComponentFactory.createPanelWithLayout(new BorderLayout(10, 10));
@@ -139,6 +146,21 @@ public class OpenModelDialog extends StandardDialog {
         getRootPane().setDefaultButton(okButton);
 
         return buttonPanel;
+    }
+
+    /**
+     * Uses the {@link #repository} to search for processing models that are named like the specified searchCriteria.
+     *
+     * @param searchCriteria to use when searching
+     */
+    private void searchForModels(String searchCriteria) {
+        try {
+            java.util.List<ProcessingModel> models = repository.getProcessingModelsByName(searchCriteria);
+
+            searchResultsModel.setProcessingModels(models);
+        } catch (RepositoryException e) {
+            ErrorDialog.showErrorDialog("Octopus", this, e, "Problem searching for models.");
+        }
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.lisapark.octopus.core.processor;
 
+import org.lisapark.octopus.ProgrammerException;
 import org.lisapark.octopus.core.Persistable;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Event;
@@ -85,7 +86,12 @@ public class Addition extends Processor<Void> {
         addition.addInput(ProcessorInput.doubleInputWithId(SECOND_INPUT_ID).name("Second Operand").description("Second operand for addition"));
 
         // double output
-        addition.setOutput(ProcessorOutput.doubleOutputWithId(OUTPUT_ID).nameAndDescription("Total").attributeName("sum"));
+        try {
+            addition.setOutput(ProcessorOutput.doubleOutputWithId(OUTPUT_ID).nameAndDescription("Total").attributeName("sum"));
+        } catch (ValidationException ex) {
+            // this should NOT happen. It means we created the Addition with an invalid attribute name
+            throw new ProgrammerException(ex);
+        }
 
         return addition;
     }

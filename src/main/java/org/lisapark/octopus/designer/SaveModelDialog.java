@@ -6,6 +6,7 @@ import com.jidesoft.dialog.StandardDialog;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.repository.OctopusRepository;
+import org.lisapark.octopus.repository.RepositoryException;
 import org.lisapark.octopus.swing.ComponentFactory;
 
 import javax.swing.*;
@@ -98,13 +99,7 @@ public class SaveModelDialog extends StandardDialog {
         okButton.setName(OK);
         okButton.setAction(new AbstractAction("Save") {
             public void actionPerformed(ActionEvent e) {
-                modelToSave.setModelName(modelNameTxt.getText());
-
-                repository.saveProcessingModel(modelToSave);
-
-                setDialogResult(RESULT_AFFIRMED);
-                setVisible(false);
-                dispose();
+                onSave();
             }
         });
         // we need to disable the button AFTER setting the action
@@ -114,9 +109,7 @@ public class SaveModelDialog extends StandardDialog {
         cancelButton.setName(CANCEL);
         cancelButton.setAction(new AbstractAction(UIDefaultsLookup.getString("OptionPane.cancelButtonText")) {
             public void actionPerformed(ActionEvent e) {
-                setDialogResult(RESULT_CANCELLED);
-                setVisible(false);
-                dispose();
+                onCancel();
             }
         });
 
@@ -131,11 +124,38 @@ public class SaveModelDialog extends StandardDialog {
     }
 
     /**
-     * This method will create and display a new {@link org.lisapark.octopus.designer.SaveModelDialog} for opening
+     * This methods is called when the user presses the save button. It will try and store the model to the
+     * {@link #repository}
+     */
+    private void onSave() {
+        modelToSave.setModelName(modelNameTxt.getText());
+
+        try {
+            repository.saveProcessingModel(modelToSave);
+            setDialogResult(RESULT_AFFIRMED);
+            setVisible(false);
+            dispose();
+        } catch (RepositoryException e) {
+            ErrorDialog.showErrorDialog(this, e, "Problem saving model");
+        }
+    }
+
+    /**
+     * This method is called when the user presses the cancel button. This will dismiss the dialog
+     */
+    private void onCancel() {
+        setDialogResult(RESULT_CANCELLED);
+        setVisible(false);
+        dispose();
+    }
+
+    /**
+     * This method will create and display a new {@link org.lisapark.octopus.designer.SaveModelDialog} for saving
      * a {@link org.lisapark.octopus.core.ProcessingModel}.
      *
-     * @param parent     to center dialog over
-     * @param repository used for searching for models
+     * @param parent      to center dialog over
+     * @param modelToSave that user is saving
+     * @param repository  used for saving models
      */
     public static void saveProcessingModel(Component parent, ProcessingModel modelToSave, OctopusRepository repository) {
         JFrame frame = (JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, parent);
