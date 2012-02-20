@@ -545,13 +545,13 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
                 compiler.setStandardOut(stream);
                 compiler.setStandardError(stream);
                 try {
-                    outputTxt.append("Running model " + currentProcessingModel.getModelName() + ". Please wait.\n");
+                    outputTxt.append("Running model '" + currentProcessingModel.getModelName() + "'. Please wait...\n");
                     ProcessingRuntime runtime = compiler.compile(currentProcessingModel);
                     // todo do we need a stop button and lock out ui?
                     runtime.start();
                     runtime.shutdown();
 
-                    outputTxt.append("Model " + currentProcessingModel.getModelName() + " completed running.\n");
+                    outputTxt.append("Model '" + currentProcessingModel.getModelName() + "' completed running.\n");
                 } catch (ValidationException e1) {
                     outputTxt.append(e1.getLocalizedMessage());
                 }
