@@ -8,4 +8,6 @@ import java.io.PrintStream;
 public interface SinkContext {
 
     PrintStream getStandardOut();
+
+    PrintStream getStandardError();
 }

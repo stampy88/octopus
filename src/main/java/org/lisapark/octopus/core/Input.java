@@ -77,7 +77,7 @@ public class Input<T> extends AbstractComponent {
     public void validate() throws ValidationException {
         // just need to ensure that an source has been set
         if (this.source == null) {
-            throw new ValidationException(String.format("Please set the source for input %s", getName()));
+            throw new ValidationException(String.format("Please set the source for input '%s'", getName()));
         }
     }
 

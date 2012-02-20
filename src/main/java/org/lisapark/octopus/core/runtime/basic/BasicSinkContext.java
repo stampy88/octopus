@@ -12,14 +12,22 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class BasicSinkContext implements SinkContext {
 
     private final PrintStream standardOut;
+    private final PrintStream standardError;
 
-    public BasicSinkContext(PrintStream standardOut) {
+    public BasicSinkContext(PrintStream standardOut, PrintStream standardError) {
         checkArgument(standardOut != null, "standardOut cannot be null");
+        checkArgument(standardError != null, "standardError cannot be null");
         this.standardOut = standardOut;
+        this.standardError = standardError;
     }
 
     @Override
     public PrintStream getStandardOut() {
         return standardOut;
+    }
+
+    @Override
+    public PrintStream getStandardError() {
+        return standardError;
     }
 }

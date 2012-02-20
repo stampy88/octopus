@@ -131,7 +131,7 @@ public class ProcessorInput<T> extends Input<T> {
         super.validate();
 
         if (this.sourceAttribute == null) {
-            throw new ValidationException(String.format("Please set the source attribute for input %s", getName()));
+            throw new ValidationException(String.format("Please set the source attribute for input '%s'", getName()));
         }
     }
 

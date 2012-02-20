@@ -32,24 +32,53 @@ public class Event {
     }
 
     public Integer getAttributeAsInteger(String attributeName) {
-        return ((Number) data.get(attributeName)).intValue();
+        Object value = data.get(attributeName);
+
+        if (value != null) {
+            return ((Number) value).intValue();
+        } else {
+            return null;
+        }
     }
 
     public Short getAttributeAsShort(String attributeName) {
-        return ((Number) data.get(attributeName)).shortValue();
+        Object value = data.get(attributeName);
+
+        if (value != null) {
+            return ((Number) value).shortValue();
+        } else {
+            return null;
+        }
     }
 
     public Long getAttributeAsLong(String attributeName) {
-        return ((Number) data.get(attributeName)).longValue();
+        Object value = data.get(attributeName);
+
+        if (value != null) {
+            return ((Number) value).longValue();
+        } else {
+            return null;
+        }
     }
 
     public Float getAttributeAsFloat(String attributeName) {
-        return ((Number) data.get(attributeName)).floatValue();
+        Object value = data.get(attributeName);
+
+        if (value != null) {
+            return ((Number) value).floatValue();
+        } else {
+            return null;
+        }
     }
 
     public Double getAttributeAsDouble(String attributeName) {
-        // todo return null??
-        return ((Number) data.get(attributeName)).doubleValue();
+        Object value = data.get(attributeName);
+
+        if (value != null) {
+            return ((Number) value).doubleValue();
+        } else {
+            return null;
+        }
     }
 
     public String getAttributeAsString(String attributeName) {

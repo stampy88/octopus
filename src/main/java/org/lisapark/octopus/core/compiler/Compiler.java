@@ -25,6 +25,8 @@ public abstract class Compiler {
 
     public abstract void setStandardOut(PrintStream standardOut);
 
+    public abstract void setStandardError(PrintStream standardErr);
+
     // todo
 
     public static Compiler newCompiler(String className) {

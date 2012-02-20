@@ -44,6 +44,7 @@ public class EsperCompiler extends org.lisapark.octopus.core.compiler.Compiler {
 
     private MemoryProvider memoryProvider = new HeapMemoryProvider();
     private PrintStream standardOut = System.out;
+    private PrintStream standardError = System.err;
 
     @Override
     public synchronized void setMemoryProvider(MemoryProvider memoryProvider) {
@@ -55,6 +56,12 @@ public class EsperCompiler extends org.lisapark.octopus.core.compiler.Compiler {
     public synchronized void setStandardOut(PrintStream standardOut) {
         checkArgument(standardOut != null, "standardOut cannot be null");
         this.standardOut = standardOut;
+    }
+
+    @Override
+    public synchronized void setStandardError(PrintStream stadardError) {
+        checkArgument(stadardError != null, "standardError cannot be null");
+        this.standardError = stadardError;
     }
 
     void registerEventTypesForModel(Configuration configuration, ProcessingModel model) {
@@ -83,8 +90,11 @@ public class EsperCompiler extends org.lisapark.octopus.core.compiler.Compiler {
     public synchronized ProcessingRuntime compile(ProcessingModel model) throws ValidationException {
         checkArgument(model != null, "model cannot be null");
 
+        // ensure we have at least one source
         if (model.getExternalSources().size() == 0) {
-            throw new ValidationException("Model must have at least one source configured");
+            throw new ValidationException(
+                    String.format("The model '%s' must have at least one source configured.", model.getModelName())
+            );
         }
 
         // create a new Esper Configuration
@@ -105,7 +115,7 @@ public class EsperCompiler extends org.lisapark.octopus.core.compiler.Compiler {
             throw new ValidationException(Joiner.on('\n').join(errors));
         }
 
-        return new EsperRuntime(epService, compiledSources);
+        return new EsperRuntime(epService, compiledSources, standardOut, standardError);
     }
 
     private void compileSinks(EPServiceProvider epService, Set<ExternalSink> externalSinks, List<String> errors) {
@@ -120,11 +130,12 @@ public class EsperCompiler extends org.lisapark.octopus.core.compiler.Compiler {
                 EPStatement stmt = admin.createEPL(statement);
 
                 EsperExternalSinkAdaptor runner = new EsperExternalSinkAdaptor(
-                        compiledExternalSink, new BasicSinkContext(standardOut), runtime
+                        compiledExternalSink, new BasicSinkContext(standardOut, standardError), runtime
                 );
                 stmt.setSubscriber(runner);
             } catch (ValidationException e) {
                 errors.add(e.getLocalizedMessage());
+
             } catch (EPException e) {
                 errors.add(e.getLocalizedMessage());
             }
@@ -148,9 +159,9 @@ public class EsperCompiler extends org.lisapark.octopus.core.compiler.Compiler {
 
                 ProcessorContext ctx;
                 if (processorMemory != null) {
-                    ctx = new BasicProcessorContext(standardOut, processorMemory);
+                    ctx = new BasicProcessorContext(standardOut, standardError, processorMemory);
                 } else {
-                    ctx = new BasicProcessorContext(standardOut);
+                    ctx = new BasicProcessorContext(standardOut, standardError);
                 }
 
                 EsperProcessorAdaptor runner = new EsperProcessorAdaptor(compiledProcessor, ctx, runtime);
@@ -160,6 +171,7 @@ public class EsperCompiler extends org.lisapark.octopus.core.compiler.Compiler {
                 compiledProcessors.add(compiledProcessor);
             } catch (ValidationException e) {
                 errors.add(e.getLocalizedMessage());
+
             } catch (EPException e) {
                 errors.add(e.getLocalizedMessage());
             }

@@ -516,12 +516,14 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (currentProcessingModel != null) {
-                // todo do we validate first and we need output
                 org.lisapark.octopus.core.compiler.Compiler compiler = new EsperCompiler();
                 try {
                     compiler.compile(currentProcessingModel);
-                } catch (ValidationException e1) {
-                    outputTxt.append(e1.getLocalizedMessage());
+
+                    outputTxt.append(currentProcessingModel.getModelName() + " compiled successfully.\n");
+
+                } catch (ValidationException ex) {
+                    outputTxt.append(ex.getLocalizedMessage() + "\n");
                 }
             }
         }
@@ -536,17 +538,20 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (currentProcessingModel != null) {
-                // todo do we validate first and we need output
                 TextAreaOutStreamAdaptor writer = new TextAreaOutStreamAdaptor(outputTxt);
-                System.setOut(new PrintStream(writer));
+
                 org.lisapark.octopus.core.compiler.Compiler compiler = new EsperCompiler();
-                //  compiler.setStandardOut(new PrintStream(writer));
+                PrintStream stream = new PrintStream(writer);
+                compiler.setStandardOut(stream);
+                compiler.setStandardError(stream);
                 try {
+                    outputTxt.append("Running model " + currentProcessingModel.getModelName() + ". Please wait.\n");
                     ProcessingRuntime runtime = compiler.compile(currentProcessingModel);
-
-                    // todo how do we stop??
+                    // todo do we need a stop button and lock out ui?
                     runtime.start();
+                    runtime.shutdown();
 
+                    outputTxt.append("Model " + currentProcessingModel.getModelName() + " completed running.\n");
                 } catch (ValidationException e1) {
                     outputTxt.append(e1.getLocalizedMessage());
                 }

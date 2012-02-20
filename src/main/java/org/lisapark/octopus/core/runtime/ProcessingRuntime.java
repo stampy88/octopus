@@ -9,5 +9,7 @@ import org.lisapark.octopus.core.source.Source;
 public interface ProcessingRuntime {
     void start();
 
+    void shutdown();
+
     void sendEventFromSource(Event event, Source source);
 }
