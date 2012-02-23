@@ -1,5 +1,6 @@
 package org.lisapark.octopus.designer.canvas;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 import org.lisapark.octopus.core.Node;
 import org.lisapark.octopus.core.ProcessingModel;
@@ -85,17 +86,30 @@ public class CanvasPanel extends JPanel {
             if (nodeSelectionListener != null) {
                 Node selectedNode = null;
 
-                if (newSelection != null && newSelection.size() == 1) {
-                    Object selectedObject = newSelection.iterator().next();
+                if (newSelection != null && newSelection.size() > 0) {
+                    // if multiple objects are selected, we can only allow it when they are coming from
+                    // the same node
+                    for (Object selectedObject : newSelection) {
+                        Node currentNode = null;
+                        // we want to get the parent node of the ping
+                        if (selectedObject instanceof Pin) {
+                            currentNode = scene.getPinNode((Pin) selectedObject);
 
-                    // we want to get the parent node of the ping
-                    if (selectedObject instanceof Pin) {
-                        selectedNode = scene.getPinNode((Pin) selectedObject);
+                        } else if (selectedObject instanceof Node) {
+                            currentNode = (Node) selectedObject;
+                        }
 
-                    } else if (selectedObject instanceof Node) {
-                        selectedNode = (Node) selectedObject;
+                        if (selectedNode == null) {
+                            selectedNode = currentNode;
+
+                        } else if (Objects.equal(selectedNode, currentNode)) {
+                            selectedNode = currentNode;
+                        } else {
+                            // from multiple nodes, clear selection
+                            selectedNode = null;
+                            break;
+                        }
                     }
-
                     sceneView.requestFocusInWindow();
                 }
 
