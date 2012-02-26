@@ -28,7 +28,7 @@ import java.util.UUID;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
-public class Sma extends Processor<Double> {
+public class Sma extends SingleInputProcessor<Double> {
     private static final String DEFAULT_NAME = "SMA";
     private static final String DEFAULT_DESCRIPTION = "Simple Moving Average";
     private static final String DEFAULT_WINDOW_LENGTH_DESCRIPTION = "Number of data points to consider when performing the average.";
@@ -70,11 +70,6 @@ public class Sma extends Processor<Double> {
         getParameter(WINDOW_LENGTH_PARAMETER_ID).setValue(windowLength);
     }
 
-    public ProcessorInput getInput() {
-        // there is only one input for an Sma
-        return getInputs().get(0);
-    }
-
     @Override
     public Sma newInstance() {
         return new Sma(UUID.randomUUID(), this);
@@ -98,7 +93,7 @@ public class Sma extends Processor<Double> {
     }
 
     /**
-     * Validates and compile this Sma. Doing so takes a "snapshot" of the {@link #inputs} and {@link #output}
+     * Validates and compile this Sma. Doing so takes a "snapshot" of the {@link #getInputs()} and {@link #output}
      * and returns a {@link CompiledProcessor}.
      *
      * @return CompiledProcessor
@@ -130,7 +125,7 @@ public class Sma extends Processor<Double> {
         );
 
         // only a single double input
-        sma.addInput(
+        sma.setInput(
                 ProcessorInput.doubleInputWithId(INPUT_ID).name("Input").description(DEFAULT_INPUT_DESCRIPTION)
         );
         // double output

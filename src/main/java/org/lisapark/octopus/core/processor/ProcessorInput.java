@@ -69,6 +69,19 @@ public class ProcessorInput<T> extends Input<T> {
         return this;
     }
 
+    /**
+     * Returns true if the current {@link #getSource()} of this input contains the specified attribute. A source
+     * contains an attribute by way of it's {@link org.lisapark.octopus.core.Output#getEventType()} .
+     *
+     * @param attribute to check
+     * @return true if the attribute is from this input's source
+     */
+    protected boolean isAttributeFromSource(Attribute attribute) {
+        checkArgument(attribute != null, "attribute cannot be null");
+
+        return getSource() != null && getSource().getOutput().getEventType().containsAttribute(attribute);
+    }
+
     public void setSourceAttribute(String attributeName) throws ValidationException {
         checkArgument(attributeName != null, "attributeName cannot be null");
 

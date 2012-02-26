@@ -18,7 +18,7 @@ import java.util.UUID;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
-public class Addition extends Processor<Void> {
+public class Addition extends DualInputProcessor<Void> {
     private static final String DEFAULT_NAME = "Addition";
     private static final String DEFAULT_DESCRIPTION = "Add 2 operands";
 
@@ -39,16 +39,6 @@ public class Addition extends Processor<Void> {
 
     protected Addition(Addition additionToCopy) {
         super(additionToCopy);
-    }
-
-    public ProcessorInput getFirstInput() {
-        // there is only one input for an Sma
-        return getInputs().get(0);
-    }
-
-    public ProcessorInput getSecondInput() {
-        // there is only one input for an Sma
-        return getInputs().get(1);
     }
 
     @Override
@@ -82,8 +72,8 @@ public class Addition extends Processor<Void> {
         Addition addition = new Addition(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         // two double inputs
-        addition.addInput(ProcessorInput.doubleInputWithId(FIRST_INPUT_ID).name("First Operand").description("First operand for addition"));
-        addition.addInput(ProcessorInput.doubleInputWithId(SECOND_INPUT_ID).name("Second Operand").description("Second operand for addition"));
+        addition.setFirstInput(ProcessorInput.doubleInputWithId(FIRST_INPUT_ID).name("First Operand").description("First operand for addition"));
+        addition.setSecondInput(ProcessorInput.doubleInputWithId(SECOND_INPUT_ID).name("Second Operand").description("Second operand for addition"));
 
         // double output
         try {
