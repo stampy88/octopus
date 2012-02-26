@@ -120,6 +120,9 @@ public class OctopusDb4oRepository extends AbstractOctopusRepository implements 
             });
         } catch (Db4oException e) {
             throw new RepositoryException(e);
+        } catch (IllegalStateException e) {
+            // this is thrown if the class structure is incompatible with the current structure
+            throw new RepositoryException(e);
         }
     }
 }
