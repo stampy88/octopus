@@ -216,7 +216,7 @@ public class EsperCompiler extends org.lisapark.octopus.core.compiler.Compiler {
             inputToAlias.put(input, aliasName);
 
             selectClause.append(aliasName).append(".* as ").append(aliasName).append("_properties");
-            fromClause.append(inputName).append(".win:length(1) as ").append(aliasName);
+            fromClause.append(inputName).append(".win:time(10 sec) as ").append(aliasName);
         }
 
         StringBuilder whereClause = new StringBuilder();
