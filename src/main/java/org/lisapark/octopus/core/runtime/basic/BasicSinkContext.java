@@ -7,7 +7,7 @@ import java.io.PrintStream;
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * @author dave sinclair(dsinclair@chariotsolutions.com)
+ * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class BasicSinkContext implements SinkContext {
 

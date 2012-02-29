@@ -8,7 +8,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 
 /**
- * @author dave sinclair(dsinclair@chariotsolutions.com)
+ * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 class TextAreaOutStreamAdaptor extends OutputStream {
     private JTextArea textArea;

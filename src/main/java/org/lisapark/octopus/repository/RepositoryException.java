@@ -3,7 +3,7 @@ package org.lisapark.octopus.repository;
 import org.lisapark.octopus.OctopusException;
 
 /**
- * @author dave sinclair(dsinclair@chariotsolutions.com)
+ * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class RepositoryException extends OctopusException {
 

@@ -1,7 +1,10 @@
 package org.lisapark.octopus;
 
 /**
- * @author dave sinclair(dsinclair@chariotsolutions.com)
+ * This is the top level checked {@link Exception} in the Octopus application. All other exception types should
+ * be a subclass of this exception.
+ *
+ * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 public class OctopusException extends Exception {
 

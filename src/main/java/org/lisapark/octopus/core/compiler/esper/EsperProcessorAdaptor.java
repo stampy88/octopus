@@ -43,7 +43,7 @@ class EsperProcessorAdaptor implements UpdateListener {
         }
 
         outputAttributeName = processor.getOutput().getAttributeName();
-        outputEventId = EsperUtils.getEventNameForSource(processor);
+        outputEventId = EsperUtils.getEventNameForProcessor(processor);
     }
 
     @Override
