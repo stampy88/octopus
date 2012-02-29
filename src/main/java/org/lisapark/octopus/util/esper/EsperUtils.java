@@ -11,13 +11,11 @@ import java.util.UUID;
 public abstract class EsperUtils {
 
     public static String getEventNameForSource(Source source) {
-
         return getEventNameForUUID(source.getId());
     }
 
-    public static String getEventNameForSource(CompiledProcessor<?> source) {
-
-        return getEventNameForUUID(source.getId());
+    public static String getEventNameForSource(CompiledProcessor<?> processor) {
+        return getEventNameForUUID(processor.getId());
     }
 
     static String getEventNameForUUID(UUID id) {

@@ -553,7 +553,7 @@ public class DesignerFrame extends DefaultDockableBarDockableHolder {
 
                     outputTxt.append("Model '" + currentProcessingModel.getModelName() + "' completed running.\n");
                 } catch (ValidationException e1) {
-                    outputTxt.append(e1.getLocalizedMessage());
+                    outputTxt.append(e1.getLocalizedMessage() + "\n");
                 }
             }
         }

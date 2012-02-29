@@ -3,6 +3,7 @@ package org.lisapark.octopus.core.event;
 import com.google.common.collect.Maps;
 import org.lisapark.octopus.core.Persistable;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -23,6 +24,15 @@ public class Event {
     public Event unionWith(Event event) {
         Map<String, Object> newData = Maps.newHashMap(data);
         newData.putAll(event.getData());
+
+        return new Event(newData);
+    }
+
+    public Event unionWith(Collection<Event> events) {
+        Map<String, Object> newData = Maps.newHashMap(data);
+        for (Event event : events) {
+            newData.putAll(event.getData());
+        }
 
         return new Event(newData);
     }

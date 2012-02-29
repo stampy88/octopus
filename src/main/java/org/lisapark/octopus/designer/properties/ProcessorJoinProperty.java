@@ -5,8 +5,8 @@ import com.jidesoft.grid.ListComboBoxCellEditor;
 import org.lisapark.octopus.ProgrammerException;
 import org.lisapark.octopus.core.ValidationException;
 import org.lisapark.octopus.core.event.Attribute;
-import org.lisapark.octopus.core.processor.DualInputProcessor;
 import org.lisapark.octopus.core.processor.ProcessorInput;
+import org.lisapark.octopus.core.processor.ProcessorJoin;
 import org.lisapark.octopus.core.source.Source;
 import org.lisapark.octopus.designer.properties.support.AttributeListCellRenderer;
 import org.lisapark.octopus.designer.properties.support.AttributeTableCellRenderer;
@@ -32,9 +32,9 @@ import java.util.List;
  * @see com.jidesoft.grid.PropertyTable
  */
 class ProcessorJoinProperty extends ComponentProperty<ProcessorInput> {
-    private final DualInputProcessor.Join join;
+    private final ProcessorJoin join;
 
-    ProcessorJoinProperty(DualInputProcessor.Join join, ProcessorInput sourceInput, ProcessorInput targetInput) {
+    ProcessorJoinProperty(ProcessorJoin join, ProcessorInput sourceInput, ProcessorInput targetInput) {
         super(sourceInput);
         this.join = join;
         setType(Attribute.class);
@@ -60,7 +60,7 @@ class ProcessorJoinProperty extends ComponentProperty<ProcessorInput> {
      */
     @Override
     public boolean isEditable() {
-        return hasValue() && join.requiresJoin();
+        return hasValue() && join.isRequired();
     }
 
     @Override
@@ -88,11 +88,11 @@ class ProcessorJoinProperty extends ComponentProperty<ProcessorInput> {
      * available attributes from a source.
      */
     static class JoinAttributeCellEditor extends ListComboBoxCellEditor {
-        private final DualInputProcessor.Join join;
+        private final ProcessorJoin join;
         private final ProcessorInput sourceInput;
         private final ProcessorInput targetInput;
 
-        private JoinAttributeCellEditor(DualInputProcessor.Join join, ProcessorInput sourceInput, ProcessorInput targetInput) {
+        private JoinAttributeCellEditor(ProcessorJoin join, ProcessorInput sourceInput, ProcessorInput targetInput) {
             this.join = join;
             this.sourceInput = sourceInput;
             this.targetInput = targetInput;

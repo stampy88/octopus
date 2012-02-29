@@ -9,6 +9,7 @@ import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.core.ValidationException;
@@ -18,6 +19,7 @@ import org.lisapark.octopus.core.memory.heap.HeapMemoryProvider;
 import org.lisapark.octopus.core.processor.CompiledProcessor;
 import org.lisapark.octopus.core.processor.Processor;
 import org.lisapark.octopus.core.processor.ProcessorInput;
+import org.lisapark.octopus.core.processor.ProcessorJoin;
 import org.lisapark.octopus.core.runtime.ProcessingRuntime;
 import org.lisapark.octopus.core.runtime.ProcessorContext;
 import org.lisapark.octopus.core.runtime.basic.BasicProcessorContext;
@@ -165,8 +167,7 @@ public class EsperCompiler extends org.lisapark.octopus.core.compiler.Compiler {
                 }
 
                 EsperProcessorAdaptor runner = new EsperProcessorAdaptor(compiledProcessor, ctx, runtime);
-
-                stmt.setSubscriber(runner);
+                stmt.addListener(runner);
 
                 compiledProcessors.add(compiledProcessor);
             } catch (ValidationException e) {
@@ -201,8 +202,7 @@ public class EsperCompiler extends org.lisapark.octopus.core.compiler.Compiler {
 
         List<ProcessorInput> inputs = compiledProcessor.getInputs();
 
-        // todo join inputs
-
+        Map<ProcessorInput, String> inputToAlias = Maps.newHashMap();
         int aliasIndex = 0;
         for (ProcessorInput input : inputs) {
             if (selectClause.length() > 0) {
@@ -213,11 +213,35 @@ public class EsperCompiler extends org.lisapark.octopus.core.compiler.Compiler {
             String inputName = EsperUtils.getEventNameForSource(input.getSource());
 
             String aliasName = "_" + aliasIndex++;
-            selectClause.append(aliasName).append(".*");
+            inputToAlias.put(input, aliasName);
+
+            selectClause.append(aliasName).append(".* as ").append(aliasName).append("_properties");
             fromClause.append(inputName).append(".win:length(1) as ").append(aliasName);
         }
 
-        return String.format("SELECT %s FROM %s", selectClause, fromClause);
+        StringBuilder whereClause = new StringBuilder();
+        List<ProcessorJoin> joins = compiledProcessor.getJoins();
+        for (ProcessorJoin join : joins) {
+            // some joins aren't required as they are on the same input
+            if (join.isRequired()) {
+                String firstAlias = inputToAlias.get(join.getFirstInput());
+                String secondAlias = inputToAlias.get(join.getSecondInput());
+
+                if (whereClause.length() > 0) {
+                    whereClause.append("AND ");
+                }
+
+                whereClause.append(firstAlias).append('.').append(join.getFirstInputAttributeName());
+                whereClause.append(" = ");
+                whereClause.append(secondAlias).append('.').append(join.getSecondInputAttributeName());
+            }
+        }
+
+        if (whereClause.length() == 0) {
+            return String.format("SELECT %s FROM %s", selectClause, fromClause);
+        } else {
+            return String.format("SELECT %s FROM %s WHERE %s", selectClause, fromClause, whereClause);
+        }
     }
 
     String getStatementForCompiledSink(CompiledExternalSink compiledExternalSink) {

@@ -1,23 +1,27 @@
 package org.lisapark.octopus.core.compiler.esper;
 
 import com.espertech.esper.client.EPRuntime;
+import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
+import com.espertech.esper.event.map.MapEventBean;
 import com.google.common.collect.Maps;
-import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.event.Event;
 import org.lisapark.octopus.core.processor.CompiledProcessor;
+import org.lisapark.octopus.core.processor.ProcessorInput;
+import org.lisapark.octopus.core.processor.ProcessorJoin;
 import org.lisapark.octopus.core.runtime.ProcessorContext;
 import org.lisapark.octopus.util.Pair;
 import org.lisapark.octopus.util.esper.EsperUtils;
 
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-class EsperProcessorAdaptor {
+class EsperProcessorAdaptor implements UpdateListener {
     private final CompiledProcessor processor;
-    private final Pair<String, Integer>[] sourceIdToInputId;
+    private final Pair<String, ProcessorInput>[] sourceIdToInput;
     private final String outputAttributeName;
     private final String outputEventId;
 
@@ -30,52 +34,87 @@ class EsperProcessorAdaptor {
         this.ctx = ctx;
         this.runtime = runtime;
 
-        this.sourceIdToInputId = (Pair<String, Integer>[]) new Pair[processor.getInputs().size()];
+        this.sourceIdToInput = (Pair<String, ProcessorInput>[]) new Pair[processor.getInputs().size()];
 
         int index = 0;
-        for (Input input : processor.getInputs()) {
+        for (ProcessorInput input : processor.getInputs()) {
             String sourceId = EsperUtils.getEventNameForSource(input.getSource());
-            Integer inputId = input.getId();
-            sourceIdToInputId[index++] = Pair.newInstance(sourceId, inputId);
+            sourceIdToInput[index++] = Pair.newInstance(sourceId, input);
         }
 
         outputAttributeName = processor.getOutput().getAttributeName();
         outputEventId = EsperUtils.getEventNameForSource(processor);
     }
 
-    Pair<String, Integer>[] getSourceIdToInputId() {
-        return Arrays.copyOf(sourceIdToInputId, sourceIdToInputId.length);
-    }
+    @Override
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+        if (isMapEvent(newEvents)) {
+            MapEventBean mapEvent = (MapEventBean) newEvents[0];
 
-    String getOutputAttributeName() {
-        return outputAttributeName;
-    }
+            Map<Integer, Event> eventsByInputId = eventsByInputIdsFromMapEvent(mapEvent);
 
-    String getOutputEventId() {
-        return outputEventId;
-    }
+            @SuppressWarnings("unchecked")
+            Object output = processor.processEvent(ctx, eventsByInputId);
 
-    public void update(Map<String, Object> eventFromInput_1) {
-        Event event = new Event(eventFromInput_1);
-        Map<Integer, Event> eventsByInputId = Maps.newHashMapWithExpectedSize(1);
-        eventsByInputId.put(sourceIdToInputId[0].getSecond(), event);
+            if (output != null && outputAttributeName != null) {
+                // todo create new event based on old event - what about name collisions??
 
-        @SuppressWarnings("unchecked")
-        Object output = processor.processEvent(ctx, eventsByInputId);
+                Event outputEvent = new Event(outputAttributeName, output);
+                outputEvent = outputEvent.unionWith(eventsByInputId.values());
 
-        if (output != null && outputAttributeName != null) {
-            // todo create new event based on old event - what about name collisions??
-
-            Event outputEvent = new Event(outputAttributeName, output);
-            outputEvent = outputEvent.unionWith(event);
-
-            runtime.sendEvent(outputEvent.getData(), outputEventId);
+                runtime.sendEvent(outputEvent.getData(), outputEventId);
+            }
         }
     }
 
-    // todo multiple inputs?
+    /**
+     * Returns true if the specified set of {@link EventBean}s is non-null and the first item of which is a
+     * {@link MapEventBean}
+     *
+     * @param newEvents to inspect
+     * @return true if the newEvents is non-null and first element is a MapEventBean
+     */
+    private boolean isMapEvent(EventBean[] newEvents) {
+        return newEvents != null && newEvents.length > 0 && newEvents[0] instanceof MapEventBean;
+    }
 
-    public void update(Event eventFromInput_1, Event eventFromInput_2) {
+    private Map<Integer, Event> eventsByInputIdsFromMapEvent(MapEventBean mapEvent) {
+        Collection<Object> mapEventBeans = mapEvent.getProperties().values();
+        Map<Integer, Event> eventsByInputId = Maps.newHashMapWithExpectedSize(mapEventBeans.size());
 
+        for (Object mapEventBeanObj : mapEventBeans) {
+            MapEventBean mapEventBean = (MapEventBean) mapEventBeanObj;
+
+            ProcessorInput input = getInputForSourceId(mapEventBean.getEventType().getName());
+
+            if (input != null) {
+                // put the event for the input
+                eventsByInputId.put(input.getId(), new Event(mapEventBean.getProperties()));
+
+                // if the input is part of a join, BUT the join is not required we need to put the SAME event in for the
+                // other side of the join
+                ProcessorJoin join = processor.getJoinForInput(input);
+                if (join != null && !join.isRequired()) {
+                    ProcessorInput otherInput = join.getOtherInput(input);
+
+                    eventsByInputId.put(otherInput.getId(), new Event(mapEventBean.getProperties()));
+                }
+            }
+        }
+
+        return eventsByInputId;
+    }
+
+    private ProcessorInput getInputForSourceId(String sourceId) {
+        ProcessorInput input = null;
+
+        for (int index = 0; index < sourceIdToInput.length; ++index) {
+            if (sourceIdToInput[index].getFirst().equals(sourceId)) {
+                input = sourceIdToInput[index].getSecond();
+                break;
+            }
+        }
+
+        return input;
     }
 }

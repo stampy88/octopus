@@ -18,7 +18,7 @@ import java.util.UUID;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
-public class Addition extends DualInputProcessor<Void> {
+public class Addition extends Processor<Void> {
     private static final String DEFAULT_NAME = "Addition";
     private static final String DEFAULT_DESCRIPTION = "Add 2 operands";
 
@@ -39,6 +39,16 @@ public class Addition extends DualInputProcessor<Void> {
 
     protected Addition(Addition additionToCopy) {
         super(additionToCopy);
+    }
+
+    public ProcessorInput getFirstInput() {
+        // there are two inputs for addition
+        return getInputs().get(0);
+    }
+
+    public ProcessorInput getSecondInput() {
+        // there are two inputs for addition
+        return getInputs().get(1);
     }
 
     @Override
@@ -72,8 +82,13 @@ public class Addition extends DualInputProcessor<Void> {
         Addition addition = new Addition(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         // two double inputs
-        addition.setFirstInput(ProcessorInput.doubleInputWithId(FIRST_INPUT_ID).name("First Operand").description("First operand for addition"));
-        addition.setSecondInput(ProcessorInput.doubleInputWithId(SECOND_INPUT_ID).name("Second Operand").description("Second operand for addition"));
+        ProcessorInput<Double> firstInput = ProcessorInput.doubleInputWithId(FIRST_INPUT_ID).name("First Operand").description("First operand for addition").build();
+        addition.addInput(firstInput);
+
+        ProcessorInput<Double> secondInput = ProcessorInput.doubleInputWithId(SECOND_INPUT_ID).name("Second Operand").description("Second operand for addition").build();
+        addition.addInput(secondInput);
+
+        addition.addJoin(firstInput, secondInput);
 
         // double output
         try {
@@ -85,8 +100,6 @@ public class Addition extends DualInputProcessor<Void> {
 
         return addition;
     }
-
-    // todo need a join
 
     static class CompiledAddition extends CompiledProcessor<Void> {
         private final String firstAttributeName;

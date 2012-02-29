@@ -8,9 +8,9 @@ import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.Node;
 import org.lisapark.octopus.core.ProcessingModel;
 import org.lisapark.octopus.core.parameter.Parameter;
-import org.lisapark.octopus.core.processor.DualInputProcessor;
 import org.lisapark.octopus.core.processor.Processor;
-import org.lisapark.octopus.core.processor.SingleInputProcessor;
+import org.lisapark.octopus.core.processor.ProcessorInput;
+import org.lisapark.octopus.core.processor.ProcessorJoin;
 import org.lisapark.octopus.core.sink.external.ExternalSink;
 import org.lisapark.octopus.core.source.external.ExternalSource;
 import org.lisapark.octopus.designer.properties.support.EventTypeCellEditor;
@@ -76,12 +76,7 @@ public class PropertiesPanel extends JPanel {
         if (isChangeOfSelection(processor)) {
             selectedNode = processor;
 
-            if (processor instanceof SingleInputProcessor) {
-                tableModel.loadPropertiesForSingleInputProcessor((SingleInputProcessor) processor);
-
-            } else if (processor instanceof DualInputProcessor) {
-                tableModel.loadPropertiesForDualInputProcessor((DualInputProcessor) processor);
-            }
+            tableModel.loadPropertiesForProcessor(processor);
             propertyTable.expandFirstLevel();
         }
     }
@@ -120,7 +115,7 @@ public class PropertiesPanel extends JPanel {
             setProperties(newProperties);
         }
 
-        private void loadPropertiesForSingleInputProcessor(SingleInputProcessor<?> processor) {
+        private void loadPropertiesForProcessor(Processor<?> processor) {
             java.util.List<BaseProperty> newProperties = Lists.newArrayList();
 
             if (processor != null) {
@@ -129,26 +124,20 @@ public class PropertiesPanel extends JPanel {
                     newProperties.add(new ParameterProperty(parameter));
                 }
 
-                newProperties.add(new ProcessorInputProperty(processor.getInput()));
-                newProperties.add(new ProcessorOutputProperty(processor.getOutput()));
-            }
-
-            setProperties(newProperties);
-        }
-
-        private void loadPropertiesForDualInputProcessor(DualInputProcessor<?> processor) {
-            java.util.List<BaseProperty> newProperties = Lists.newArrayList();
-
-            if (processor != null) {
-                Collection<Parameter> parameters = processor.getParameters();
-                for (Parameter parameter : parameters) {
-                    newProperties.add(new ParameterProperty(parameter));
+                Collection<ProcessorInput> inputs = processor.getInputs();
+                for (ProcessorInput input : inputs) {
+                    newProperties.add(new ProcessorInputProperty(input));
                 }
 
-                newProperties.add(new ProcessorInputProperty(processor.getFirstInput()));
-                newProperties.add(new ProcessorInputProperty(processor.getSecondInput()));
-                newProperties.add(new ProcessorJoinProperty(processor.getJoin(), processor.getFirstInput(), processor.getSecondInput()));
-                newProperties.add(new ProcessorJoinProperty(processor.getJoin(), processor.getSecondInput(), processor.getFirstInput()));
+                Collection<ProcessorJoin> joins = processor.getJoins();
+                for (ProcessorJoin join : joins) {
+                    ProcessorInput secondInput = join.getSecondInput();
+                    ProcessorInput firstInput = join.getFirstInput();
+
+                    newProperties.add(new ProcessorJoinProperty(join, firstInput, secondInput));
+                    newProperties.add(new ProcessorJoinProperty(join, secondInput, firstInput));
+                }
+
                 newProperties.add(new ProcessorOutputProperty(processor.getOutput()));
             }
 

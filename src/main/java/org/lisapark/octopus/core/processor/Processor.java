@@ -1,5 +1,7 @@
 package org.lisapark.octopus.core.processor;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.lisapark.octopus.core.AbstractNode;
 import org.lisapark.octopus.core.Input;
 import org.lisapark.octopus.core.Output;
@@ -29,7 +31,19 @@ import java.util.UUID;
 public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Source, Sink {
 
     /**
-     * A processor may produce an output after its processing.
+     * A processor will be given zero or more inputs in order to perform its processing; this will be the
+     * list of all of these inputs.
+     */
+    private List<ProcessorInput> inputs = Lists.newLinkedList();
+
+    /**
+     * Any processor with more than one {@link ProcessorInput} requires a join for each pair of inputs; this is the
+     * list of these joins
+     */
+    private List<ProcessorJoin> joins = Lists.newLinkedList();
+
+    /**
+     * A processor produces an output after its processing.
      */
     private ProcessorOutput output;
 
@@ -54,7 +68,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
      */
     protected Processor(UUID id, Processor<MEMORY_TYPE> copyFromProcessor) {
         super(id, copyFromProcessor);
-        this.setOutput(copyFromProcessor.getOutput().copyOf());
+        deepCopyOf(copyFromProcessor);
     }
 
     /**
@@ -66,7 +80,48 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
      */
     protected Processor(Processor<MEMORY_TYPE> copyFromProcessor) {
         super(copyFromProcessor);
+        deepCopyOf(copyFromProcessor);
+    }
+
+    private void deepCopyOf(Processor<MEMORY_TYPE> copyFromProcessor) {
+        for (ProcessorInput input : copyFromProcessor.getInputs()) {
+            this.addInput(input.copyOf());
+        }
+        // we can't directly copy the joins, because they depend on the newly copied inputs
+        for (ProcessorJoin joinToCopy : copyFromProcessor.getJoins()) {
+            // we need to find the new inputs by the original ID
+            ProcessorInput firstInput = getInputById(joinToCopy.getFirstInput().getId());
+            ProcessorInput secondInput = getInputById(joinToCopy.getSecondInput().getId());
+
+            Attribute firstInputAttr = null;
+            if (joinToCopy.getFirstInputAttribute() != null) {
+                // note that this copy HAS to happen after the firstInput has been copied
+                firstInputAttr = firstInput.getSource().getOutput().getAttributeByName(joinToCopy.getFirstInputAttributeName());
+            }
+            Attribute secondInputAttr = null;
+            if (joinToCopy.getSecondInputAttribute() != null) {
+                // note that this copy HAS to happen after the secondInput has been copied
+                secondInputAttr = secondInput.getSource().getOutput().getAttributeByName(joinToCopy.getSecondInputAttributeName());
+            }
+            this.addJoin(new ProcessorJoin(firstInput, firstInputAttr, secondInput, secondInputAttr));
+        }
         this.setOutput(copyFromProcessor.getOutput().copyOf());
+    }
+
+    protected void addInput(ProcessorInput.Builder input) {
+        addInput(input.build());
+    }
+
+    protected void addInput(ProcessorInput input) {
+        this.inputs.add(input);
+    }
+
+    protected void addJoin(ProcessorJoin join) {
+        this.joins.add(join);
+    }
+
+    protected void addJoin(ProcessorInput firstInput, ProcessorInput secondInput) {
+        this.joins.add(new ProcessorJoin(firstInput, secondInput));
     }
 
     protected void setOutput(ProcessorOutput.Builder output) throws ValidationException {
@@ -75,6 +130,19 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
 
     protected void setOutput(ProcessorOutput output) {
         this.output = output;
+    }
+
+    protected ProcessorInput getInputById(int id) {
+        ProcessorInput input = null;
+
+        for (ProcessorInput candidateInput : inputs) {
+            if (candidateInput.getId() == id) {
+                input = candidateInput;
+                break;
+            }
+        }
+
+        return input;
     }
 
     public ProcessorOutput getOutput() {
@@ -89,7 +157,13 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
         return output.getAttributeName();
     }
 
-    public abstract List<ProcessorInput> getInputs();
+    public List<ProcessorInput> getInputs() {
+        return ImmutableList.copyOf(inputs);
+    }
+
+    public List<ProcessorJoin> getJoins() {
+        return ImmutableList.copyOf(joins);
+    }
 
     /**
      * This method will check whether the source and attribute are in use on the any of the {@link #getInputs()} of
@@ -102,7 +176,6 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     public boolean isConnectedTo(Source source, Attribute attribute) {
         boolean connected = false;
 
-        List<ProcessorInput> inputs = getInputs();
         for (ProcessorInput input : inputs) {
             if (input.isConnectedTo(source, attribute)) {
                 connected = true;
@@ -123,7 +196,6 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     public boolean isConnectedTo(Source source) {
         boolean connected = false;
 
-        List<ProcessorInput> inputs = getInputs();
         for (Input input : inputs) {
             if (input.isConnectedTo(source)) {
                 connected = true;
@@ -141,7 +213,6 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
      */
     @Override
     public void disconnect(Source source) {
-        List<ProcessorInput> inputs = getInputs();
         for (Input input : inputs) {
             if (input.isConnectedTo(source)) {
                 input.clearSource();
@@ -151,7 +222,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
 
     /**
      * The {@link org.lisapark.octopus.core.processor.Processor} will validate it's {@link #parameters}, {@link #getInputs()},
-     * and {@link #output} in that order. Any subclass that wants to do cross parameter validation should override
+     * {@link #joins} and {@link #output} in that order. Any subclass that wants to do cross parameter validation should override
      * this method to do so.
      *
      * @throws ValidationException if there is a validation problem
@@ -160,9 +231,11 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     public void validate() throws ValidationException {
         super.validate();
 
-        List<ProcessorInput> inputs = getInputs();
         for (ProcessorInput input : inputs) {
             input.validate();
+        }
+        for (ProcessorJoin join : joins) {
+            join.validate();
         }
 
         if (output != null) {
